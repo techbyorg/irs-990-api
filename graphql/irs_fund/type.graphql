@@ -1,0 +1,15 @@
+type IrsFund {
+  ein: String
+  name: String
+  city: String
+  state: String # 2 letter code
+  nteecc: String # https://nccs.urban.org/project/national-taxonomy-exempt-entities-ntee-codes
+
+  website: String
+  mission: String
+  exemptStatus: String
+}
+
+extend type Query {
+  irsFund(ein: String): IrsFund
+}

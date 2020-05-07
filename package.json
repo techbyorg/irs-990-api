@@ -1,0 +1,56 @@
+{
+  "name": "api-seed",
+  "private": true,
+  "description": "",
+  "main": "index.coffee",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./bin/test.sh",
+    "start": "./bin/start.sh",
+    "dev": "./bin/dev.sh",
+    "watch": "./bin/watch.sh"
+  },
+  "author": "",
+  "devDependencies": {
+    "caller-id": "^0.1.0",
+    "clay-coffeescript-style-guide": "^1.1.0",
+    "gulp": "^3.9.1",
+    "gulp-coffee-istanbul": "git://github.com/claydotio/gulp-coffee-istanbul.git",
+    "gulp-coffeelint": "git://github.com/claydotio/gulp-coffeelint.git",
+    "gulp-mocha": "^2.2.0",
+    "gulp-shell": "^0.5.2",
+    "traceur": "0.0.111"
+  },
+  "dependencies": {
+    "assert-none-missing": "^0.1.2",
+    "bluebird": "^3.5.3",
+    "body-parser": "^1.14.1",
+    "bull": "^3.13.0",
+    "cassanknex": "^1.20.3",
+    "cheerio": "^1.0.0-rc.2",
+    "coffeescript": "^2.5.1",
+    "cors": "^2.8.5",
+    "csvtojson": "^2.0.10",
+    "dataloader": "^2.0.0",
+    "elasticsearch": "^16.7.1",
+    "exoid-router": "git://github.com/claydotio/exoid-router.git",
+    "express": "^4.16.4",
+    "graphql": "^15.0.0",
+    "graphql-tools": "^5.0.0",
+    "graphql-type-json": "^0.3.1",
+    "ioredis": "^2.5.0",
+    "joi": "^6.10.0",
+    "lodash": "^4.16.3",
+    "loga": "^0.1.5",
+    "merge-graphql-schemas": "^1.7.8",
+    "moment": "^2.25.1",
+    "node-uuid": "^1.4.7",
+    "normalize-url": "^4.5.0",
+    "redlock": "^2.0.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.1.1",
+    "string-similarity": "^3.0.0"
+  }
+}

@@ -1,0 +1,23 @@
+type IrsOrg {
+  ein: String
+  name: String
+  city: String
+  state: String # 2 letter code
+  nteecc: String # https://nccs.urban.org/project/national-taxonomy-exempt-entities-ntee-codes
+
+  website: String
+  mission: String
+  exemptStatus: String
+
+  assets: Int # TODO: BigInt?
+  liabilities: Int # TODO: BigInt?
+  lastRevenue: Int # TODO: BigInt?
+  lastExpenses: Int # TODO: BigInt?
+
+  topSalary: String
+  websiteText: String
+}
+
+extend type Query {
+  irsOrg(ein: String): IrsOrg
+}

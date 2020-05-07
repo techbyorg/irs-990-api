@@ -1,0 +1,6 @@
+./.git
+./node_modules
+./coverage
+./misc_scripts
+./test
+./npm-debug.log

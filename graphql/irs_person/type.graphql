@@ -1,0 +1,21 @@
+type IrsPerson {
+  ein: String
+  entityName: String
+  entityType: String
+  year: Int
+  name: String
+  title: String
+  compensation: Int
+  relatedCompensation: Int
+  otherCompensation: Int
+  weeklyHours: Int
+  isOfficer: Boolean
+  isFormerOfficer: Boolean
+  isKeyEmployee: Boolean
+  isHighestPaidEmployee: Boolean
+  isBusiness: Boolean
+}
+
+extend type Query {
+  irsPersons(ein: String): [IrsPerson]
+}

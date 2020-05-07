@@ -1,0 +1,33 @@
+type IrsOrg990 {
+  ein: String
+  year: Int
+  objectId: String # irs-defined, unique per filing
+  type: String # 990, 990ez, 990pf
+  xmlUrl: String
+  pdfUrl: String
+  isProcessed: Boolean
+
+  name: String
+  city: String
+  state: String
+  website: String
+  mission: String
+  exemptStatus: String
+
+  # benefitsPaidToMembers: Int
+  paidBenefitsToMembers: Int # TODO: BigInt
+  votingMemberCount: Int
+  independentVotingMemberCount: Int
+  employeeCount: Int
+  volunteerCount: Int
+
+  revenue: String
+  expenses: String
+  assets: String
+  liabilities: String
+  netAssets: String
+}
+
+extend type Query {
+  irsOrg990s(ein: String): [IrsOrg990]
+}
