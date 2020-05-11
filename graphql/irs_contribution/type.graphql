@@ -1,0 +1,18 @@
+type IrsContribution {
+  year: Int
+  fromEin: String
+  toId: String # ein or name if no ein
+  toName: String
+  toExemptStatus: String
+  toCity: String
+  toState: String
+  amount: Int # FIXME: BigInt
+  nteeMajor: String
+  nteeMinor: String
+  relationship: String
+  purpose: String
+}
+
+extend type Query {
+  irsContributions(ein: String): [IrsContribution]
+}

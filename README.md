@@ -14,7 +14,7 @@ Have ScyllaDB/Cassandra, Elasticsearch and Redis running (Docker commands below 
 ### Pulling in data
 Everything is just a route. This was an easy way for me to deploy to a bunch of high-cpu kubernetes pods to process as quickly as possible. The routes typically add a bunch of jobs, then any node can handle the jobs.
 
-http://localhost:3000/syncYear?year=YYYY (eg 2017)
+http://localhost:3000/loadAllForYear?year=YYYY (eg 2017)
   - if you leave year blank, it'll pull in a small sample of eins from /data/sample_index.json
 
 http://localhost:3000/processUnprocessedOrgs
@@ -24,7 +24,7 @@ http://localhost:3000/processUnprocessedOrgs
 http://localhost:3000/processUnprocessedFunds (990PF)
   - this will also take a while
 
-http://localhost:3000/syncNtee
+http://localhost:3000/setNtee
   - this will also take a while
   - sets the ntee for every org
 

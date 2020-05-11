@@ -6,7 +6,7 @@ cknex = require '../../services/cknex'
 elasticsearch = require '../../services/elasticsearch'
 config = require '../../config'
 
-# FIXME FIXME FIXME: flaw where multiple contributions to same org are only counted once
+# example 990pf: https://s3.amazonaws.com/irs-form-990/201533209349101373_public.xml
 
 class IrsContributionModel extends Base
   getScyllaTables: ->
@@ -30,7 +30,7 @@ class IrsContributionModel extends Base
           purpose: 'text'
         primaryKey:
           partitionKey: ['fromEin']
-          clusteringColumns: ['toId', 'nteeMajor', 'nteeMinor']
+          clusteringColumns: ['toId', 'year', 'nteeMajor', 'nteeMinor']
         materializedViews:
           irs_contributions_by_fromEin_and_ntee:
             primaryKey:

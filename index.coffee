@@ -17,7 +17,6 @@ cknex = require './services/cknex'
 ScyllaSetupService = require './services/scylla_setup'
 ElasticsearchSetupService = require './services/elasticsearch_setup'
 JobRunnerService = require './services/job_runner'
-Irs990Service = require './services/irs_990'
 schema = require './graphql/schema'
 
 Promise.config {warnings: false}
@@ -93,28 +92,34 @@ app.get '/unprocessedCount', (req, res) ->
     res.send JSON.stringify c
 
 # pull in all eins / xml urls that filed for a given year
-app.get '/syncYear', (req, res) ->
-  Irs990Service.syncYear req.query.year
+app.get '/loadAllForYear', (req, res) ->
+  {loadAllForYear} = require './services/irs_990_importer/load_all_for_year'
+  loadAllForYear req.query.year
   res.send "syncing #{req.query.year or 'sample_index'}"
 
 app.get '/processUnprocessedOrgs', (req, res) ->
-  Irs990Service.processUnprocessedOrgs()
+  {processUnprocessedOrgs} = require './services/irs_990_importer'
+  processUnprocessedOrgs()
   res.send 'processing orgs'
 
 app.get '/processUnprocessedFunds', (req, res) ->
-  Irs990Service.processUnprocessedFunds()
+  {processUnprocessedFunds} = require './services/irs_990_importer'
+  processUnprocessedFunds()
   res.send 'processing funds'
 
 app.get '/lastYearContributions', (req, res) ->
-  Irs990Service.setLastYearContributions()
+  {setLastYearContributions} = require './services/irs_990_importer'
+  setLastYearContributions()
   res.send 'syncing'
 
 app.get '/parseGrantMakingWebsites', (req, res) ->
-  Irs990Service.parseGrantMakingWebsites()
+  {parseGrantMakingWebsites} = require './services/irs_990_importer/parse_websites'
+  parseGrantMakingWebsites()
   res.send 'syncing'
 
-app.get '/syncNtee', (req, res) ->
-  Irs990Service.syncNtee()
+app.get '/setNtee', (req, res) ->
+  {setNtee} = require './services/irs_990_importer/set_ntee'
+  setNtee()
   res.send 'syncing'
 
 app.post '/graphql', (req, res) ->
