@@ -3,6 +3,7 @@ path = require 'path'
 _ = require 'lodash'
 {makeExecutableSchema} = require 'graphql-tools'
 { GraphQLJSON, GraphQLJSONObject } = require 'graphql-type-json'
+BigInt = require 'graphql-bigint'
 {mergeTypes, mergeResolvers} = require 'merge-graphql-schemas';
 
 {} = require './directives'
@@ -21,6 +22,7 @@ typesArray = typesArray.concat '''
 
   type Mutation
 
+  scalar BigInt
   scalar Date
   scalar JSON
   scalar JSONObject
@@ -35,6 +37,7 @@ resolversArray = _.filter _.map graphqlFolders, (folder) ->
       console.error 'error loading', folder, err
     null
 resolversArray = resolversArray.concat {
+  BigInt: BigInt
   JSON: GraphQLJSON
   JSONObject: GraphQLJSONObject
 }

@@ -6,7 +6,7 @@ type IrsContribution {
   toExemptStatus: String
   toCity: String
   toState: String
-  amount: Int # FIXME: BigInt
+  amount: BigInt
   nteeMajor: String
   nteeMinor: String
   relationship: String

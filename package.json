@@ -38,6 +38,7 @@
     "exoid-router": "git://github.com/claydotio/exoid-router.git",
     "express": "^4.16.4",
     "graphql": "^15.0.0",
+    "graphql-bigint": "^1.0.0",
     "graphql-tools": "^5.0.0",
     "graphql-type-json": "^0.3.1",
     "ioredis": "^2.5.0",

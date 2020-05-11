@@ -9,12 +9,12 @@ type IrsOrg {
   mission: String
   exemptStatus: String
 
-  assets: Int # TODO: BigInt?
-  liabilities: Int # TODO: BigInt?
-  lastRevenue: Int # TODO: BigInt?
-  lastExpenses: Int # TODO: BigInt?
+  assets: BigInt
+  liabilities: BigInt
+  lastRevenue: BigInt
+  lastExpenses: BigInt
 
-  topSalary: String
+  topSalary: JSONObject
   websiteText: String
 }
 

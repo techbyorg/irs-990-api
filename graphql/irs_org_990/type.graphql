@@ -15,7 +15,7 @@ type IrsOrg990 {
   exemptStatus: String
 
   # benefitsPaidToMembers: Int
-  paidBenefitsToMembers: Int # TODO: BigInt
+  paidBenefitsToMembers: BigInt
   votingMemberCount: Int
   independentVotingMemberCount: Int
   employeeCount: Int
