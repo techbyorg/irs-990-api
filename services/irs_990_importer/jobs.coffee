@@ -14,6 +14,7 @@ IrsFund990 = require '../../graphql/irs_fund_990/model'
 IrsOrg = require '../../graphql/irs_org/model'
 IrsOrg990 = require '../../graphql/irs_org_990/model'
 IrsPerson = require '../../graphql/irs_person/model'
+config = require '../../config'
 
 FIVE_MB = 5 * 1024 * 1024
 
@@ -87,7 +88,9 @@ module.exports = {
       getFilingJsonFromObjectId org.objectId
       .catch (err) ->
         console.log 'json parse fail'
-        IrsOrg990.upsertByRow org, {isProcessed: true}
+        IrsOrg990.upsertByRow org, {
+          importVersion: config.CURRENT_IMPORT_VERSION
+        }
         .then ->
           throw 'skip'
       .then (filing) ->
@@ -110,7 +113,7 @@ module.exports = {
         if orgs.length
           IrsOrg.batchUpsert orgs
         if org990s.length
-          IrsOrg990.batchUpsert org990s, {ESRefresh: true} # so when we fetch isProcessed again, it's accurate
+          IrsOrg990.batchUpsert org990s, {ESRefresh: true} # so when we fetch importVersion again, it's accurate
         if persons.length
           IrsPerson.batchUpsert persons
       ]
@@ -120,7 +123,9 @@ module.exports = {
       getFilingJsonFromObjectId fund.objectId
       .catch (err) ->
         console.log 'json parse fail'
-        IrsFund990.upsertByRow fund, {isProcessed: true}
+        IrsFund990.upsertByRow fund, {
+          importVersion: config.CURRENT_IMPORT_VERSION
+        }
         .then ->
           throw 'skip'
       .then (filing) ->
@@ -142,7 +147,7 @@ module.exports = {
         if funds.length
           IrsFund.batchUpsert funds
         if fund990s.length
-          IrsFund990.batchUpsert fund990s, {ESRefresh: true} # so when we fetch isProcessed again, it's accurate
+          IrsFund990.batchUpsert fund990s, {ESRefresh: true} # so when we fetch importVersion again, it's accurate
         if persons.length
           IrsPerson.batchUpsert persons
         if contributions.length

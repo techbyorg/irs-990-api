@@ -29,7 +29,6 @@ class IrsOrgModel extends Base
           liabilities: 'bigint'
           lastRevenue: 'bigint'
           lastExpenses: 'bigint'
-
           topSalary: 'json'
         primaryKey:
           partitionKey: ['ein']
@@ -58,7 +57,7 @@ class IrsOrgModel extends Base
 
           topSalary: {type: 'object'}
 
-          websiteText: {type: 'text'} # TODO: rm or move to diff table
+          websiteText: {type: 'text'} # TODO: move to diff table?
       }
     ]
 

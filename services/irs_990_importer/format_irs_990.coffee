@@ -1,6 +1,7 @@
 _ = require 'lodash'
 
 {formatInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
+config = require '../../config'
 
 module.exports = {
   getOrg990Json: (filing) ->
@@ -17,7 +18,7 @@ module.exports = {
                    # then "501c#{filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd}"
 
     {
-      isProcessed: true
+      importVersion: config.CURRENT_IMPORT_VERSION
       ein: filing.ReturnHeader.ein
       name: entityName
       city: filing.ReturnHeader.USAddrss_CtyNm
@@ -25,9 +26,9 @@ module.exports = {
       # year: filing.ReturnHeader.RtrnHdr_TxYr
       year: filing.ReturnHeader.RtrnHdr_TxPrdEndDt.substr(0, 4)
       objectId: "#{filing.objectId}"
+      website: formatWebsite filing.IRS990.parts.part_0?.WbstAddrssTxt
       exemptStatus: exemptStatus
       mission: filing.IRS990.parts.part_i?.ActvtyOrMssnDsc
-      website: formatWebsite filing.IRS990.parts.part_0?.WbstAddrssTxt
       revenue: _.pickBy
         investments: formatInt filing.IRS990.parts.part_i?.CYInvstmntIncmAmt
         grants: formatInt filing.IRS990.parts.part_i?.CYGrntsAndSmlrPdAmt

@@ -7,6 +7,7 @@ IrsFund990 = require '../../graphql/irs_fund_990/model'
 IrsOrg = require '../../graphql/irs_org/model'
 IrsOrg990 = require '../../graphql/irs_org_990/model'
 JobCreateService = require '../../services/job_create'
+config = require '../../config'
 
 class Irs990Service
   processUnprocessedOrgs: =>
@@ -17,8 +18,9 @@ class Irs990Service
       query:
         bool:
           must:
-            term:
-              isProcessed: false
+            range:
+              importVersion:
+                lt: config.CURRENT_IMPORT_VERSION
     }
     .then (orgs) =>
       console.log orgs.total, 'time', Date.now() - start
@@ -50,8 +52,9 @@ class Irs990Service
       query:
         bool:
           must:
-            term:
-              isProcessed: false
+            range:
+              importVersion:
+                lt: config.CURRENT_IMPORT_VERSION
     }
 
     console.log funds.total, 'time', Date.now() - start

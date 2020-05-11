@@ -85,8 +85,9 @@ app.get '/unprocessedCount', (req, res) ->
     query:
       bool:
         must:
-          term:
-            isProcessed: false
+          range:
+            importVersion:
+              lt: config.CURRENT_IMPORT_VERSION
   }
   .then (c) ->
     res.send JSON.stringify c

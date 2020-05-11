@@ -3,6 +3,7 @@ Promise = require 'bluebird'
 
 {formatInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
 {getEinNteeFromNameCityState} = require './ntee'
+config = require '../../config'
 
 module.exports = {
   getFund990Json: (filing) ->
@@ -11,7 +12,7 @@ module.exports = {
     website = formatWebsite filing.IRS990PF.parts.pf_part_viia?.SttmntsRgrdngActy_WbstAddrssTxt
 
     {
-      isProcessed: true
+      importVersion: config.CURRENT_IMPORT_VERSION
       ein: filing.ReturnHeader.ein
       name: entityName
       city: filing.ReturnHeader.USAddrss_CtyNm

@@ -4,6 +4,7 @@ assertNoneMissing = require 'assert-none-missing'
 env = process.env
 
 config =
+  CURRENT_IMPORT_VERSION: 0 # increment any time you want to repull all data
   PORT: env.BACKEND_PORT or 3000
   ENV: env.DEBUG_ENV or env.NODE_ENV
   MAX_CPU: env.BACK_ROADS_MAX_CPU or 1

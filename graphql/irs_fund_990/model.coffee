@@ -20,7 +20,7 @@ class IrsFund990Model extends Base
           type: 'text' # 990, 990ez, 990pf
           xmlUrl: 'text'
           pdfUrl: 'text'
-          isProcessed: {type: 'boolean', defaultFn: -> false}
+          importVersion: {type: 'int', defaultFn: -> 0}
 
           name: 'text'
           city: 'text'
@@ -45,7 +45,7 @@ class IrsFund990Model extends Base
           type: {type: 'keyword'} # 990, 990ez, 990pf
           xmlUrl: {type: 'keyword'}
           pdfUrl: {type: 'keyword'}
-          isProcessed: {type: 'boolean'}
+          importVersion: {type: 'integer'}
 
           name: {type: 'text'}
           city: {type: 'text'}

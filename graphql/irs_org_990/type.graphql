@@ -5,7 +5,7 @@ type IrsOrg990 {
   type: String # 990, 990ez, 990pf
   xmlUrl: String
   pdfUrl: String
-  isProcessed: Boolean
+  importVersion: Int
 
   name: String
   city: String

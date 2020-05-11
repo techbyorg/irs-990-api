@@ -44,9 +44,8 @@ class IrsFundModel extends Base
           mission: {type: 'text'}
           exemptStatus: {type: 'text'}
 
-          websiteText: {type: 'text'} # TODO: rm or move to diff table
+          websiteText: {type: 'text'} # TODO: move to diff table?
           lastContributions: {type: 'long'}
-
       }
     ]
 
