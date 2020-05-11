@@ -23,7 +23,7 @@ class Irs990Service
     .then (orgs) =>
       console.log orgs.total, 'time', Date.now() - start
       chunks = _.chunk orgs.rows, 10
-      Promise.map chunks, (chunk) =>
+      await Promise.map chunks, (chunk) =>
         JobCreateService.createJob {
           queueKey: 'DEFAULT'
           waitForCompletion: true
@@ -34,17 +34,17 @@ class Irs990Service
         }
         .catch (err) ->
           console.log 'err', err
-      .then =>
-        if orgs.total
-          console.log 'done step'
-          @processUnprocessedOrgs()
-        else
-          console.log 'done'
+
+      if orgs.total
+        console.log 'done step'
+        @processUnprocessedOrgs()
+      else
+        console.log 'done'
 
 
   processUnprocessedFunds: =>
     start = Date.now()
-    IrsFund990.search {
+    funds = await IrsFund990.search {
       trackTotalHits: true
       limit: 80 # 16 cpus, 16 chunks
       query:
@@ -53,32 +53,32 @@ class Irs990Service
             term:
               isProcessed: false
     }
-    .then (funds) =>
-      console.log funds.total, 'time', Date.now() - start
 
-      # TODO: chunk + batchUpsert
-      chunks = _.chunk funds.rows, 5
-      Promise.map chunks, (chunk) =>
-        JobCreateService.createJob {
-          queueKey: 'DEFAULT'
-          waitForCompletion: true
-          job: {chunk}
-          type: JobCreateService.JOB_TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
-          ttlMs: 60000
-          priority: JobCreateService.PRIORITIES.NORMAL
-        }
-        .catch (err) ->
-          console.log 'err', err
-      .then =>
-        if funds.total
-          console.log 'done step'
-          @processUnprocessedFunds()
-        else
-          console.log 'done'
+    console.log funds.total, 'time', Date.now() - start
+
+    # TODO: chunk + batchUpsert
+    chunks = _.chunk funds.rows, 5
+    await Promise.map chunks, (chunk) =>
+      JobCreateService.createJob {
+        queueKey: 'DEFAULT'
+        waitForCompletion: true
+        job: {chunk}
+        type: JobCreateService.JOB_TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
+        ttlMs: 60000
+        priority: JobCreateService.PRIORITIES.NORMAL
+      }
+      .catch (err) ->
+        console.log 'err', err
+
+    if funds.total
+      console.log 'done step'
+      @processUnprocessedFunds()
+    else
+      console.log 'done'
 
   # TODO: rm
   setLastYearContributions: ->
-    IrsFund.search {
+    {total, rows} = await IrsFund.search {
       trackTotalHits: true
       limit: 10000
       query:
@@ -87,22 +87,22 @@ class Irs990Service
             exists:
               field: 'lastContributions'
     }
-    .then ({total, rows}) ->
-      console.log total
-      Promise.map rows, (row, i) ->
-        console.log i
-        IrsContribution.getByAllByFromEin row.ein
-        .then (contributions) ->
-          # console.log contributions
-          recentYear = _.maxBy(contributions, 'year')?.year
-          if recentYear
-            contributions = _.filter contributions, {year: recentYear}
-            amount = _.sumBy contributions, ({amount}) -> parseInt amount
-          amount ?= 0
-          # console.log amount
-          IrsFund.upsertByRow row, {lastContributions: amount}
 
-      , {concurrency: 10}
+    console.log total
+    Promise.map rows, (row, i) ->
+      console.log i
+      IrsContribution.getByAllByFromEin row.ein
+      .then (contributions) ->
+        # console.log contributions
+        recentYear = _.maxBy(contributions, 'year')?.year
+        if recentYear
+          contributions = _.filter contributions, {year: recentYear}
+          amount = _.sumBy contributions, ({amount}) -> parseInt amount
+        amount ?= 0
+        # console.log amount
+        IrsFund.upsertByRow row, {lastContributions: amount}
+
+    , {concurrency: 10}
 
 
 module.exports = new Irs990Service()

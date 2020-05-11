@@ -13,64 +13,60 @@ module.exports = {
     request indexUrl
 
   loadAllForYear: (year) =>
-    (if year
-      @getIndexJson year
+    if year
+      index = JSON.parse await @getIndexJson year
     else
-      Promise.resolve require('../../data/sample_index.json')
-    )
-    .then (index) ->
-      console.log 'got index'
-      if year # sample_index is already parsed
-        index = JSON.parse index
-      else
-        year = 2016 # for sample
-      console.log 'keys', _.keys(index)
-      filings = index["Filings#{year}"]
-      console.log filings.length
-      chunks = _.chunk filings, 100
-      Promise.map chunks, (chunk, i) ->
-        console.log i * 100
-        funds = _.filter chunk, {FormType: '990PF'}
-        console.log 'funds', funds.length
-        orgs = _.filter chunk, ({FormType}) -> FormType isnt '990PF'
-        console.log 'orgs', orgs.length
-        Promise.all _.filter [
-          if funds.length
-            console.log 'batch', _.map funds, (filing) ->
-              {
-                ein: filing.EIN
-                name: filing.OrganizationName
-              }
-            IrsFund.batchUpsert _.map funds, (filing) ->
-              {
-                ein: filing.EIN
-                name: filing.OrganizationName
-              }
-          if funds.length
-            IrsFund990.batchUpsert _.map funds, (filing) ->
-              {
-                ein: filing.EIN
-                year: filing.TaxPeriod.substr(0, 4)
-                objectId: filing.ObjectId
-                type: filing.FormType
-                xmlUrl: filing.URL
-              }
+      index = require('../../data/sample_index.json')
+      year = 2016
 
-          if orgs.length
-            IrsOrg.batchUpsert _.map orgs, (filing) ->
-              {
-                ein: filing.EIN
-                name: filing.OrganizationName
-              }
-          if orgs.length
-            IrsOrg990.batchUpsert _.map orgs, (filing) ->
-              {
-                ein: filing.EIN
-                year: filing.TaxPeriod.substr(0, 4)
-                objectId: filing.ObjectId
-                type: filing.FormType
-                xmlUrl: filing.URL
+    console.log 'got index'
+    console.log 'keys', _.keys(index)
+    filings = index["Filings#{year}"]
+    console.log filings.length
+    chunks = _.chunk filings, 100
+    Promise.map chunks, (chunk, i) ->
+      console.log i * 100
+      funds = _.filter chunk, {FormType: '990PF'}
+      console.log 'funds', funds.length
+      orgs = _.filter chunk, ({FormType}) -> FormType isnt '990PF'
+      console.log 'orgs', orgs.length
+      Promise.all _.filter [
+        if funds.length
+          console.log 'batch', _.map funds, (filing) ->
+            {
+              ein: filing.EIN
+              name: filing.OrganizationName
             }
-        ]
-      , {concurrency: 10}
+          IrsFund.batchUpsert _.map funds, (filing) ->
+            {
+              ein: filing.EIN
+              name: filing.OrganizationName
+            }
+        if funds.length
+          IrsFund990.batchUpsert _.map funds, (filing) ->
+            {
+              ein: filing.EIN
+              year: filing.TaxPeriod.substr(0, 4)
+              objectId: filing.ObjectId
+              type: filing.FormType
+              xmlUrl: filing.URL
+            }
+
+        if orgs.length
+          IrsOrg.batchUpsert _.map orgs, (filing) ->
+            {
+              ein: filing.EIN
+              name: filing.OrganizationName
+            }
+        if orgs.length
+          IrsOrg990.batchUpsert _.map orgs, (filing) ->
+            {
+              ein: filing.EIN
+              year: filing.TaxPeriod.substr(0, 4)
+              objectId: filing.ObjectId
+              type: filing.FormType
+              xmlUrl: filing.URL
+          }
+      ]
+    , {concurrency: 10}
 }

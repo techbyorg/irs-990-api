@@ -53,7 +53,7 @@ module.exports = {
     state = state?.toLowerCase() or ''
     key = "#{CacheService.PREFIXES.EIN_FROM_NAME}:#{name}:#{city}:#{state}"
     CacheService.preferCache key, ->
-      IrsOrg.search {
+      orgs = await IrsOrg.search {
         limit: 1
         query:
           multi_match:
@@ -61,35 +61,35 @@ module.exports = {
             type: 'bool_prefix'
             fields: ['name', 'name._2gram']
       }
-      .then (orgs) ->
-        closeEnough = _.filter _.map orgs.rows, (org) ->
-          unless org.name
-            return 0
-          score = stringSimilarity.compareTwoStrings(org.name.toLowerCase(), name)
-          # console.log score
-          if score > 0.7
-            _.defaults {score}, org
-        cityMatches = _.filter _.map closeEnough, (org) ->
-          unless org.city
-            return 0
-          if city
-            cityScore = stringSimilarity.compareTwoStrings(org.city.toLowerCase(), city)
-          else
-            cityScore = 1
-          if cityScore > 0.8
-            _.defaults {cityScore: city}, org
 
-        match = _.maxBy cityMatches, ({score, cityScore}) -> "#{cityScore}|#{score}"
-        unless match
-          match = _.maxBy closeEnough, 'score'
-
-        if match
-          {
-            ein: match?.ein
-            nteecc: match?.nteecc
-          }
+      closeEnough = _.filter _.map orgs.rows, (org) ->
+        unless org.name
+          return 0
+        score = stringSimilarity.compareTwoStrings(org.name.toLowerCase(), name)
+        # console.log score
+        if score > 0.7
+          _.defaults {score}, org
+      cityMatches = _.filter _.map closeEnough, (org) ->
+        unless org.city
+          return 0
+        if city
+          cityScore = stringSimilarity.compareTwoStrings(org.city.toLowerCase(), city)
         else
-          null
-        # TODO: can also look at grant amount and income to help find best match
+          cityScore = 1
+        if cityScore > 0.8
+          _.defaults {cityScore: city}, org
+
+      match = _.maxBy cityMatches, ({score, cityScore}) -> "#{cityScore}|#{score}"
+      unless match
+        match = _.maxBy closeEnough, 'score'
+
+      if match
+        {
+          ein: match?.ein
+          nteecc: match?.nteecc
+        }
+      else
+        null
+      # TODO: can also look at grant amount and income to help find best match
     , {expireSeconds: 1}# FIXME 3600 * 24}
 }

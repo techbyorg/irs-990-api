@@ -6,7 +6,8 @@ cheerio = require 'cheerio'
 
 {getOrg990Json, getOrgJson, getOrgPersonsJson} = require './format_irs_990'
 {getOrg990EZJson, getOrgEZPersonsJson} = require './format_irs_990ez'
-{getFund990Json, getFundJson, getContributionsJson} = require './format_irs_990pf'
+{getFund990Json, getFundJson, getFundPersonsJson,
+  getContributionsJson} = require './format_irs_990pf'
 IrsContribution = require '../../graphql/irs_contribution/model'
 IrsFund = require '../../graphql/irs_fund/model'
 IrsFund990 = require '../../graphql/irs_fund_990/model'
@@ -17,70 +18,63 @@ IrsPerson = require '../../graphql/irs_person/model'
 FIVE_MB = 5 * 1024 * 1024
 
 processOrgFiling = (filing) ->
-  IrsOrg990.getAllByEin filing.ReturnHeader.ein
-  .then (existing990s) =>
-    org990 = getOrg990Json filing
-    orgPersons = getOrgPersonsJson filing
-    # console.log orgPersons
-    {
-      org990: org990
-      persons: orgPersons
-      org: getOrgJson org990, orgPersons, existing990s
-    }
+  existing990s = await IrsOrg990.getAllByEin filing.ReturnHeader.ein
+  org990 = getOrg990Json filing
+  orgPersons = getOrgPersonsJson filing
+  {
+    org990: org990
+    persons: orgPersons
+    org: getOrgJson org990, orgPersons, existing990s
+  }
 
 processOrgEZFiling = (filing) ->
-  IrsOrg990.getAllByEin filing.ReturnHeader.ein
-  .then (existing990s) =>
-    org990 = getOrg990EZJson filing
-    orgPersons = getOrgEZPersonsJson filing
-    {
-      org990: org990
-      persons: orgPersons
-      org: getOrgJson org990, orgPersons, existing990s
-    }
+  existing990s = await IrsOrg990.getAllByEin filing.ReturnHeader.ein
+  org990 = getOrg990EZJson filing
+  orgPersons = getOrgEZPersonsJson filing
+  {
+    org990: org990
+    persons: orgPersons
+    org: getOrgJson org990, orgPersons, existing990s
+  }
 
 processFundFiling = (filing) ->
-  IrsFund990.getAllByEin filing.ReturnHeader.ein
-  .then (existing990s) =>
-    fund990 = getFund990Json filing
-    fundPersons = getFundPersonsJson filing
-    fund = getFundJson fund990, fundPersons, existing990s
+  existing990s = await IrsFund990.getAllByEin filing.ReturnHeader.ein
+  contributions = await getContributionsJson filing
+  fund990 = getFund990Json filing
+  fundPersons = getFundPersonsJson filing
+  {
+    fund: getFundJson fund990, fundPersons, existing990s
+    persons: fundPersons
+    fund990: fund990
+    contributions: contributions
+  }
 
-    getContributionsJson filing
-    .then (contributions) ->
-      {
-        fund: fund
-        persons: fundPersons
-        fund990: fund990
-        contributions: contributions
+getFilingJsonFromObjectId = (objectId) ->
+  jsonStr = await new Promise (resolve, reject) ->
+    exec "irsx #{objectId}", {maxBuffer: FIVE_MB}, (err, stdout, stderr) ->
+      if err
+        reject err
+      resolve stdout or stderr
+
+  filing = try
+    JSON.parse jsonStr
+  catch err
+    # console.log jsonStr
+    throw new Error 'json parse fail'
+
+  formattedFiling = _.reduce filing, (obj, part) ->
+    if part.schedule_name is 'ReturnHeader990x'
+      obj.ReturnHeader = part.schedule_parts.returnheader990x_part_i
+    else if part.schedule_name
+      obj[part.schedule_name] = {
+        parts: part.schedule_parts
+        groups: part.groups
       }
+    obj
+  , {}
+  formattedFiling.objectId = objectId
 
-  getFilingJsonFromObjectId: (objectId) ->
-    new Promise (resolve, reject) =>
-      exec "irsx #{objectId}", {maxBuffer: FIVE_MB}, (err, stdout, stderr) ->
-        if err
-          reject err
-        resolve stdout or stderr
-    .then (jsonStr) =>
-      filing = try
-        JSON.parse jsonStr
-      catch err
-        # console.log jsonStr
-        throw new Error 'json parse fail'
-
-      formattedFiling = _.reduce filing, (obj, part) ->
-        if part.schedule_name is 'ReturnHeader990x'
-          obj.ReturnHeader = part.schedule_parts.returnheader990x_part_i
-        else if part.schedule_name
-          obj[part.schedule_name] = {
-            parts: part.schedule_parts
-            groups: part.groups
-          }
-        obj
-      , {}
-      formattedFiling.objectId = objectId
-
-      return formattedFiling
+  return formattedFiling
 
 module.exports = {
   upsertOrgs: ({orgs, i}) ->
@@ -88,19 +82,19 @@ module.exports = {
     .then ->
       console.log 'upserted', i
 
-  processOrgChunk: ({chunk}) =>
-    Promise.map chunk, (org) =>
+  processOrgChunk: ({chunk}) ->
+    Promise.map chunk, (org) ->
       getFilingJsonFromObjectId org.objectId
       .catch (err) ->
         console.log 'json parse fail'
         IrsOrg990.upsertByRow org, {isProcessed: true}
         .then ->
           throw 'skip'
-      .then (filing) =>
+      .then (filing) ->
         (if filing.IRS990
-          @processOrgFiling filing
+          processOrgFiling filing
         else
-          @processOrgEZFiling filing)
+          processOrgEZFiling filing)
       .catch (err) ->
         console.log 'caught', err
         {}
@@ -121,16 +115,16 @@ module.exports = {
           IrsPerson.batchUpsert persons
       ]
 
-  processFundChunk: ({chunk}) =>
-    Promise.map chunk, (fund) =>
+  processFundChunk: ({chunk}) ->
+    Promise.map chunk, (fund) ->
       getFilingJsonFromObjectId fund.objectId
       .catch (err) ->
         console.log 'json parse fail'
         IrsFund990.upsertByRow fund, {isProcessed: true}
         .then ->
           throw 'skip'
-      .then (filing) =>
-        @processFundFiling filing
+      .then (filing) ->
+        processFundFiling filing
       .catch (err) ->
         console.log 'caught', err
         {}
@@ -155,25 +149,24 @@ module.exports = {
           IrsContribution.batchUpsert contributions
       ]
 
-
   parseWebsite: ({ein, counter}) ->
-    IrsOrg.getByEin ein
-    .then (irsOrg) ->
-      request {
-        uri: irsOrg.website
-        headers:
-          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+    irsOrg = await IrsOrg.getByEin ein
+
+    request {
+      uri: irsOrg.website
+      headers:
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+    }
+    .then (html) ->
+      $ = cheerio.load html
+      text = $.text().toLowerCase()
+      text = text.replace /\s+/g, ' '
+      console.log 'upsert', text.length
+      IrsOrg.upsertByRow irsOrg, {
+        websiteText: text.substr(0, 10000)
       }
-      .then (html) ->
-        $ = cheerio.load html
-        text = $.text().toLowerCase()
-        text = text.replace /\s+/g, ' '
-        console.log 'upsert', text.length
-        IrsOrg.upsertByRow irsOrg, {
-          websiteText: text.substr(0, 10000)
-        }
-      .catch (err) ->
-        console.log 'website err', irsOrg.website
-      .then ->
-        console.log counter
+    .catch (err) ->
+      console.log 'website err', irsOrg.website
+    .then ->
+      console.log counter
 }

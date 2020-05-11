@@ -69,7 +69,7 @@ module.exports = {
         expenseAccount: formatInt person.OffcrDrTrstKyEmpl_ExpnsAccntOthrAllwncAmt
       }
 
-  getContributionsJson: (filing) =>
+  getContributionsJson: (filing) ->
     contributions = _.map filing.IRS990PF.groups.PFGrntOrCntrbtnPdDrYr, (contribution) ->
       city = contribution.RcpntUSAddrss_CtyNm
       state = contribution.RcpntUSAddrss_SttAbbrvtnCd
@@ -90,22 +90,28 @@ module.exports = {
         purpose: contribution.GrntOrCntrbtnPdDrYr_GrntOrCntrbtnPrpsTxt
         # TODO: need to get ein from org search
       }
-    contributions = await Promise.map contributions, (contribution) =>
-      {toName, toCity, toState} = contribution
-      @getEinNteeFromNameCityState(toName, toCity, toState)
-      .then ({ein, nteecc} = {}) ->
-        contribution = _.defaults {
-          toId: ein or toName
-        }, contribution
-        unless contribution.toId
-          console.log contribution
-        if nteecc
-          contribution.nteeMajor = nteecc.substr(0, 1)
-          contribution.nteeMinor = nteecc.substr(1)
 
-        contribution
+    contributions = await Promise.map contributions, (contribution) ->
+      {toName, toCity, toState} = contribution
+      einNtee = getEinNteeFromNameCityState(toName, toCity, toState)
+      {ein, nteecc} = einNtee or {}
+      contribution = _.defaults {
+        toId: ein or toName
+      }, contribution
+      unless contribution.toId
+        console.log contribution
+      if nteecc
+        contribution.nteeMajor = nteecc.substr(0, 1)
+        contribution.nteeMinor = nteecc.substr(1)
+
+      contribution
     , {concurrency: 5}
 
-    # FIXME: sum all contribution amounts per toId
-    # contributions = _.groupBy(contributions, 'toId')
+    # combine contributions w/ same toId
+    groupedContributions = _.groupBy contributions, 'toId'
+    _.map groupedContributions, (contributions) ->
+      amount = _.sumBy(contributions, 'amount')
+      _.defaults {amount}, contributions[0]
+
+
 }
