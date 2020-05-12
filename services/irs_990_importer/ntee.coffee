@@ -3,9 +3,10 @@ requestNonPromise = require 'request'
 csv = require 'csvtojson'
 fs = require 'fs'
 stringSimilarity = require 'string-similarity'
+{Cache, JobCreate} = require 'phil-helpers'
 
 IrsOrg = require '../../graphql/irs_org/model'
-JobCreateService = require '../../services/job_create'
+JobService = require '../../services/job'
 CacheService = require '../../services/cache'
 
 module.exports = {
@@ -25,13 +26,13 @@ module.exports = {
           console.log i
           cache = chunk
           chunk = []
-          JobCreateService.createJob {
-            queueKey: 'DEFAULT'
+          JobCreate.createJob {
+            queue: JobService.QUEUES.DEFAULT
             waitForCompletion: true
             job: {orgs: cache, i}
-            type: JobCreateService.JOB_TYPES.DEFAULT.IRS_990_UPSERT_ORGS
+            type: JobService.TYPES.DEFAULT.IRS_990_UPSERT_ORGS
             ttlMs: 60000
-            priority: JobCreateService.PRIORITIES.NORMAL
+            priority: JobService.PRIORITIES.NORMAL
           }
           .catch (err) ->
             console.log 'err', err
@@ -52,7 +53,7 @@ module.exports = {
     city = city?.toLowerCase() or ''
     state = state?.toLowerCase() or ''
     key = "#{CacheService.PREFIXES.EIN_FROM_NAME}:#{name}:#{city}:#{state}"
-    CacheService.preferCache key, ->
+    Cache.preferCache key, ->
       orgs = await IrsOrg.search {
         limit: 1
         query:

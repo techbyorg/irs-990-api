@@ -25,6 +25,7 @@ config =
     DEV: 'development'
     PROD: 'production'
     TEST: 'test'
+  SHARED_WITH_PHIL_HELPERS: ['REDIS', 'SCYLLA', 'ELASTICSEARCH', 'ENVS', 'ENV']
 
 assertNoneMissing config
 

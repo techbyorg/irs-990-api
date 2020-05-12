@@ -10,57 +10,21 @@ http = require 'http'
 # socketIORedis = require 'socket.io-redis'
 Redis = require 'ioredis'
 router = require 'exoid-router'
-{graphql} = require 'graphql'
 
 config = require './config'
-cknex = require './services/cknex'
-ScyllaSetupService = require './services/scylla_setup'
-ElasticsearchSetupService = require './services/elasticsearch_setup'
-JobRunnerService = require './services/job_runner'
-schema = require './graphql/schema'
+helperConfig = require 'phil-helpers/lib/config'
+helperConfig.set _.pick(config, config.SHARED_WITH_PHIL_HELPERS)
+{graphqlRoute, Schema} = require 'phil-helpers'
+{setup, childSetup} = require './services/setup'
+directives = require './graphql/directives'
+
+schema = Schema.getSchema({directives, dirName: __dirname})
 
 Promise.config {warnings: false}
 
-setup = ->
-  graphqlFolders = _.filter fs.readdirSync('./graphql'), (file) ->
-    file.indexOf('.') is -1
-  scyllaTables = _.flatten _.map graphqlFolders, (folder) ->
-    model = require("./graphql/#{folder}/model")
-    model?.getScyllaTables?() or []
-  elasticSearchIndices = _.flatten _.map graphqlFolders, (folder) ->
-    model = require("./graphql/#{folder}/model")
-    model?.getElasticSearchIndices?() or []
-
-  shouldRunSetup = true or config.ENV is config.ENVS.PRODUCTION or
-                    config.SCYLLA.CONTACT_POINTS[0] is 'localhost'
-
-  await Promise.all _.filter [
-    if shouldRunSetup
-      ScyllaSetupService.setup scyllaTables
-      .then -> console.log 'scylla setup'
-    if shouldRunSetup
-      ElasticsearchSetupService.setup elasticSearchIndices
-      .then -> console.log 'elasticsearch setup'
-  ]
-  .catch (err) ->
-    console.log 'setup', err
-
-  console.log 'scylla & elasticsearch setup'
-  cknex.enableErrors()
-  JobRunnerService.listen() # TODO: child instance too
-  null # don't block
-
-childSetup = ->
-  JobRunnerService.listen()
-  cknex.enableErrors()
-  return Promise.resolve null # don't block
-
 app = express()
-
 app.set 'x-powered-by', false
-
 app.use cors()
-
 app.use bodyParser.json({limit: '1mb'})
 # Avoid CORS preflight
 app.use bodyParser.json({type: 'text/plain', limit: '1mb'})
@@ -70,7 +34,7 @@ app.get '/', (req, res) -> res.status(200).send 'ok'
 
 app.get '/tableCount', (req, res) ->
   console.log 'count'
-  elasticsearch = require './services/elasticsearch'
+  {elasticsearch} = require 'phil-helpers'
   elasticsearch.count {
     index: req.query.tableName
   }
@@ -123,15 +87,7 @@ app.get '/setNtee', (req, res) ->
   setNtee()
   res.send 'syncing'
 
-app.post '/graphql', (req, res) ->
-  rootValue = undefined
-  context = req
-  graphql schema, req.body.graphql, rootValue, context, req.body.variables
-  .then ({data, errors}) ->
-    if errors
-      res.send {errors}
-    else
-      res.send {data}
+app.post '/graphql', graphqlRoute(schema)
 
 server = http.createServer app
 

@@ -1,13 +1,16 @@
 Promise = require 'bluebird'
 _ = require 'lodash'
+{JobCreate} = require 'phil-helpers'
 
 IrsContribution = require '../../graphql/irs_contribution/model'
 IrsFund = require '../../graphql/irs_fund/model'
 IrsFund990 = require '../../graphql/irs_fund_990/model'
 IrsOrg = require '../../graphql/irs_org/model'
 IrsOrg990 = require '../../graphql/irs_org_990/model'
-JobCreateService = require '../../services/job_create'
+JobService = require '../../services/job'
 config = require '../../config'
+
+# FIXME: classify community foundatoins (990 instead of 990pf) as fund and org?
 
 class Irs990Service
   processUnprocessedOrgs: =>
@@ -26,13 +29,13 @@ class Irs990Service
       console.log orgs.total, 'time', Date.now() - start
       chunks = _.chunk orgs.rows, 10
       await Promise.map chunks, (chunk) =>
-        JobCreateService.createJob {
-          queueKey: 'DEFAULT'
+        JobCreate.createJob {
+          queue: JobService.QUEUES.DEFAULT
           waitForCompletion: true
           job: {chunk}
-          type: JobCreateService.JOB_TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
+          type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
           ttlMs: 60000
-          priority: JobCreateService.PRIORITIES.NORMAL
+          priority: JobService.PRIORITIES.NORMAL
         }
         .catch (err) ->
           console.log 'err', err
@@ -62,13 +65,13 @@ class Irs990Service
     # TODO: chunk + batchUpsert
     chunks = _.chunk funds.rows, 5
     await Promise.map chunks, (chunk) =>
-      JobCreateService.createJob {
-        queueKey: 'DEFAULT'
+      JobCreate.createJob {
+        queue: JobService.QUEUES.DEFAULT
         waitForCompletion: true
         job: {chunk}
-        type: JobCreateService.JOB_TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
+        type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
         ttlMs: 60000
-        priority: JobCreateService.PRIORITIES.NORMAL
+        priority: JobService.PRIORITIES.NORMAL
       }
       .catch (err) ->
         console.log 'err', err

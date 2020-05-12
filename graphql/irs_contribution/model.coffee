@@ -1,9 +1,6 @@
 _ = require 'lodash'
+{Base, cknex, elasticsearch} = require 'phil-helpers'
 
-Base = require '../base_model'
-CacheService = require '../../services/cache'
-cknex = require '../../services/cknex'
-elasticsearch = require '../../services/elasticsearch'
 config = require '../../config'
 
 # example 990pf: https://s3.amazonaws.com/irs-form-990/201533209349101373_public.xml

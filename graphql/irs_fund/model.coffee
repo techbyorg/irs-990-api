@@ -1,9 +1,6 @@
 _ = require 'lodash'
+{Base, cknex, elasticsearch} = require 'phil-helpers'
 
-Base = require '../base_model'
-CacheService = require '../../services/cache'
-cknex = require '../../services/cknex'
-elasticsearch = require '../../services/elasticsearch'
 config = require '../../config'
 
 class IrsFundModel extends Base

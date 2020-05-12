@@ -1,7 +1,8 @@
 _ = require 'lodash'
+{JobCreate} = require 'phil-helpers'
 
 IrsOrg = require '../../graphql/irs_org/model'
-JobCreateService = require '../../services/job_create'
+JobService = require '../../services/job'
 
 module.exports = {
   parseGrantMakingWebsites: =>
@@ -44,13 +45,13 @@ module.exports = {
       website.match(/^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/)
     # valid = _.take valid, 10
     _.map valid, ({ein}, i) ->
-      JobCreateService.createJob {
-        queueKey: 'DEFAULT'
-        waitForCompletion: false
+      JobCreate.createJob {
+        queue: JobService.QUEUES.DEFAULT
+        waitForCompletion: true
         job: {ein, counter: i}
-        type: JobCreateService.JOB_TYPES.DEFAULT.IRS_990_PARSE_WEBSITE
+        type: JobService.TYPES.DEFAULT.IRS_990_PARSE_WEBSITE
         ttlMs: 60000
-        priority: JobCreateService.PRIORITIES.NORMAL
+        priority: JobService.PRIORITIES.NORMAL
       }
       .catch (err) ->
         console.log 'err', err

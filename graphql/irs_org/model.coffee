@@ -1,10 +1,6 @@
 _ = require 'lodash'
+{Base, cknex, elasticsearch, Format} = require 'phil-helpers'
 
-Base = require '../base_model'
-CacheService = require '../../services/cache'
-FormatService = require '../../services/format'
-cknex = require '../../services/cknex'
-elasticsearch = require '../../services/elasticsearch'
 config = require '../../config'
 
 class IrsOrgModel extends Base
@@ -74,8 +70,8 @@ class IrsOrgModel extends Base
   defaultOutput: (row) ->
     super row
     if row
-      row.city = FormatService.fixAllCaps row.city
-      row.name = FormatService.fixAllCaps row.name
+      row.city = Format.fixAllCaps row.city
+      row.name = Format.fixAllCaps row.name
     row
 
 module.exports = new IrsOrgModel()
