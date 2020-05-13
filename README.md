@@ -44,14 +44,14 @@ Types: IrsOrg, IrsFund, IrsOrg990, IrsFund990, IrsPerson
 Get schema for a type (IrsOrg for example) so you know all fields you can specify (or just look at the type.graphql files)
 ```
 {
-	"graphql": "{ __type(name: \"IrsOrg\") { name fields { name type { name kind ofType { name kind } } } } }"
+	"query": "{ __type(name: \"IrsOrg\") { name fields { name type { name kind ofType { name kind } } } } }"
 }
 ```
 
 Get an org
 ```
 POST http://localhost:3000/graphql {
-	"graphql": "query ($ein: String!) {irsOrg(ein: $ein) {ein, name, assets} }",
+	"query": "query ($ein: String!) {irsOrg(ein: $ein) {ein, name, assets} }",
 	"variables": { "ein": "586347523" }
 }
 ```
@@ -59,7 +59,7 @@ POST http://localhost:3000/graphql {
 Get a fund (private foundation)
 ```
 POST http://localhost:3000/graphql {
-	"graphql": "query ($ein: String!) {irsFund(ein: $ein) {ein, name} }",
+	"query": "query ($ein: String!) {irsFund(ein: $ein) {ein, name} }",
 	"variables": { "ein": "586347523" }
 }
 ```
@@ -67,7 +67,7 @@ POST http://localhost:3000/graphql {
 Get 990s for an org
 ```
 POST http://localhost:3000/graphql {
-	"graphql": "query ($ein: String!) {irsOrg990s(ein: $ein) {ein, year} }",
+	"query": "query ($ein: String!) {irsOrg990s(ein: $ein) {ein, year} }",
 	"variables": { "ein": "586347523" }
 }
 ```
@@ -76,7 +76,7 @@ POST http://localhost:3000/graphql {
 Get 990s for a fund
 ```
 POST http://localhost:3000/graphql {
-	"graphql": "query ($ein: String!) {irsFund990s(ein: $ein) {ein, year} }",
+	"query": "query ($ein: String!) {irsFund990s(ein: $ein) {ein, year} }",
 	"variables": { "ein": "586347523" }
 }
 ```
@@ -84,7 +84,7 @@ POST http://localhost:3000/graphql {
 Get all people at an org
 ```
 POST http://localhost:3000/graphql {
-	"graphql": "query ($ein: String!) {irsPersons(ein: $ein) {ein, name, title, compensation} }",
+	"query": "query ($ein: String!) {irsPersons(ein: $ein) {ein, name, title, compensation} }",
 	"variables": { "ein": "586347523" }
 }
 ```
