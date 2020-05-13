@@ -10,11 +10,13 @@ http = require 'http'
 # socketIORedis = require 'socket.io-redis'
 Redis = require 'ioredis'
 router = require 'exoid-router'
+{ApolloServer} = require 'apollo-server-express'
+{buildFederatedSchema} = require '@apollo/federation'
 
 config = require './config'
 helperConfig = require 'phil-helpers/lib/config'
 helperConfig.set _.pick(config, config.SHARED_WITH_PHIL_HELPERS)
-{graphqlRoute, Schema} = require 'phil-helpers'
+{Schema} = require 'phil-helpers'
 {setup, childSetup} = require './services/setup'
 directives = require './graphql/directives'
 
@@ -87,7 +89,8 @@ app.get '/setNtee', (req, res) ->
   setNtee()
   res.send 'syncing'
 
-app.post '/graphql', graphqlRoute(schema)
+graphqlServer = new ApolloServer {schema: buildFederatedSchema schema}
+graphqlServer.applyMiddleware {app, path: '/graphql'}
 
 server = http.createServer app
 

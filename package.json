@@ -24,6 +24,8 @@
     "traceur": "0.0.111"
   },
   "dependencies": {
+    "@apollo/federation": "^0.16.0",
+    "apollo-server-express": "^2.13.1",
     "assert-none-missing": "^0.1.2",
     "bluebird": "^3.5.3",
     "body-parser": "^1.14.1",
@@ -37,6 +39,7 @@
     "elasticsearch": "^16.7.1",
     "exoid-router": "git://github.com/claydotio/exoid-router.git",
     "express": "^4.16.4",
+    "graphql": "^15.0.0",
     "ioredis": "^2.5.0",
     "joi": "^6.10.0",
     "lodash": "^4.16.3",

@@ -1,4 +1,5 @@
-type IrsContribution {
+type IrsContribution @key(fields: "id") {
+  id: ID!
   year: Int
   fromEin: String
   toId: String # ein or name if no ein
