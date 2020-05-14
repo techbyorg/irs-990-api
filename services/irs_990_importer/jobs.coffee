@@ -177,7 +177,7 @@ module.exports = {
 }
 
 # # FIXME: rm
-module.exports.processFundChunk({chunk: [objectId: '201623169349100822']})
+# module.exports.processFundChunk({chunk: [objectId: '201623169349100822']})
 # getFilingJsonFromObjectId '201623169349100822' # b&m gates
 # .then (filing) ->
 #   # console.log 'f', filing
