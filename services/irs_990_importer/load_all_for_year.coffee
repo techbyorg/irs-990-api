@@ -32,11 +32,6 @@ module.exports = {
       console.log 'orgs', orgs.length
       Promise.all _.filter [
         if funds.length
-          console.log 'batch', _.map funds, (filing) ->
-            {
-              ein: filing.EIN
-              name: filing.OrganizationName
-            }
           IrsFund.batchUpsert _.map funds, (filing) ->
             {
               ein: filing.EIN
@@ -48,6 +43,8 @@ module.exports = {
               ein: filing.EIN
               year: filing.TaxPeriod.substr(0, 4)
               objectId: filing.ObjectId
+              submitDate: new Date filing.SubmittedOn
+              lastIrsUpdate: new Date filing.LastUpdated
               type: filing.FormType
               xmlUrl: filing.URL
             }
@@ -64,9 +61,13 @@ module.exports = {
               ein: filing.EIN
               year: filing.TaxPeriod.substr(0, 4)
               objectId: filing.ObjectId
+              submitDate: new Date filing.SubmittedOn
+              lastIrsUpdate: new Date filing.LastUpdated
               type: filing.FormType
               xmlUrl: filing.URL
           }
       ]
     , {concurrency: 10}
+    .then ->
+      console.log 'done'
 }

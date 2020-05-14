@@ -80,19 +80,21 @@ module.exports = {
       # **
       netIncome: formatBigInt filing.IRS990PF.parts.pf_part_i?.ExcssRvnOvrExpnssAmt
 
-      assets:
+      assets: _.pickBy
+        cashBoy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.CshBOYAmt
+        cashEoy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.CshEOYAmt
         boy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtlAsstsBOYAmt
         eoy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtlAsstsEOYAmt
 
-      liabilities:
+      liabilities: _.pickBy
         boy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtlLbltsBOYAmt
         eoy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtlLbltsEOYAmt
 
-      netAssets:
+      netAssets: _.pickBy
         boy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtNtAstOrFndBlncsBOYAmt
         eoy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtNtAstOrFndBlncsEOYAmt
 
-      applicantInfo:
+      applicantInfo: _.pickBy
         acceptsUnsolicitedRequests: !filing.IRS990PF.parts.pf_part_xv?.OnlyCntrTPrslctdInd
         address: applicantSubmissionAddress
         recipientName: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.ApplctnSbmssnInf_RcpntPrsnNm
@@ -105,15 +107,15 @@ module.exports = {
           if filing.IRS990PF.parts.pf_part_ixa?["Dscrptn#{i}Txt"]
             {
               description: filing.IRS990PF.parts.pf_part_ixa["Dscrptn#{i}Txt"]
-              expenses: formatBigInt filing.IRS990PF.parts.pf_part_ixa["Expnss#{i}Amt"]
+              expenses: formatBigInt(filing.IRS990PF.parts.pf_part_ixa["Expnss#{i}Amt"]) or 0
             }
 
-      programRelatedInvestments:
+      programRelatedInvestments: _.pickBy
         lineItems:  _.filter _.map _.range(4), (i) ->
           if filing.IRS990PF.parts.pf_part_ixb?["Dscrptn#{i}Txt"]
             {
               description: filing.IRS990PF.parts.pf_part_ixb["Dscrptn#{i}Txt"]
-              expenses: formatBigInt filing.IRS990PF.parts.pf_part_ixb["Expnss#{i}Amt"]
+              expenses: formatBigInt(filing.IRS990PF.parts.pf_part_ixb["Expnss#{i}Amt"]) or 0
             }
         otherTotal: formatBigInt filing.IRS990PF.parts.pf_part_ixb?.AllOthrPrgrmRltdInvstTtAmt
         total: formatBigInt filing.IRS990PF.parts.pf_part_ixb?.TtlAmt

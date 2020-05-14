@@ -14,6 +14,8 @@ class IrsFund990Model extends Base
           ein: 'text'
           year: 'int'
           objectId: 'text' # irs-defined, unique per filing
+          submitDate: 'timestamp'
+          lastIrsUpdate: 'timestamp'
           type: 'text' # 990, 990ez, 990pf
           xmlUrl: 'text'
           pdfUrl: 'text'
@@ -59,6 +61,8 @@ class IrsFund990Model extends Base
           ein: {type: 'keyword'}
           year: {type: 'integer'}
           objectId: {type: 'keyword'} # irs-defined, unique per filing
+          submitDate: {type: 'date'}
+          lastIrsUpdate: {type: 'date'}
           type: {type: 'keyword'} # 990, 990ez, 990pf
           xmlUrl: {type: 'keyword'}
           pdfUrl: {type: 'keyword'}
