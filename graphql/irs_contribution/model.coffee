@@ -21,6 +21,7 @@ class IrsContributionModel extends Base
           toCity: 'text'
           toState: 'text'
           amount: 'bigint'
+          type: 'text' # org | person
           nteeMajor: {type: 'text', defaultFn: -> '?'}
           nteeMinor: {type: 'text', defaultFn: -> '?'}
           relationship: 'text'

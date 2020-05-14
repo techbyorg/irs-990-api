@@ -2,6 +2,7 @@ normalizeUrl = require 'normalize-url'
 
 module.exports = {
   formatInt: (int) -> if int? then parseInt(int) else null
+  formatBigInt: (bigint) -> if bigint? then BigInt(bigint) else null
   formatFloat: (float) -> if float? then parseFloat(float) else null
   formatWebsite: (website) ->
     if website and website isnt 'N/A'

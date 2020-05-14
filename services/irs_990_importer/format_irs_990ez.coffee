@@ -1,6 +1,6 @@
 _ = require 'lodash'
 
-{formatInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
+{formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
 config = require '../../config'
 
 module.exports = {
@@ -30,45 +30,45 @@ module.exports = {
       exemptStatus: exemptStatus
       mission: filing.IRS990EZ.parts.ez_part_iii?.PrmryExmptPrpsTxt
       revenue: _.pickBy
-        investments: formatInt filing.IRS990EZ.parts.ez_part_i?.InvstmntIncmAmt
-        grants: formatInt filing.IRS990EZ.parts.ez_part_i?.GrntsAndSmlrAmntsPdAmt
-        saleOfAssets: formatInt filing.IRS990EZ.parts.ez_part_i?.SlOfAsstsGrssAmt # ?
-        saleOfInventory: formatInt filing.IRS990EZ.parts.ez_part_i?.GrssSlsOfInvntryAmt # ?
-        gaming: formatInt filing.IRS990EZ.parts.ez_part_i?.GmngGrssIncmAmt
-        fundraising: formatInt filing.IRS990EZ.parts.ez_part_i?.FndrsngGrssIncmAmt
-        # ubi: formatInt filing.IRS990EZ.parts.part_i?.TtlGrssUBIAmt # **
-        # netUbi: formatInt filing.IRS990EZ.parts.part_i?.NtUnrltdBsTxblIncmAmt
-        contributionsAndGrants: formatInt filing.IRS990EZ.parts.ez_part_i?.CntrbtnsGftsGrntsEtcAmt
+        investments: formatBigInt filing.IRS990EZ.parts.ez_part_i?.InvstmntIncmAmt
+        grants: formatBigInt filing.IRS990EZ.parts.ez_part_i?.GrntsAndSmlrAmntsPdAmt
+        saleOfAssets: formatBigInt filing.IRS990EZ.parts.ez_part_i?.SlOfAsstsGrssAmt # ?
+        saleOfInventory: formatBigInt filing.IRS990EZ.parts.ez_part_i?.GrssSlsOfInvntryAmt # ?
+        gaming: formatBigInt filing.IRS990EZ.parts.ez_part_i?.GmngGrssIncmAmt
+        fundraising: formatBigInt filing.IRS990EZ.parts.ez_part_i?.FndrsngGrssIncmAmt
+        # ubi: formatBigInt filing.IRS990EZ.parts.part_i?.TtlGrssUBIAmt # **
+        # netUbi: formatBigInt filing.IRS990EZ.parts.part_i?.NtUnrltdBsTxblIncmAmt
+        contributionsAndGrants: formatBigInt filing.IRS990EZ.parts.ez_part_i?.CntrbtnsGftsGrntsEtcAmt
         # member dues
-        programService: formatInt filing.IRS990EZ.parts.ez_part_i?.MmbrshpDsAmt
-        other: formatInt filing.IRS990EZ.parts.ez_part_i?.OthrRvnTtlAmt
-        total: formatInt filing.IRS990EZ.parts.ez_part_i?.TtlRvnAmt
+        programService: formatBigInt filing.IRS990EZ.parts.ez_part_i?.MmbrshpDsAmt
+        other: formatBigInt filing.IRS990EZ.parts.ez_part_i?.OthrRvnTtlAmt
+        total: formatBigInt filing.IRS990EZ.parts.ez_part_i?.TtlRvnAmt
 
-      paidBenefitsToMembers: filing.IRS990EZ.parts.ez_part_i?.BnftsPdTOrFrMmbrsAmt
+      paidBenefitsToMembers: formatBigInt filing.IRS990EZ.parts.ez_part_i?.BnftsPdTOrFrMmbrsAmt
       expenses: _.pickBy
-        salaries: formatInt filing.IRS990EZ.parts.ez_part_i?.SlrsOthrCmpEmplBnftAmt
-        goodsSold: formatInt filing.IRS990EZ.parts.ez_part_i?.CstOfGdsSldAmt
-        sales: formatInt filing.IRS990EZ.parts.ez_part_i?.CstOrOthrBssExpnsSlAmt
-        independentContractors: formatInt filing.IRS990EZ.parts.ez_part_i?.FsAndOthrPymtTIndCntrctAmt
-        rent: formatInt filing.IRS990EZ.parts.ez_part_i?.OccpncyRntUtltsAndMntAmt
-        printing: formatInt filing.IRS990EZ.parts.ez_part_i?.PrntngPblctnsPstgAmt
-        specialEvents: formatInt filing.IRS990EZ.parts.ez_part_i?.SpclEvntsDrctExpnssAmt
-        other: formatInt filing.IRS990EZ.parts.ez_part_i?.OthrExpnssTtlAmt
-        total: formatInt filing.IRS990EZ.parts.ez_part_i?.TtlExpnssAmt # **
-        programServicesTotal: formatInt filing.IRS990EZ.parts.ez_part_iii?.TtlPrgrmSrvcExpnssAmt
+        salaries: formatBigInt filing.IRS990EZ.parts.ez_part_i?.SlrsOthrCmpEmplBnftAmt
+        goodsSold: formatBigInt filing.IRS990EZ.parts.ez_part_i?.CstOfGdsSldAmt
+        sales: formatBigInt filing.IRS990EZ.parts.ez_part_i?.CstOrOthrBssExpnsSlAmt
+        independentContractors: formatBigInt filing.IRS990EZ.parts.ez_part_i?.FsAndOthrPymtTIndCntrctAmt
+        rent: formatBigInt filing.IRS990EZ.parts.ez_part_i?.OccpncyRntUtltsAndMntAmt
+        printing: formatBigInt filing.IRS990EZ.parts.ez_part_i?.PrntngPblctnsPstgAmt
+        specialEvents: formatBigInt filing.IRS990EZ.parts.ez_part_i?.SpclEvntsDrctExpnssAmt
+        other: formatBigInt filing.IRS990EZ.parts.ez_part_i?.OthrExpnssTtlAmt
+        total: formatBigInt filing.IRS990EZ.parts.ez_part_i?.TtlExpnssAmt # **
+        programServicesTotal: formatBigInt filing.IRS990EZ.parts.ez_part_iii?.TtlPrgrmSrvcExpnssAmt
       assets: _.pickBy
-        cashBoy: formatInt filing.IRS990EZ.parts.ez_part_ii?.CshSvngsAndInvstmnts_BOYAmt
-        cashEoy: formatInt filing.IRS990EZ.parts.ez_part_ii?.CshSvngsAndInvstmnts_EOYAmt
-        realEstateBoy: formatInt filing.IRS990EZ.parts.ez_part_ii?.LndAndBldngs_BOYAmt
-        realEstateEoy: formatInt filing.IRS990EZ.parts.ez_part_ii?.LndAndBldngs_EOYAmt
-        boy: formatInt filing.IRS990EZ.parts.ez_part_ii?.Frm990TtlAssts_BOYAmt
-        eoy: formatInt filing.IRS990EZ.parts.ez_part_ii?.Frm990TtlAssts_EOYAmt
+        cashBoy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.CshSvngsAndInvstmnts_BOYAmt
+        cashEoy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.CshSvngsAndInvstmnts_EOYAmt
+        realEstateBoy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.LndAndBldngs_BOYAmt
+        realEstateEoy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.LndAndBldngs_EOYAmt
+        boy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.Frm990TtlAssts_BOYAmt
+        eoy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.Frm990TtlAssts_EOYAmt
       liabilities: _.pickBy
-        boy: formatInt filing.IRS990EZ.parts.ez_part_ii?.SmOfTtlLblts_BOYAmt
-        eoy: formatInt filing.IRS990EZ.parts.ez_part_ii?.SmOfTtlLblts_EOYAmt
+        boy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.SmOfTtlLblts_BOYAmt
+        eoy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.SmOfTtlLblts_EOYAmt
       netAssets: _.pickBy
-        boy: formatInt filing.IRS990EZ.parts.ez_part_ii?.NtAsstsOrFndBlncs_BOYAmt
-        eoy: formatInt filing.IRS990EZ.parts.ez_part_ii?.NtAsstsOrFndBlncs_EOYAmt # **
+        boy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.NtAsstsOrFndBlncs_BOYAmt
+        eoy: formatBigInt filing.IRS990EZ.parts.ez_part_ii?.NtAsstsOrFndBlncs_EOYAmt # **
       #
       # votingMemberCount: filing.IRS990EZ.parts.part_i?.VtngMmbrsGvrnngBdyCnt
       # independentVotingMemberCount: filing.IRS990EZ.parts.part_i?.VtngMmbrsIndpndntCnt

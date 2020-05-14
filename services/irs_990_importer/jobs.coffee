@@ -40,14 +40,13 @@ processOrgEZFiling = (filing) ->
 
 processFundFiling = (filing) ->
   existing990s = await IrsFund990.getAllByEin filing.ReturnHeader.ein
-  contributions = await getContributionsJson filing
   fund990 = getFund990Json filing
   fundPersons = getFundPersonsJson filing
   {
     fund: getFundJson fund990, fundPersons, existing990s
     persons: fundPersons
     fund990: fund990
-    contributions: contributions
+    contributions: await getContributionsJson filing
   }
 
 getFilingJsonFromObjectId = (objectId) ->
@@ -175,3 +174,10 @@ module.exports = {
     .then ->
       console.log counter
 }
+
+# # FIXME: rm
+# getFilingJsonFromObjectId '201623169349100822' # b&m gates
+# .then (filing) ->
+#   # console.log 'f', filing
+#   res = await processFundFiling filing
+#   console.log res

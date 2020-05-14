@@ -25,6 +25,26 @@ class IrsFund990Model extends Base
           website: 'text'
           mission: 'text'
 
+          # contributionsAndGrants, interestOnSavings, dividendsFromSecurities,
+          # netRental, netAssetSales, capitalGain, capitalGainShortTerm,
+          # incomeModifications, grossSales, other, total
+          revenue: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          # officerSalaries, nonOfficerSalaries, employeeBenefits, legalFees,
+          # accountingFees, otherProfessionalFees, interest, taxes, depreciation,
+          # occupancy, travel, printing, other, totalOperations, contributionsAndGrants, total
+          expenses: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          netIncome: 'bigint'
+
+          # boy, eoy
+          assets: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          # boy, eoy
+          liabilities: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          # boy, eoy
+          netAssets: {type: 'map', subType: 'text', subType2: 'bigint'}
         primaryKey:
           partitionKey: ['ein']
           clusteringColumns: ['year', 'objectId']

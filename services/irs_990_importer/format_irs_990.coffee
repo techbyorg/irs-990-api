@@ -1,6 +1,6 @@
 _ = require 'lodash'
 
-{formatInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
+{formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
 config = require '../../config'
 
 module.exports = {
@@ -30,31 +30,31 @@ module.exports = {
       exemptStatus: exemptStatus
       mission: filing.IRS990.parts.part_i?.ActvtyOrMssnDsc
       revenue: _.pickBy
-        investments: formatInt filing.IRS990.parts.part_i?.CYInvstmntIncmAmt
-        grants: formatInt filing.IRS990.parts.part_i?.CYGrntsAndSmlrPdAmt
-        ubi: formatInt filing.IRS990.parts.part_i?.TtlGrssUBIAmt # **
-        netUbi: formatInt filing.IRS990.parts.part_i?.NtUnrltdBsTxblIncmAmt
-        contributionsAndGrants: formatInt filing.IRS990.parts.part_i?.CYCntrbtnsGrntsAmt
-        programService: formatInt filing.IRS990.parts.part_i?.CYPrgrmSrvcRvnAmt
-        other: formatInt filing.IRS990.parts.part_i?.CYOthrRvnAmt
-        total: formatInt filing.IRS990.parts.part_i?.CYTtlRvnAmt
+        investments: formatBigInt filing.IRS990.parts.part_i?.CYInvstmntIncmAmt
+        grants: formatBigInt filing.IRS990.parts.part_i?.CYGrntsAndSmlrPdAmt
+        ubi: formatBigInt filing.IRS990.parts.part_i?.TtlGrssUBIAmt # **
+        netUbi: formatBigInt filing.IRS990.parts.part_i?.NtUnrltdBsTxblIncmAmt
+        contributionsAndGrants: formatBigInt filing.IRS990.parts.part_i?.CYCntrbtnsGrntsAmt
+        programService: formatBigInt filing.IRS990.parts.part_i?.CYPrgrmSrvcRvnAmt
+        other: formatBigInt filing.IRS990.parts.part_i?.CYOthrRvnAmt
+        total: formatBigInt filing.IRS990.parts.part_i?.CYTtlRvnAmt
 
-      paidBenefitsToMembers: formatInt filing.IRS990.parts.part_i?.CYBnftsPdTMmbrsAmt
+      paidBenefitsToMembers: formatBigInt filing.IRS990.parts.part_i?.CYBnftsPdTMmbrsAmt
       expenses: _.pickBy
-        salaries: formatInt filing.IRS990.parts.part_i?.CYSlrsCmpEmpBnftPdAmt
-        professionalFundraising: formatInt filing.IRS990.parts.part_i?.CYTtlPrfFndrsngExpnsAmt
-        fundraising: formatInt filing.IRS990.parts.part_i?.CYTtlPrfFndrsngExpnsAmt
-        other: formatInt filing.IRS990.parts.part_i?.CYOthrExpnssAmt
-        total: formatInt filing.IRS990.parts.part_i?.CYTtlExpnssAmt # **
+        salaries: formatBigInt filing.IRS990.parts.part_i?.CYSlrsCmpEmpBnftPdAmt
+        professionalFundraising: formatBigInt filing.IRS990.parts.part_i?.CYTtlPrfFndrsngExpnsAmt
+        fundraising: formatBigInt filing.IRS990.parts.part_i?.CYTtlPrfFndrsngExpnsAmt
+        other: formatBigInt filing.IRS990.parts.part_i?.CYOthrExpnssAmt
+        total: formatBigInt filing.IRS990.parts.part_i?.CYTtlExpnssAmt # **
       assets: _.pickBy
-        boy: formatInt filing.IRS990.parts.part_i?.TtlAsstsBOYAmt
-        eoy: formatInt filing.IRS990.parts.part_i?.TtlAsstsEOYAmt
+        boy: formatBigInt filing.IRS990.parts.part_i?.TtlAsstsBOYAmt
+        eoy: formatBigInt filing.IRS990.parts.part_i?.TtlAsstsEOYAmt
       liabilities: _.pickBy
-        boy: formatInt filing.IRS990.parts.part_i?.TtlLbltsBOYAmt
-        eoy: formatInt filing.IRS990.parts.part_i?.TtlLbltsEOYAmt
+        boy: formatBigInt filing.IRS990.parts.part_i?.TtlLbltsBOYAmt
+        eoy: formatBigInt filing.IRS990.parts.part_i?.TtlLbltsEOYAmt
       netAssets: _.pickBy
-        boy: formatInt filing.IRS990.parts.part_i?.NtAsstsOrFndBlncsBOYAmt
-        eoy: formatInt filing.IRS990.parts.part_i?.NtAsstsOrFndBlncsEOYAmt # **
+        boy: formatBigInt filing.IRS990.parts.part_i?.NtAsstsOrFndBlncsBOYAmt
+        eoy: formatBigInt filing.IRS990.parts.part_i?.NtAsstsOrFndBlncsEOYAmt # **
 
       votingMemberCount: formatInt filing.IRS990.parts.part_i?.VtngMmbrsGvrnngBdyCnt
       independentVotingMemberCount: formatInt filing.IRS990.parts.part_i?.VtngMmbrsIndpndntCnt

@@ -48,7 +48,7 @@
     "moment": "^2.25.1",
     "node-uuid": "^1.4.7",
     "normalize-url": "^4.5.0",
-    "phil-helpers": "github:austinhallock/phil-helpers",
+    "phil-helpers": "github:breezyhq/phil-helpers",
     "redlock": "^2.0.0",
     "request": "^2.88.2",
     "request-promise": "^4.1.1",

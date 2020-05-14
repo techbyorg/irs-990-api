@@ -20,6 +20,7 @@ class IrsPersonModel extends Base
           compensation: 'int'
           relatedCompensation: 'int'
           otherCompensation: 'int'
+          benefits: 'int'
           weeklyHours: 'int'
           isOfficer: {type: 'boolean', defaultFn: -> false}
           isFormerOfficer: {type: 'boolean', defaultFn: -> false}

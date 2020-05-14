@@ -35,10 +35,19 @@ class IrsOrg990Model extends Base
           employeeCount: 'int'
           volunteerCount: 'int'
 
+          # investments, grants, ubi, netUbi, contributionsAndGrants, programService, other, total
           revenue: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          # salaries, professionalFundraising, fundraising, other, total
           expenses: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          # boy, eoy
           assets: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          # boy, eoy
           liabilities: {type: 'map', subType: 'text', subType2: 'bigint'}
+
+          # boy, eoy
           netAssets: {type: 'map', subType: 'text', subType2: 'bigint'}
         primaryKey:
           partitionKey: ['ein']
