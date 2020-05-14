@@ -8,7 +8,7 @@ class IrsFund990Model extends Base
     [
       {
         name: 'irs_fund_990s_by_ein_and_year'
-        keyspace: 'monocle'
+        keyspace: 'irs_990_api'
         fields:
           id: 'timeuuid'
           ein: 'text'

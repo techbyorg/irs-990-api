@@ -1,8 +1,10 @@
 normalizeUrl = require 'normalize-url'
+{cknex} = require 'phil-helpers'
 
 module.exports = {
   formatInt: (int) -> if int? then parseInt(int) else null
-  formatBigInt: (bigint) -> if bigint? then BigInt(bigint) else null
+  # cassanknex doesn't use v4 of cassandra-driver which supports `BigInt`, so have to use Long
+  formatBigInt: (bigint) -> if bigint? then cknex.Long.fromValue(bigint) else null
   formatFloat: (float) -> if float? then parseFloat(float) else null
   formatWebsite: (website) ->
     if website and website isnt 'N/A'

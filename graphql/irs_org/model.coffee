@@ -8,7 +8,7 @@ class IrsOrgModel extends Base
     [
       {
         name: 'irs_orgs_by_ein'
-        keyspace: 'monocle'
+        keyspace: 'irs_990_api'
         fields:
           id: 'timeuuid'
           ein: 'text'
@@ -22,7 +22,11 @@ class IrsOrgModel extends Base
           exemptStatus: 'text'
 
           assets: 'bigint'
+          netAssets: 'bigint'
           liabilities: 'bigint'
+          employeeCount: 'int'
+          volunteerCount: 'int'
+
           lastRevenue: 'bigint'
           lastExpenses: 'bigint'
           topSalary: 'json'
@@ -47,7 +51,11 @@ class IrsOrgModel extends Base
           exemptStatus: {type: 'text'}
 
           assets: {type: 'long'}
+          netAssets: {type: 'long'}
           liabilities: {type: 'long'}
+          employeeCount: {type: 'integer'}
+          volunteerCount: {type: 'integer'}
+
           lastRevenue: {type: 'long'}
           lastExpenses: {type: 'long'}
 

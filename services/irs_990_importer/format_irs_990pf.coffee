@@ -1,5 +1,6 @@
 _ = require 'lodash'
 Promise = require 'bluebird'
+md5 = require 'md5'
 
 {formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
 {getEinNteeFromNameCityState} = require './ntee'
@@ -10,6 +11,26 @@ module.exports = {
     entityName = getOrgNameByFiling filing
 
     website = formatWebsite filing.IRS990PF.parts.pf_part_viia?.SttmntsRgrdngActy_WbstAddrssTxt
+
+    # us address
+    if filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntUSAddrss_ZIPCd
+      applicantSubmissionAddress =
+        street1: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntUSAddrss_AddrssLn1Txt
+        street2: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntUSAddrss_AddrssLn2Txt
+        postalCode: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntUSAddrss_ZIPCd
+        city: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntUSAddrss_CtyNm
+        state: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntUSAddrss_SttAbbrvtnCd
+        countryCode: 'US'
+    # foreign address
+    else if filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntFrgnAddrss_FrgnPstlCd
+      street1: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntFrgnAddrss_AddrssLn1Txt
+      street2: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntFrgnAddrss_AddrssLn2Txt
+      postalCode: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntFrgnAddrss_FrgnPstlCd
+      city: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntFrgnAddrss_CtyNm
+      state: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntFrgnAddrss_PrvncOrSttNm
+      countryCode: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.RcpntFrgnAddrss_CntryCd
+    else
+      applicantSubmissionAddress = null
 
     {
       importVersion: config.CURRENT_IMPORT_VERSION
@@ -71,11 +92,38 @@ module.exports = {
         boy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtNtAstOrFndBlncsBOYAmt
         eoy: formatBigInt filing.IRS990PF.parts.pf_part_ii?.TtNtAstOrFndBlncsEOYAmt
 
+      applicantInfo:
+        acceptsUnsolicitedRequests: !filing.IRS990PF.parts.pf_part_xv?.OnlyCntrTPrslctdInd
+        address: applicantSubmissionAddress
+        recipientName: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.ApplctnSbmssnInf_RcpntPrsnNm
+        requirements: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.ApplctnSbmssnInf_FrmAndInfAndMtrlsTxt
+        deadlines: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.ApplctnSbmssnInf_SbmssnDdlnsTxt
+        restrictions: filing.IRS990PF.groups.PFApplctnSbmssnInf?[0]?.ApplctnSbmssnInf_RstrctnsOnAwrdsTxt
+
+      directCharitableActivities:
+        lineItems: _.filter _.map _.range(4), (i) ->
+          if filing.IRS990PF.parts.pf_part_ixa?["Dscrptn#{i}Txt"]
+            {
+              description: filing.IRS990PF.parts.pf_part_ixa["Dscrptn#{i}Txt"]
+              expenses: formatBigInt filing.IRS990PF.parts.pf_part_ixa["Expnss#{i}Amt"]
+            }
+
+      programRelatedInvestments:
+        lineItems:  _.filter _.map _.range(4), (i) ->
+          if filing.IRS990PF.parts.pf_part_ixb?["Dscrptn#{i}Txt"]
+            {
+              description: filing.IRS990PF.parts.pf_part_ixb["Dscrptn#{i}Txt"]
+              expenses: formatBigInt filing.IRS990PF.parts.pf_part_ixb["Expnss#{i}Amt"]
+            }
+        otherTotal: formatBigInt filing.IRS990PF.parts.pf_part_ixb?.AllOthrPrgrmRltdInvstTtAmt
+        total: formatBigInt filing.IRS990PF.parts.pf_part_ixb?.TtlAmt
+
+
       # TODO: could do some activities on whether or not they do political stuff (viia)
     }
 
   # 990pf
-  getFundJson: (fund990, existing990s) ->
+  getFundJson: (fund990, fundPersons, contributions, existing990s) ->
     fund = {
       ein: fund990.ein
       name: fund990.name
@@ -87,6 +135,17 @@ module.exports = {
     maxExistingYear = _.maxBy existing990s, 'year'
     if fund990.year >= maxExistingYear or not maxExistingYear
       fund.maxYear = fund990.year
+      fund.assets = fund990.assets.eoy
+      fund.netAssetSales = fund990.netAssets.eoy
+      fund.liabilities = fund990.liabilities.eoy
+
+      fund.lastRevenue = fund990.revenue.total
+      fund.lastExpenses = fund990.expenses.total
+      fund.lastContributionsAndGrants = fund990.expenses.contributionsAndGrants
+
+      fund.applicantInfo = fund990.applicantInfo
+      fund.directCharitableActivities = fund990.directCharitableActivities
+      fund.programRelatedInvestments = fund990.programRelatedInvestments
 
     fund
 
@@ -138,9 +197,9 @@ module.exports = {
         purpose: contribution.GrntOrCntrbtnPdDrYr_GrntOrCntrbtnPrpsTxt
       }
 
-    contributions = await Promise.map contributions, (contribution) ->
-      {toName, toCity, toState} = contribution
-      einNtee = getEinNteeFromNameCityState(toName, toCity, toState)
+    await Promise.map contributions, (contribution) ->
+      {year, toName, toCity, toState, purpose, amount} = contribution
+      einNtee = await getEinNteeFromNameCityState(toName, toCity, toState)
       {ein, nteecc} = einNtee or {}
       contribution = _.defaults {
         toId: ein or toName
@@ -151,14 +210,12 @@ module.exports = {
         contribution.nteeMajor = nteecc.substr(0, 1)
         contribution.nteeMinor = nteecc.substr(1)
 
+      contribution.hash = md5 [
+        year, toName, toCity, toState, purpose, amount
+      ].join(':')
+
       contribution
     , {concurrency: 5}
-
-    # combine contributions w/ same toId
-    groupedContributions = _.groupBy contributions, 'toId'
-    _.map groupedContributions, (contributions) ->
-      amount = _.sumBy(contributions, 'amount')
-      _.defaults {amount}, contributions[0]
 
 
 }

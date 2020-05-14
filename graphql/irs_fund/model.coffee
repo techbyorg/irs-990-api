@@ -8,7 +8,7 @@ class IrsFundModel extends Base
     [
       {
         name: 'irs_funds_by_ein'
-        keyspace: 'monocle'
+        keyspace: 'irs_990_api'
         fields:
           id: 'timeuuid'
           ein: 'text'
@@ -21,6 +21,17 @@ class IrsFundModel extends Base
           mission: 'text'
           exemptStatus: 'text'
 
+          applicantInfo: 'json'
+          directCharitableActivities: 'json'
+          programRelatedInvestments: 'json'
+
+          assets: 'bigint'
+          netAssets: 'bigint'
+          liabilities: 'bigint'
+
+          lastRevenue: 'bigint'
+          lastExpenses: 'bigint'
+          lastContributionsAndGrants: 'bigint'
         primaryKey:
           partitionKey: ['ein']
       }
@@ -41,8 +52,18 @@ class IrsFundModel extends Base
           mission: {type: 'text'}
           exemptStatus: {type: 'text'}
 
+          assets: {type: 'long'}
+          netAssets: {type: 'long'}
+          liabilities: {type: 'long'}
+          lastRevenue: {type: 'long'}
+          lastExpenses: {type: 'long'}
+          lastContributionsAndGrants: {type: 'long'}
+
+          applicantInfo: {type: 'object'}
+          directCharitableActivities: {type: 'object'}
+          programRelatedInvestments: {type: 'object'}
+
           websiteText: {type: 'text'} # TODO: move to diff table?
-          lastContributions: {type: 'long'}
       }
     ]
 

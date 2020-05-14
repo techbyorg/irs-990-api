@@ -8,7 +8,7 @@ class IrsOrg990Model extends Base
     [
       {
         name: 'irs_org_990s_by_ein_and_year'
-        keyspace: 'monocle'
+        keyspace: 'irs_990_api'
         fields:
           id: 'timeuuid'
           ein: 'text'
@@ -26,9 +26,6 @@ class IrsOrg990Model extends Base
           mission: 'text'
           exemptStatus: 'text'
 
-          # benefitsPaidToMembers: 'int'
-          # some rows are still on benefitsPaidToMembers, which is int
-          # had to switch to bigint for some that pay billions?
           paidBenefitsToMembers: 'bigint'
           votingMemberCount: 'int'
           independentVotingMemberCount: 'int'
@@ -75,7 +72,6 @@ class IrsOrg990Model extends Base
           mission: {type: 'text'}
           exemptStatus: {type: 'text'}
 
-          # benefitsPaidToMembers: {type: 'int'}
           paidBenefitsToMembers: {type: 'long'}
           votingMemberCount: {type: 'integer'}
           independentVotingMemberCount: {type: 'integer'}

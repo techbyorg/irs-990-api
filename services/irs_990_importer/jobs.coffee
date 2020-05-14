@@ -42,11 +42,12 @@ processFundFiling = (filing) ->
   existing990s = await IrsFund990.getAllByEin filing.ReturnHeader.ein
   fund990 = getFund990Json filing
   fundPersons = getFundPersonsJson filing
+  contributions = await getContributionsJson filing
   {
-    fund: getFundJson fund990, fundPersons, existing990s
+    fund: getFundJson fund990, fundPersons, contributions, existing990s
     persons: fundPersons
     fund990: fund990
-    contributions: await getContributionsJson filing
+    contributions: contributions
   }
 
 getFilingJsonFromObjectId = (objectId) ->
@@ -176,8 +177,9 @@ module.exports = {
 }
 
 # # FIXME: rm
+module.exports.processFundChunk({chunk: [objectId: '201623169349100822']})
 # getFilingJsonFromObjectId '201623169349100822' # b&m gates
 # .then (filing) ->
 #   # console.log 'f', filing
 #   res = await processFundFiling filing
-#   console.log res
+#   console.log 'res', res.fund

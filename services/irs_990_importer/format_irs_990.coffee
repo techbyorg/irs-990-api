@@ -80,7 +80,11 @@ module.exports = {
     if org990.year >= maxExistingYear or not maxExistingYear
       org.maxYear = org990.year
       org.assets = org990.assets.eoy
+      org.netAssets = org990.netAssets.eoy
       org.liabilities = org990.liabilities.eoy
+      org.employeeCount = org990.employeeCount
+      org.volunteerCount = org990.volunteerCount
+
       org.lastRevenue = org990.revenue.total
       org.lastExpenses = org990.expenses.total
       org.topSalary = _.pick _.maxBy(persons, 'compensation'), [

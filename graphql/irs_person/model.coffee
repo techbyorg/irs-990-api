@@ -8,7 +8,7 @@ class IrsPersonModel extends Base
     [
       {
         name: 'irs_persons_by_ein_and_name'
-        keyspace: 'monocle'
+        keyspace: 'irs_990_api'
         fields:
           id: 'timeuuid'
           ein: 'text'

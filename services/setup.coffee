@@ -8,7 +8,7 @@ config = require '../config'
 {RUNNERS} = require './job'
 
 setup = ->
-  cknex.setDefaultKeyspace 'monocle'
+  cknex.setDefaultKeyspace 'irs_990_api'
   graphqlFolders = _.filter fs.readdirSync('./graphql'), (file) ->
     file.indexOf('.') is -1
   scyllaTables = _.flatten _.map graphqlFolders, (folder) ->
@@ -38,7 +38,7 @@ setup = ->
   null # don't block
 
 childSetup = ->
-  cknex.setDefaultKeyspace 'monocle'
+  cknex.setDefaultKeyspace 'irs_990_api'
   JobRunner.listen RUNNERS
   cknex.enableErrors()
   return Promise.resolve null # don't block

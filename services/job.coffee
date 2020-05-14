@@ -7,7 +7,7 @@ config = require '../config'
 
 JOB_QUEUES =
   DEFAULT:
-    new Queue 'MONOCLE_DEFAULT', {
+    new Queue 'irs_990_api_DEFAULT', {
       redis: {
         port: config.REDIS.PORT
         host: config.REDIS.CACHE_HOST
@@ -19,11 +19,11 @@ JOB_QUEUES =
 
 JOB_TYPES =
   DEFAULT:
-    DAILY_UPDATE_PLACE: 'monocle:default:daily_update_place'
-    IRS_990_PROCESS_ORG_CHUNK: 'monocle:default:irs_990_process_org_chunk'
-    IRS_990_PROCESS_FUND_CHUNK: 'monocle:default:irs_990_process_fund_chunk'
-    IRS_990_UPSERT_ORGS: 'monocle:default:irs_990_upsert_orgs'
-    IRS_990_PARSE_WEBSITE: 'monocle:default:irs_990_parse_website'
+    DAILY_UPDATE_PLACE: 'irs_990_api:default:daily_update_place'
+    IRS_990_PROCESS_ORG_CHUNK: 'irs_990_api:default:irs_990_process_org_chunk'
+    IRS_990_PROCESS_FUND_CHUNK: 'irs_990_api:default:irs_990_process_fund_chunk'
+    IRS_990_UPSERT_ORGS: 'irs_990_api:default:irs_990_upsert_orgs'
+    IRS_990_PARSE_WEBSITE: 'irs_990_api:default:irs_990_parse_website'
 
 JOB_PRIORITIES =
   # lower (1) is higher priority

@@ -10,13 +10,14 @@ class IrsContributionModel extends Base
     [
       {
         name: 'irs_contributions_by_fromEin_and_toId'
-        keyspace: 'monocle'
+        keyspace: 'irs_990_api'
         fields:
           id: 'timeuuid'
           year: 'int'
           fromEin: 'text'
           toId: 'text' # ein or name if no ein
           toName: 'text'
+          hash: 'text' # unique identifier if multiple to same toId in a year
           toExemptStatus: 'text'
           toCity: 'text'
           toState: 'text'
@@ -28,20 +29,20 @@ class IrsContributionModel extends Base
           purpose: 'text'
         primaryKey:
           partitionKey: ['fromEin']
-          clusteringColumns: ['toId', 'year', 'nteeMajor', 'nteeMinor']
+          clusteringColumns: ['toId', 'year', 'nteeMajor', 'nteeMinor', 'hash']
         materializedViews:
           irs_contributions_by_fromEin_and_ntee:
             primaryKey:
               partitionKey: ['fromEin']
-              clusteringColumns: ['nteeMajor', 'nteeMinor', 'toId', 'year']
+              clusteringColumns: ['nteeMajor', 'nteeMinor', 'toId', 'year', 'hash']
           irs_contributions_by_fromEin_and_year:
             primaryKey:
               partitionKey: ['fromEin']
-              clusteringColumns: ['year', 'nteeMajor', 'nteeMinor', 'toId']
+              clusteringColumns: ['year', 'nteeMajor', 'nteeMinor', 'toId', 'hash']
           irs_contributions_by_toId:
             primaryKey:
               partitionKey: ['toId']
-              clusteringColumns: ['year', 'fromEin', 'nteeMajor', 'nteeMinor']
+              clusteringColumns: ['year', 'fromEin', 'nteeMajor', 'nteeMinor', 'hash']
       }
     ]
 
@@ -54,6 +55,7 @@ class IrsContributionModel extends Base
           year: {type: 'integer'}
           toId: {type: 'keyword'} # ein or name if no ein
           toName: {type: 'text'}
+          hash: {type: 'text'}
           toExemptStatus: {type: 'keyword'}
           toCity: {type: 'keyword'}
           toState: {type: 'keyword'}
