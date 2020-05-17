@@ -1,53 +1,11 @@
 _ = require 'lodash'
-requestNonPromise = require 'request'
-csv = require 'csvtojson'
-fs = require 'fs'
 stringSimilarity = require 'string-similarity'
-{Cache, JobCreate} = require 'phil-helpers'
+{Cache} = require 'phil-helpers'
 
 IrsOrg = require '../../graphql/irs_org/model'
-JobService = require '../../services/job'
 CacheService = require '../../services/cache'
 
 module.exports = {
-  setNtee: ->
-    console.log 'sync'
-    cache = null
-    requestNonPromise('https://nccs-data.urban.org/data/bmf/2019/bmf.bm1908.csv')
-    .pipe(fs.createWriteStream('data.csv'))
-    .on 'finish', ->
-      console.log 'file downloaded'
-      chunk = []
-      i = 0
-      csv().fromFile('data.csv')
-      .subscribe ((json) ->
-        i += 1
-        if i and not (i % 100)
-          console.log i
-          cache = chunk
-          chunk = []
-          JobCreate.createJob {
-            queue: JobService.QUEUES.DEFAULT
-            waitForCompletion: true
-            job: {orgs: cache, i}
-            type: JobService.TYPES.DEFAULT.IRS_990_UPSERT_ORGS
-            ttlMs: 60000
-            priority: JobService.PRIORITIES.NORMAL
-          }
-          .catch (err) ->
-            console.log 'err', err
-        # console.log json
-        chunk.push {
-          ein: json.EIN
-          name: json.NAME
-          city: json.CITY
-          state: json.STATE
-          nteecc: json.NTEECC
-        }
-      ), (-> console.log 'error'), ->
-        console.log 'done'
-        IrsOrg.batchUpsert cache
-
   getEinNteeFromNameCityState: (name, city, state) ->
     name = name?.toLowerCase() or ''
     city = city?.toLowerCase() or ''
@@ -92,5 +50,5 @@ module.exports = {
       else
         null
       # TODO: can also look at grant amount and income to help find best match
-    , {expireSeconds: 1}# FIXME 3600 * 24}
+    , {expireSeconds: 3600 * 24}
 }

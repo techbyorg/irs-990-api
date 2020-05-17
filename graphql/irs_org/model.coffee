@@ -10,7 +10,6 @@ class IrsOrgModel extends Base
         name: 'irs_orgs_by_ein'
         keyspace: 'irs_990_api'
         fields:
-          id: 'timeuuid'
           ein: 'text'
           name: 'text'
           city: 'text'
@@ -71,9 +70,6 @@ class IrsOrgModel extends Base
     .where 'ein', '=', ein
     .run {isSingle: true}
     .then @defaultOutput
-
-  defaultESInput: (row) =>
-    _.defaults {id: row.ein}, row
 
   defaultOutput: (row) ->
     super row

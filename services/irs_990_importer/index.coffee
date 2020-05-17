@@ -13,45 +13,53 @@ config = require '../../config'
 # FIXME: classify community foundatoins (990 instead of 990pf) as fund and org?
 
 class Irs990Service
-  processUnprocessedOrgs: =>
+  processUnprocessedOrgs: (options) =>
+    {limit = 6000, chunkSize = 300, recursive} = options
     start = Date.now()
+    # 12 nodes x 2vpcu = 24 cpu * 2 concurrency = 48
+    # chunk = 300. 300 * 48 = 14400
     IrsOrg990.search {
       trackTotalHits: true
-      limit: 160 # 16 cpus, 16 chunks
+      limit: limit
       query:
         bool:
           must:
+            # TODO: ignore returnVersions we can't process
             range:
               importVersion:
                 lt: config.CURRENT_IMPORT_VERSION
     }
     .then (orgs) =>
-      console.log orgs.total, 'time', Date.now() - start
-      chunks = _.chunk orgs.rows, 10
+      console.log "Fetched #{orgs.rows.length} / #{orgs.total} in #{Date.now() - start} ms"
+      start = Date.now()
+      chunks = _.chunk orgs.rows, chunkSize
       await Promise.map chunks, (chunk) =>
         JobCreate.createJob {
           queue: JobService.QUEUES.DEFAULT
           waitForCompletion: true
           job: {chunk}
           type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
-          ttlMs: 60000
+          ttlMs: 90000
           priority: JobService.PRIORITIES.NORMAL
         }
         .catch (err) ->
           console.log 'err', err
 
       if orgs.total
-        console.log 'done step'
-        @processUnprocessedOrgs()
+        console.log "Finished step (#{limit}) in #{Date.now() - start} ms"
+        await IrsOrg990.refreshESIndex()
+        if recursive
+          @processUnprocessedOrgs options
       else
         console.log 'done'
 
 
   processUnprocessedFunds: =>
     start = Date.now()
+    limit = 1600
     funds = await IrsFund990.search {
       trackTotalHits: true
-      limit: 80 # 16 cpus, 16 chunks
+      limit: limit # 16 cpus, each processing 10 jobs, 160 chunks
       query:
         bool:
           must:
@@ -60,55 +68,29 @@ class Irs990Service
                 lt: config.CURRENT_IMPORT_VERSION
     }
 
-    console.log funds.total, 'time', Date.now() - start
+    console.log "Fetched #{funds.rows.length} / #{funds.total} in #{Date.now() - start} ms"
+    start = Date.now()
 
     # TODO: chunk + batchUpsert
-    chunks = _.chunk funds.rows, 5
+    chunks = _.chunk funds.rows, 10
     await Promise.map chunks, (chunk) =>
       JobCreate.createJob {
         queue: JobService.QUEUES.DEFAULT
         waitForCompletion: true
         job: {chunk}
         type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
-        ttlMs: 60000
+        ttlMs: 90000
         priority: JobService.PRIORITIES.NORMAL
       }
       .catch (err) ->
         console.log 'err', err
 
     if funds.total
-      console.log 'done step'
+      console.log "Finished step (#{limit}) in #{Date.now() - start}, ms"
+      await IrsFund990.refreshESIndex()
       @processUnprocessedFunds()
     else
       console.log 'done'
-
-  # TODO: rm
-  setLastYearContributions: ->
-    {total, rows} = await IrsFund.search {
-      trackTotalHits: true
-      limit: 10000
-      query:
-        bool:
-          must_not:
-            exists:
-              field: 'lastContributions'
-    }
-
-    console.log total
-    Promise.map rows, (row, i) ->
-      console.log i
-      IrsContribution.getByAllByFromEin row.ein
-      .then (contributions) ->
-        # console.log contributions
-        recentYear = _.maxBy(contributions, 'year')?.year
-        if recentYear
-          contributions = _.filter contributions, {year: recentYear}
-          amount = _.sumBy contributions, ({amount}) -> parseInt amount
-        amount ?= 0
-        # console.log amount
-        IrsFund.upsertByRow row, {lastContributions: amount}
-
-    , {concurrency: 10}
 
 
 module.exports = new Irs990Service()
@@ -116,10 +98,9 @@ module.exports = new Irs990Service()
 ###
 truncate irs_990_api.irs_orgs_by_ein
 truncate irs_990_api.irs_orgs_990_by_ein_and_year
-curl -XDELETE http://10.245.244.135:9200/irs_org_990s*
-curl -XDELETE http://10.245.244.135:9200/irs_orgs*
-curl -XDELETE http://10.245.244.135:9200/irs_fund_990s*
-curl -XDELETE http://10.245.244.135:9200/irs_funds*
+curl -XDELETE http://localhost:9200/irs_org_990s*
+curl -XDELETE http://localhost:9200/irs_orgs*
+curl -XDELETE http://localhost:9200/irs_fund_990s*
+curl -XDELETE http://localhost:9200/irs_funds*
+to del from prod, do same at: kubectl exec altelasticsearch-0 --namespace=production -it -- /bin/bash
 ###
-# module.exports.setLastYearContributions()
-# module.exports.getEinFromNameCityState 'confett Foundation', 'denver', 'co'

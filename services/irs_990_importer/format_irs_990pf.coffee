@@ -4,7 +4,6 @@ md5 = require 'md5'
 
 {formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
 {getEinNteeFromNameCityState} = require './ntee'
-config = require '../../config'
 
 module.exports = {
   getFund990Json: (filing) ->
@@ -33,14 +32,9 @@ module.exports = {
       applicantSubmissionAddress = null
 
     {
-      importVersion: config.CURRENT_IMPORT_VERSION
-      ein: filing.ReturnHeader.ein
       name: entityName
       city: filing.ReturnHeader.USAddrss_CtyNm
       state: filing.ReturnHeader.USAddrss_SttAbbrvtnCd
-      # year: filing.ReturnHeader.RtrnHdr_TxYr
-      year: filing.ReturnHeader.RtrnHdr_TxPrdEndDt.substr(0, 4)
-      objectId: "#{filing.objectId}"
       website: website
 
       revenue: _.pickBy
@@ -160,7 +154,6 @@ module.exports = {
         businessName += " #{person.OffcrDrTrstKyEmpl_BsnssNmLn2}"
       {
         name: person.OffcrDrTrstKyEmpl_PrsnNm or businessName
-        ein: filing.ReturnHeader.ein
         entityName: entityName
         entityType: 'fund'
         year: filing.ReturnHeader.RtrnHdr_TxPrdEndDt.substr(0, 4)
@@ -188,7 +181,6 @@ module.exports = {
 
       {
         year: filing.ReturnHeader.RtrnHdr_TxPrdEndDt.substr(0, 4)
-        fromEin: filing.ReturnHeader.ein
         toName: businessName or contribution.GrntOrCntrbtnPdDrYr_RcpntPrsnNm
         toCity: city
         toState: state

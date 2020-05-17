@@ -12,7 +12,6 @@ class IrsContributionModel extends Base
         name: 'irs_contributions_by_fromEin_and_toId'
         keyspace: 'irs_990_api'
         fields:
-          id: 'timeuuid'
           year: 'int'
           fromEin: 'text'
           toId: 'text' # ein or name if no ein

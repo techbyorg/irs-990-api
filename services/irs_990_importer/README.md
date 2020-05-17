@@ -14,6 +14,10 @@ Digital Ocean instructions
     - takes ~7 hr
 - https://hub.docker.com/r/halverneus/static-file-server/
   - either run docker from the vm, or create a new kubernetes deployment w/ the disk
-  - save snapshot of disk and delete disk (cheaper $$)
+    - to run from the vm, do `docker run -d -v /mnt/volume_nyc1_02:/web -p 8080:8080 halverneus/static-file-server:latest`
 
 - have irs-990-api hit that docker since it's in same network (much faster than hitting s3)
+
+
+- new kubernetes node pool
+  - 4x cpu-optimized (8gb/4vcpu)

@@ -10,10 +10,10 @@ class IrsOrg990Model extends Base
         name: 'irs_org_990s_by_ein_and_year'
         keyspace: 'irs_990_api'
         fields:
-          id: 'timeuuid'
           ein: 'text'
           year: 'int'
           objectId: 'text' # irs-defined, unique per filing
+          filingVersion: 'text' # irs-defined
           submitDate: 'timestamp'
           lastIrsUpdate: 'timestamp'
           type: 'text' # 990, 990ez, 990pf
@@ -62,6 +62,7 @@ class IrsOrg990Model extends Base
           ein: {type: 'keyword'}
           year: {type: 'integer'}
           objectId: {type: 'keyword'} # irs-defined, unique per filing
+          filingVersion: {type: 'keyword'} # irs-defined
           submitDate: {type: 'date'}
           lastIrsUpdate: {type: 'date'}
           type: {type: 'keyword'} # 990, 990ez, 990pf
@@ -89,7 +90,6 @@ class IrsOrg990Model extends Base
           netAssets: {type: 'object'}
       }
     ]
-
 
   getAllByEin: (ein) =>
     cknex().select '*'

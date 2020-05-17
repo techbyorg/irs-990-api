@@ -10,10 +10,10 @@ JOB_QUEUES =
     new Queue 'irs_990_api_DEFAULT', {
       redis: {
         port: config.REDIS.PORT
-        host: config.REDIS.CACHE_HOST
+        host: config.REDIS.REDIS_PUB_SUB_HOST or config.REDIS.CACHE_HOST
       }
-      limiter: # 10 calls per second FIXME rm
-        max: 7
+      limiter: # 100 calls per second
+        max: 100
         duration: 1000
   }
 
@@ -33,11 +33,11 @@ JOB_RUNNERS =
   DEFAULT:
     types:
       "#{JOB_TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK}":
-        {fn: Irs990ImporterJobs.processOrgChunk, concurrencyPerCpu: 10}
+        {fn: Irs990ImporterJobs.processOrgChunk, concurrencyPerCpu: 2}
       "#{JOB_TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK}":
-        {fn: Irs990ImporterJobs.processFundChunk, concurrencyPerCpu: 10}
+        {fn: Irs990ImporterJobs.processFundChunk, concurrencyPerCpu: 2}
       "#{JOB_TYPES.DEFAULT.IRS_990_UPSERT_ORGS}":
-        {fn: Irs990ImporterJobs.upsertOrgs, concurrencyPerCpu: 1}
+        {fn: Irs990ImporterJobs.upsertOrgs, concurrencyPerCpu: 2}
       "#{JOB_TYPES.DEFAULT.IRS_990_PARSE_WEBSITE}":
         {fn: Irs990ImporterJobs.parseWebsite, concurrencyPerCpu: 1}
     #   "#{JOB_TYPES.DEFAULT.DAILY_UPDATE_PLACE}":

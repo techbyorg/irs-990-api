@@ -6,15 +6,17 @@ IrsFund = require '../../graphql/irs_fund/model'
 IrsFund990 = require '../../graphql/irs_fund_990/model'
 IrsOrg = require '../../graphql/irs_org/model'
 IrsOrg990 = require '../../graphql/irs_org_990/model'
+config = require '../../config'
+
+getIndexJson = (year) ->
+  indexUrl = "#{config.IRSX_XML_HTTP_BASE}/index_#{year}.json"
+  console.log 'get', indexUrl
+  request indexUrl
 
 module.exports = {
-  getIndexJson: (year) ->
-    indexUrl = "https://s3.amazonaws.com/irs-form-990/index_#{year}.json"
-    request indexUrl
-
-  loadAllForYear: (year) =>
+  loadAllForYear: (year) ->
     if year
-      index = JSON.parse await @getIndexJson year
+      index = JSON.parse await getIndexJson year
     else
       index = require('../../data/sample_index.json')
       year = 2016
@@ -23,13 +25,12 @@ module.exports = {
     console.log 'keys', _.keys(index)
     filings = index["Filings#{year}"]
     console.log filings.length
-    chunks = _.chunk filings, 100
+    chunks = _.chunk filings, 500
     Promise.map chunks, (chunk, i) ->
-      console.log i * 100
       funds = _.filter chunk, {FormType: '990PF'}
-      console.log 'funds', funds.length
       orgs = _.filter chunk, ({FormType}) -> FormType isnt '990PF'
-      console.log 'orgs', orgs.length
+      console.log i * 100
+      console.log 'funds', funds.length, 'orgs', orgs.length
       Promise.all _.filter [
         if funds.length
           IrsFund.batchUpsert _.map funds, (filing) ->

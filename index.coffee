@@ -34,8 +34,13 @@ app.use bodyParser.urlencoded {extended: true} # Kiip uses
 
 app.get '/', (req, res) -> res.status(200).send 'ok'
 
+validTables = [
+  'irs_orgs', 'irs_org_990s', 'irs_funds', 'irs_fund_990s',
+  'irs_persons', 'irs_contributions'
+]
 app.get '/tableCount', (req, res) ->
-  console.log 'count'
+  if validTables.indexOf(req.query.tableName) is -1
+    res.send {error: 'invalid table name'}
   {elasticsearch} = require 'phil-helpers'
   elasticsearch.count {
     index: req.query.tableName
@@ -44,7 +49,7 @@ app.get '/tableCount', (req, res) ->
     res.send JSON.stringify c
 
 app.get '/unprocessedCount', (req, res) ->
-  IrsOrg990 = require './models/irs_fund_990'
+  IrsOrg990 = require './graphql/irs_org_990/model'
   IrsOrg990.search {
     trackTotalHits: true
     limit: 1 # 16 cpus, 16 chunks
@@ -58,15 +63,83 @@ app.get '/unprocessedCount', (req, res) ->
   .then (c) ->
     res.send JSON.stringify c
 
+# settings that supposedly make ES bulk insert faster
+# (refresh interval -1 and 0 replicas). but it doesn't seem to make it faster
+app.get '/setES', (req, res) ->
+  {elasticsearch} = require 'phil-helpers'
+
+  if req.query.mode is 'bulk'
+    replicas = 0
+    # refreshInterval = -1
+  else # default / reset
+    replicas = 2
+    # refreshInterval = null
+
+  res.send await Promise.map validTables, (tableName) ->
+    settings = await elasticsearch.indices.getSettings {
+      index: tableName
+    }
+    previous = settings[tableName].settings.index
+    diff =
+      number_of_replicas: replicas
+      # refresh_interval: refreshInterval
+    await elasticsearch.indices.putSettings {
+      index: tableName
+      body: diff
+    }
+    JSON.stringify {previous, diff}
+  , {concurrency: 1}
+
+app.get '/setMaxWindow', (req, res) ->
+  if validTables.indexOf(req.query.tableName) is -1
+    res.send {error: 'invalid table name'}
+
+  maxResultWindow = parseInt req.query.maxResultWindow
+  if maxResultWindow < 10000 or maxResultWindow > 100000
+    res.send {error: 'must be number between 10,000 and 100,000'}
+
+  {elasticsearch} = require 'phil-helpers'
+
+  res.send await elasticsearch.indices.putSettings {
+    index: req.query.tableName
+    body: {max_result_window: maxResultWindow}
+  }
+
+# 2500/s on 4 pods each w/ 4vcpu (1.7mm total) = ~11 min
+# bottleneck is queries-in-flight limit for scylla & es
+# (throttled by # of cpus / concurrencyPerCpu in jobs settings / queue rate limiter)
+# realistically the queue rate limiter is probably the blocker (x per second)
+# set to as high as you can without getting scylla complaints.
+# 25/s seems to be the sweet spot with current scylla/es setup (1 each)
+app.get '/setNtee', (req, res) ->
+  {setNtee} = require './services/irs_990_importer/set_ntee'
+  setNtee()
+  res.send 'syncing'
+
 # pull in all eins / xml urls that filed for a given year
+# run for 2014, 2015, 2016, 2017, 2018, 2019, 2020
+# 2015, 2016 done FIXME rm this line
+# each takes ~3 min (1 cpu)
+# bottleneck is elasticsearch writes (bulk goes through, but some error if server is overwhelmed).
 app.get '/loadAllForYear', (req, res) ->
   {loadAllForYear} = require './services/irs_990_importer/load_all_for_year'
   loadAllForYear req.query.year
   res.send "syncing #{req.query.year or 'sample_index'}"
 
+# go through every 990 we haven't processed, and get data for it from xml file/irsx
+# ES seems to be main bottleneck. we bulk reqs, but they're still slow.
+# 1/2 of time is spent on irsx, 1/2 on es upserts
+# if we send too many bulk reqs at once, es will start to send back errors
+# i think the issue is bulk upserts in ES are just slow in general.
+
+# faster ES node seems to help a little, but not much...
+# cheapest / best combo seems to be 4vcpu/8gb for ES, 12x 2vcpu/2gb for api.
+# ^^ w/ 2 job concurrencyPerCpu, that's 48. 48 * 300 (chunk) = 14400 (limit)
+#    seems to be sweet spot w/ ~250 orgs/s (2.2 hours total)
+#    could probably go faster with more cpus (bottleneck at this point is irsx)
 app.get '/processUnprocessedOrgs', (req, res) ->
   {processUnprocessedOrgs} = require './services/irs_990_importer'
-  processUnprocessedOrgs()
+  processUnprocessedOrgs req.query
   res.send 'processing orgs'
 
 app.get '/processUnprocessedFunds', (req, res) ->
@@ -74,19 +147,9 @@ app.get '/processUnprocessedFunds', (req, res) ->
   processUnprocessedFunds()
   res.send 'processing funds'
 
-app.get '/lastYearContributions', (req, res) ->
-  {setLastYearContributions} = require './services/irs_990_importer'
-  setLastYearContributions()
-  res.send 'syncing'
-
 app.get '/parseGrantMakingWebsites', (req, res) ->
   {parseGrantMakingWebsites} = require './services/irs_990_importer/parse_websites'
   parseGrantMakingWebsites()
-  res.send 'syncing'
-
-app.get '/setNtee', (req, res) ->
-  {setNtee} = require './services/irs_990_importer/set_ntee'
-  setNtee()
   res.send 'syncing'
 
 graphqlServer = new ApolloServer {schema: buildFederatedSchema schema}

@@ -39,6 +39,7 @@
     "elasticsearch": "^16.7.1",
     "exoid-router": "git://github.com/claydotio/exoid-router.git",
     "express": "^4.16.4",
+    "fs-extra": "^9.0.0",
     "graphql": "^15.0.0",
     "ioredis": "^2.5.0",
     "joi": "^6.10.0",
