@@ -21,13 +21,30 @@ type IrsOrg990 {
   employeeCount: Int
   volunteerCount: Int
 
-  revenue: String
+  revenue: IrsOrg990Revenue
   expenses: String
   assets: String
   liabilities: String
   netAssets: String
 }
 
+type IrsOrg990Revenue {
+  contributionsAndGrants: BigInt
+  grants: BigInt
+  investments: BigInt
+  netUbi: BigInt
+  other: BigInt
+  programService: BigInt
+  total: BigInt
+  ubi: BigInt
+}
+
+type IrsOrg990Connection {
+  nodes: [IrsOrg990!]
+  totalCount: Int
+}
+
 extend type Query {
-  irsOrg990s(ein: String): [IrsOrg990]
+  irsOrg990s(ein: String): IrsOrg990Connection
+  irsOrg990s(query: JSON): IrsOrg990Connection
 }

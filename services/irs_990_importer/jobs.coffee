@@ -122,10 +122,9 @@ formattedFilingsFromObjectIdsLoaderFn = (objectIds) ->
       .then ([filingJson]) -> filingJson
       .catch (err) ->
         console.log "json parse fail: #{objectId}"
-        # FIXME!
-        # await Model990.upsertByRow model990, {
-        #   importVersion: config.CURRENT_IMPORT_VERSION
-        # }
+        await Model990.upsertByRow model990, {
+          importVersion: config.CURRENT_IMPORT_VERSION
+        }
         null
 
 processChunk = ({chunk, Model990, processFilingFn, processResultsFn}) ->

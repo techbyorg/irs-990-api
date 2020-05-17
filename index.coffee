@@ -133,9 +133,9 @@ app.get '/loadAllForYear', (req, res) ->
 # i think the issue is bulk upserts in ES are just slow in general.
 
 # faster ES node seems to help a little, but not much...
-# cheapest / best combo seems to be 4vcpu/8gb for ES, 12x 2vcpu/2gb for api.
-# ^^ w/ 2 job concurrencyPerCpu, that's 48. 48 * 300 (chunk) = 14400 (limit)
-#    seems to be sweet spot w/ ~250 orgs/s (2.2 hours total)
+# cheapest / best combo seems to be 4vcpu/8gb for ES, 8x 2vcpu/2gb for api.
+# ^^ w/ 2 job concurrencyPerCpu, that's 32. 32 * 300 (chunk) = 9600 (limit)
+#    seems to be sweet spot w/ ~150-250 orgs/s (2-3 hours total)
 #    could probably go faster with more cpus (bottleneck at this point is irsx)
 app.get '/processUnprocessedOrgs', (req, res) ->
   {processUnprocessedOrgs} = require './services/irs_990_importer'
@@ -152,7 +152,11 @@ app.get '/parseGrantMakingWebsites', (req, res) ->
   parseGrantMakingWebsites()
   res.send 'syncing'
 
-graphqlServer = new ApolloServer {schema: buildFederatedSchema schema}
+graphqlServer = new ApolloServer {
+  schema: buildFederatedSchema schema
+  introspection: true
+  playground: true
+}
 graphqlServer.applyMiddleware {app, path: '/graphql'}
 
 server = http.createServer app

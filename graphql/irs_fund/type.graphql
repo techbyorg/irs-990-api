@@ -12,4 +12,6 @@ type IrsFund {
 
 extend type Query {
   irsFund(ein: String): IrsFund
+  # FIXME filter or just pass in es query?
+  # irsFund(filter: JSON): IrsFund
 }

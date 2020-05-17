@@ -39,7 +39,7 @@ class Irs990Service
           waitForCompletion: true
           job: {chunk}
           type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
-          ttlMs: 90000
+          ttlMs: 120000
           priority: JobService.PRIORITIES.NORMAL
         }
         .catch (err) ->
@@ -79,7 +79,7 @@ class Irs990Service
         waitForCompletion: true
         job: {chunk}
         type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
-        ttlMs: 90000
+        ttlMs: 120000
         priority: JobService.PRIORITIES.NORMAL
       }
       .catch (err) ->

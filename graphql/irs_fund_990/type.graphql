@@ -14,6 +14,11 @@ type IrsFund990 {
   mission: String
 }
 
+type IrsFund990Connection {
+  nodes: [IrsFund990!]
+  totalCount: Int
+}
+
 extend type Query {
-  irsFund990s(ein: String): [IrsFund990]
+  irsFund990s(ein: String): IrsFund990Connection
 }

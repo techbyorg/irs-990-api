@@ -1,5 +1,6 @@
+{GraphqlFormatter, Loader} = require 'phil-helpers'
+
 IrsContribution = require './model'
-{Loader} = require 'phil-helpers'
 
 irsContributionLoader = Loader.withContext (ids, context) ->
   IrsContribution.getAllByIds ids
@@ -12,6 +13,7 @@ module.exports = {
   Query:
     irsContributions: (_, {ein}) ->
       IrsContribution.getAllByFromEin ein
+      .then GraphqlFormatter.fromScylla
 
   IrsContribution:
     __resolveReference: (irsContribution) ->

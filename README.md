@@ -88,3 +88,12 @@ POST http://localhost:3000/graphql {
 	"variables": { "ein": "586347523" }
 }
 ```
+
+If you're not familiar with elasticsearch's query DSL, [here's a good guide](https://hackernoon.com/how-to-master-elasticsearch-query-dsl-454632cg).
+
+```
+POST http://localhost:3000/graphql {
+	"query": "irsOrg990s(query:$query) {name, revenue { contributionsAndGrants }}",
+	"variables": { "query": {"range": {"revenue.contributionsAndGrants": {"gte": 5000000}}} }
+}
+```

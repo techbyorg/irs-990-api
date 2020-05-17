@@ -14,6 +14,11 @@ type IrsContribution @key(fields: "id") {
   purpose: String
 }
 
+type IrsContributionConnection {
+  nodes: [IrsContribution!]
+  totalCount: Int
+}
+
 extend type Query {
-  irsContributions(ein: String): [IrsContribution]
+  irsContributions(ein: String): IrsContributionConnection
 }
