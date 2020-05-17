@@ -85,6 +85,16 @@ add990Versions = (chunk) ->
 
     _.defaults {returnVersion}, model990
 
+add990Filings = (modifiedModel990s) ->
+  loader = new DataLoader formattedFilingsFromObjectIdsLoaderFn
+  modifiedModel990s = await Promise.map modifiedModel990s, (modifiedModel990) ->
+    {objectId, returnVersion} = modifiedModel990
+    isValidVersion = config.VALID_RETURN_VERSIONS.indexOf(returnVersion) isnt -1
+    if isValidVersion
+      # only run irsx if we know it won't fail.
+      filingJson = await loader.load(objectId)
+    _.defaults {filingJson}, modifiedModel990
+
 getFilingJsonFromObjectIds = (objectIds) ->
   jsonStr = await new Promise (resolve, reject) ->
     child = spawn "irsx", objectIds, {
@@ -127,34 +137,47 @@ formattedFilingsFromObjectIdsLoaderFn = (objectIds) ->
         }
         null
 
-processChunk = ({chunk, Model990, processFilingFn, processResultsFn}) ->
+processChunk = (options) ->
+  {chunk, Model990, processFilingFn, processResultsFn,
+    chunkConcurrency} = options
+
   start = Date.now()
   modifiedModel990s = await add990Versions chunk
-  importVersion = config.CURRENT_IMPORT_VERSION
+  modifiedModel990s = await add990Filings modifiedModel990s
 
-  loader = new DataLoader formattedFilingsFromObjectIdsLoaderFn
-  Promise.map modifiedModel990s, (modifiedModel990) ->
-    {objectId, ein, year, returnVersion} = modifiedModel990
-    isValidVersion = config.VALID_RETURN_VERSIONS.indexOf(returnVersion) isnt -1
-    if isValidVersion
-      # only run irsx if we know it won't fail.
-      filingJson = await loader.load(objectId)
+  console.log 'IRSX\'d', modifiedModel990s.length, 'in', Date.now() - start, 'ms'
+  start = Date.now()
+
+  importVersion = config.CURRENT_IMPORT_VERSION
+  concurrency = if chunkConcurrency \
+                then parseInt(chunkConcurrency) \
+                else chunk.length
+
+
+  # break this into 2 maps because this 2nd one is the one we want to limit
+  # with chunkConcurrency (due to es fetches)
+  filingResults = await Promise.map modifiedModel990s, (modifiedModel990) ->
+    {filingJson, objectId, ein, year,
+      returnVersion} = modifiedModel990
+    if filingJson
       formattedFiling = await processFilingFn filingJson
       {model, model990, persons, contributions} = formattedFiling
 
     model = _.defaults {ein}, model
     # even if we didn't run irsx, we still want to update w/ returnVersion
     model990 = _.defaults model990, modifiedModel990
+    delete model990.filingJson
     model990 = _.defaults {importVersion}, model990
     persons = _.map persons, (person) -> _.defaults {ein}, person
     contributions = _.map contributions, (contribution) ->
-      _.defaults {ein}, contribution
+      _.defaults {fromEin: ein}, contribution
 
     {model, model990, persons, contributions}
-  .then (filingResults) ->
-    console.log 'Processed', filingResults.length, 'in', Date.now() - start, 'ms'
+  , {concurrency}
 
-    processResultsFn filingResults
+  console.log 'Processed', filingResults.length, 'in', Date.now() - start, 'ms'
+
+  processResultsFn filingResults
 
 
 module.exports = {
@@ -163,9 +186,10 @@ module.exports = {
     .then ->
       console.log 'upserted', i
 
-  processOrgChunk: ({chunk}) ->
+  processOrgChunk: ({chunk, chunkConcurrency}) ->
     processChunk {
       chunk
+      chunkConcurrency
       Model990: IrsOrg990
       processFilingFn: (filing) ->
         if filing.IRS990
@@ -193,9 +217,10 @@ module.exports = {
 
     }
 
-  processFundChunk: ({chunk}) ->
+  processFundChunk: ({chunk, chunkConcurrency}) ->
     processChunk {
       chunk
+      chunkConcurrency
       Model990: IrsFund990
       processFilingFn: processFundFiling
       processResultsFn: (filingResults) ->
@@ -216,6 +241,8 @@ module.exports = {
             IrsPerson.batchUpsert persons, {ESIndex: true}
           if contributions.length
             # since it's entire doc, "index" instead of update (upsert). much faster
+            # FIXME: don't have ES id use ntee since that can change?
+            # TODO: test that scylla obj gets updated (and not duped)
             IrsContribution.batchUpsert contributions, {ESIndex: true}
         ]
         .then ->

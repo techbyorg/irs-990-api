@@ -10,7 +10,6 @@ class IrsFund990Model extends Base
         name: 'irs_fund_990s_by_ein_and_year'
         keyspace: 'irs_990_api'
         fields:
-          id: 'timeuuid'
           ein: 'text'
           year: 'int'
           objectId: 'text' # irs-defined, unique per filing

@@ -137,14 +137,19 @@ app.get '/loadAllForYear', (req, res) ->
 # ^^ w/ 2 job concurrencyPerCpu, that's 32. 32 * 300 (chunk) = 9600 (limit)
 #    seems to be sweet spot w/ ~150-250 orgs/s (2-3 hours total)
 #    could probably go faster with more cpus (bottleneck at this point is irsx)
+# might need to increase thread_pool.write.queue_size to 1000
 app.get '/processUnprocessedOrgs', (req, res) ->
   {processUnprocessedOrgs} = require './services/irs_990_importer'
   processUnprocessedOrgs req.query
   res.send 'processing orgs'
 
+# chunkConcurrency=10
+# chunkConcurrency = how many orgs of a chunk to process simultaneously...
+# doesn't matter for orgs, but for funds it does (since there's an es fetch)
+# sweet spot is 1600&chunkSize=50&chunkConcurrency=3 (slow)
 app.get '/processUnprocessedFunds', (req, res) ->
   {processUnprocessedFunds} = require './services/irs_990_importer'
-  processUnprocessedFunds()
+  processUnprocessedFunds req.query
   res.send 'processing funds'
 
 app.get '/parseGrantMakingWebsites', (req, res) ->

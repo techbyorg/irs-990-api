@@ -13,7 +13,7 @@ module.exports = {
     key = "#{CacheService.PREFIXES.EIN_FROM_NAME}:#{name}:#{city}:#{state}"
     Cache.preferCache key, ->
       orgs = await IrsOrg.search {
-        limit: 1
+        limit: 10
         query:
           multi_match:
             query: name

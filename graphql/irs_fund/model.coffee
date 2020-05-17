@@ -10,7 +10,6 @@ class IrsFundModel extends Base
         name: 'irs_funds_by_ein'
         keyspace: 'irs_990_api'
         fields:
-          id: 'timeuuid'
           ein: 'text'
           name: 'text'
           city: 'text'

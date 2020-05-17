@@ -13,12 +13,11 @@ config = require '../../config'
 # FIXME: classify community foundatoins (990 instead of 990pf) as fund and org?
 
 class Irs990Service
-  processUnprocessedOrgs: (options) =>
-    {limit = 6000, chunkSize = 300, recursive} = options
+  processUnprocessed: (options) =>
+    {limit = 6000, chunkSize = 300, chunkConcurrency, recursive,
+      Model990, jobType} = options
     start = Date.now()
-    # 12 nodes x 2vpcu = 24 cpu * 2 concurrency = 48
-    # chunk = 300. 300 * 48 = 14400
-    IrsOrg990.search {
+    Model990.search {
       trackTotalHits: true
       limit: limit
       query:
@@ -29,68 +28,43 @@ class Irs990Service
               importVersion:
                 lt: config.CURRENT_IMPORT_VERSION
     }
-    .then (orgs) =>
-      console.log "Fetched #{orgs.rows.length} / #{orgs.total} in #{Date.now() - start} ms"
+    .then (model990s) =>
+      console.log "Fetched #{model990s.rows.length} / #{model990s.total} in #{Date.now() - start} ms"
       start = Date.now()
-      chunks = _.chunk orgs.rows, chunkSize
+      chunks = _.chunk model990s.rows, chunkSize
       await Promise.map chunks, (chunk) =>
         JobCreate.createJob {
           queue: JobService.QUEUES.DEFAULT
           waitForCompletion: true
-          job: {chunk}
-          type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
+          job: {chunk, chunkConcurrency}
+          type: jobType
           ttlMs: 120000
           priority: JobService.PRIORITIES.NORMAL
         }
         .catch (err) ->
           console.log 'err', err
 
-      if orgs.total
+      if model990s.total
         console.log "Finished step (#{limit}) in #{Date.now() - start} ms"
-        await IrsOrg990.refreshESIndex()
+        await Model990.refreshESIndex()
         if recursive
-          @processUnprocessedOrgs options
+          @processUnprocessed options
       else
         console.log 'done'
 
-
-  processUnprocessedFunds: =>
-    start = Date.now()
-    limit = 1600
-    funds = await IrsFund990.search {
-      trackTotalHits: true
-      limit: limit # 16 cpus, each processing 10 jobs, 160 chunks
-      query:
-        bool:
-          must:
-            range:
-              importVersion:
-                lt: config.CURRENT_IMPORT_VERSION
+  processUnprocessedOrgs: ({limit, chunkSize, chunkConcurrency, recursive}) =>
+    @processUnprocessed {
+      limit, chunkSize, chunkConcurrency, recursive, Model990: IrsOrg990
+      jobType: JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
     }
 
-    console.log "Fetched #{funds.rows.length} / #{funds.total} in #{Date.now() - start} ms"
-    start = Date.now()
 
-    # TODO: chunk + batchUpsert
-    chunks = _.chunk funds.rows, 10
-    await Promise.map chunks, (chunk) =>
-      JobCreate.createJob {
-        queue: JobService.QUEUES.DEFAULT
-        waitForCompletion: true
-        job: {chunk}
-        type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
-        ttlMs: 120000
-        priority: JobService.PRIORITIES.NORMAL
-      }
-      .catch (err) ->
-        console.log 'err', err
+  processUnprocessedFunds: ({limit, chunkSize, chunkConcurrency, recursive}) =>
+    @processUnprocessed {
+      limit, chunkSize, chunkConcurrency, recursive, Model990: IrsFund990
+      jobType: JobService.TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
+    }
 
-    if funds.total
-      console.log "Finished step (#{limit}) in #{Date.now() - start}, ms"
-      await IrsFund990.refreshESIndex()
-      @processUnprocessedFunds()
-    else
-      console.log 'done'
 
 
 module.exports = new Irs990Service()

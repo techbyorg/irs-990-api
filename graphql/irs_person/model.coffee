@@ -10,7 +10,6 @@ class IrsPersonModel extends Base
         name: 'irs_persons_by_ein_and_name'
         keyspace: 'irs_990_api'
         fields:
-          id: 'timeuuid'
           ein: 'text'
           entityName: 'text'
           entityType: 'text'

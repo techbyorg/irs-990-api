@@ -17,6 +17,7 @@ class IrsContributionModel extends Base
           toId: 'text' # ein or name if no ein
           toName: 'text'
           hash: 'text' # unique identifier if multiple to same toId in a year
+          # ^^ md5 year, toName, toCity, toState, purpose, amount
           toExemptStatus: 'text'
           toCity: 'text'
           toState: 'text'
@@ -28,20 +29,20 @@ class IrsContributionModel extends Base
           purpose: 'text'
         primaryKey:
           partitionKey: ['fromEin']
-          clusteringColumns: ['toId', 'year', 'nteeMajor', 'nteeMinor', 'hash']
+          clusteringColumns: ['toId', 'year', 'hash']
         materializedViews:
           irs_contributions_by_fromEin_and_ntee:
             primaryKey:
               partitionKey: ['fromEin']
-              clusteringColumns: ['nteeMajor', 'nteeMinor', 'toId', 'year', 'hash']
+              clusteringColumns: ['nteeMajor', 'toId', 'year', 'hash']
           irs_contributions_by_fromEin_and_year:
             primaryKey:
               partitionKey: ['fromEin']
-              clusteringColumns: ['year', 'nteeMajor', 'nteeMinor', 'toId', 'hash']
+              clusteringColumns: ['year', 'toId', 'hash']
           irs_contributions_by_toId:
             primaryKey:
               partitionKey: ['toId']
-              clusteringColumns: ['year', 'fromEin', 'nteeMajor', 'nteeMinor', 'hash']
+              clusteringColumns: ['year', 'fromEin', 'hash']
       }
     ]
 

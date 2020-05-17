@@ -4,7 +4,7 @@ assertNoneMissing = require 'assert-none-missing'
 env = process.env
 
 config =
-  CURRENT_IMPORT_VERSION: 11 # increment any time you want to repull all data
+  CURRENT_IMPORT_VERSION: 13 # increment any time you want to repull all data
   VALID_RETURN_VERSIONS: [
     # https://github.com/breezyhq/990-xml-reader/blob/master/irs_reader/settings.py#L36
     '2013v3.0', '2013v3.1', '2013v4.0', '2014v5.0', '2014v6.0',
