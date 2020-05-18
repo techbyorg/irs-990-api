@@ -143,6 +143,11 @@ app.get '/processUnprocessedOrgs', (req, res) ->
   processUnprocessedOrgs req.query
   res.send 'processing orgs'
 
+app.get '/processEin', (req, res) ->
+  {processEin} = require './services/irs_990_importer'
+  processEin req.query.ein
+  res.send 'processing org'
+
 # chunkConcurrency=10
 # chunkConcurrency = how many orgs of a chunk to process simultaneously...
 # doesn't matter for orgs, but for funds it does (since there's an es fetch)

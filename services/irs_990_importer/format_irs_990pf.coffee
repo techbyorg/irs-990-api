@@ -6,7 +6,7 @@ md5 = require 'md5'
 {getEinNteeFromNameCityState} = require './ntee'
 
 module.exports = {
-  getFund990Json: (filing) ->
+  getFund990Json: (filing, {ein, year}) ->
     entityName = getOrgNameByFiling filing
 
     website = formatWebsite filing.IRS990PF.parts.pf_part_viia?.SttmntsRgrdngActy_WbstAddrssTxt
@@ -32,6 +32,8 @@ module.exports = {
       applicantSubmissionAddress = null
 
     {
+      ein
+      year
       name: entityName
       city: filing.ReturnHeader.USAddrss_CtyNm
       state: filing.ReturnHeader.USAddrss_SttAbbrvtnCd

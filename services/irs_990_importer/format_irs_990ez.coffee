@@ -3,7 +3,7 @@ _ = require 'lodash'
 {formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
 
 module.exports = {
-  getOrg990EZJson: (filing) ->
+  getOrg990EZJson: (filing, {ein, year}) ->
     entityName = getOrgNameByFiling filing
 
     exemptStatus = if filing.IRS990EZ.parts.ez_part_0?.Orgnztn527Ind \
@@ -17,6 +17,8 @@ module.exports = {
                    # then "501c#{filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd}"
 
     {
+      ein
+      year
       name: entityName
       city: filing.ReturnHeader.USAddrss_CtyNm
       state: filing.ReturnHeader.USAddrss_SttAbbrvtnCd

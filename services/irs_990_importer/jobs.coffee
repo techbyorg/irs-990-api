@@ -25,9 +25,9 @@ irsxEnv = _.defaults {
   IRSX_CACHE_DIRECTORY: config.IRSX_CACHE_DIRECTORY
 }, _.clone(process.env)
 
-processOrgFiling = (filing) ->
+processOrgFiling = (filing, {ein, year}) ->
   existing990s = await IrsOrg990.getAllByEin filing.ReturnHeader.ein
-  org990 = getOrg990Json filing
+  org990 = getOrg990Json filing, {ein, year}
   orgPersons = getOrgPersonsJson filing
   {
     model: getOrgJson org990, orgPersons, existing990s
@@ -35,9 +35,9 @@ processOrgFiling = (filing) ->
     persons: orgPersons
   }
 
-processOrgEZFiling = (filing) ->
+processOrgEZFiling = (filing, {ein, year}) ->
   existing990s = await IrsOrg990.getAllByEin filing.ReturnHeader.ein
-  org990 = getOrg990EZJson filing
+  org990 = getOrg990EZJson filing, {ein, year}
   orgPersons = getOrgEZPersonsJson filing
   {
     model: getOrgJson org990, orgPersons, existing990s
@@ -45,9 +45,9 @@ processOrgEZFiling = (filing) ->
     persons: orgPersons
   }
 
-processFundFiling = (filing) ->
-  existing990s = await IrsFund990.getAllByEin filing.ReturnHeader.ein
-  fund990 = getFund990Json filing
+processFundFiling = (filing, {ein, year}) ->
+  existing990s = await IrsFund990.getAllByEin ein
+  fund990 = getFund990Json filing, {ein, year}
   fundPersons = getFundPersonsJson filing
   contributions = await getContributionsJson filing
   {
@@ -160,7 +160,7 @@ processChunk = (options) ->
     {filingJson, objectId, ein, year,
       returnVersion} = modifiedModel990
     if filingJson
-      formattedFiling = await processFilingFn filingJson
+      formattedFiling = await processFilingFn filingJson, {ein, year}
       {model, model990, persons, contributions} = formattedFiling
 
     model = _.defaults {ein}, model
@@ -191,11 +191,11 @@ module.exports = {
       chunk
       chunkConcurrency
       Model990: IrsOrg990
-      processFilingFn: (filing) ->
+      processFilingFn: (filing, {ein, year}) ->
         if filing.IRS990
-          processOrgFiling filing
+          processOrgFiling filing, {ein, year}
         else
-          processOrgEZFiling filing
+          processOrgEZFiling filing, {ein, year}
       processResultsFn: (filingResults) ->
         start = Date.now()
         orgs = _.filter _.map filingResults, 'model'

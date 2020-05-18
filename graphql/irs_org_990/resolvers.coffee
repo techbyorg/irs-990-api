@@ -11,4 +11,9 @@ module.exports = {
       else
         IrsOrg990.search {query}
         .then GraphqlFormatter.fromElasticsearch
+
+  IrsOrg:
+    irsOrg990s: (rootValue) ->
+      IrsOrg990.getAllByEin rootValue.ein
+      .then GraphqlFormatter.fromScylla
 }

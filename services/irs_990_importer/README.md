@@ -1,3 +1,7 @@
+TODO: https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf?
+https://harvester.census.gov/facdissem/Main.aspx?
+
+
 Digital Ocean instructions
 
 - option 1
@@ -17,7 +21,3 @@ Digital Ocean instructions
     - to run from the vm, do `docker run -d -v /mnt/volume_nyc1_02:/web -p 8080:8080 halverneus/static-file-server:latest`
 
 - have irs-990-api hit that docker since it's in same network (much faster than hitting s3)
-
-
-- new kubernetes node pool
-  - 4x cpu-optimized (8gb/4vcpu)
