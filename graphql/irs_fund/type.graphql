@@ -10,8 +10,12 @@ type IrsFund {
   exemptStatus: String
 }
 
+type IrsFundConnection {
+  nodes: [IrsFund!]
+  totalCount: Int
+}
+
 extend type Query {
   irsFund(ein: String): IrsFund
-  # FIXME filter or just pass in es query?
-  # irsFund(filter: JSON): IrsFund
+  irsFunds(query: JSON!): IrsFundConnection
 }

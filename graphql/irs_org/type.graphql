@@ -10,7 +10,11 @@ type IrsOrg {
   exemptStatus: String
 
   assets: BigInt
+  netAssets: BigInt
   liabilities: BigInt
+  employeeCount: Int
+  volunteerCount: Int
+
   lastRevenue: BigInt
   lastExpenses: BigInt
 
@@ -18,6 +22,12 @@ type IrsOrg {
   websiteText: String
 }
 
+type IrsOrgConnection {
+  nodes: [IrsOrg!]
+  totalCount: Int
+}
+
 extend type Query {
   irsOrg(ein: String): IrsOrg
+  irsOrgs(query: JSON!): IrsOrgConnection
 }

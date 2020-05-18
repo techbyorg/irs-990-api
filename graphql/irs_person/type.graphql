@@ -16,6 +16,12 @@ type IrsPerson {
   isBusiness: Boolean
 }
 
+type IrsPersonConnection {
+  nodes: [IrsPerson!]
+  totalCount: Int
+}
+
 extend type Query {
-  irsPersons(ein: String): [IrsPerson]
+  irsPersons(ein: String): IrsPersonConnection
+  irsPersons(query: JSON): IrsPersonConnection
 }
