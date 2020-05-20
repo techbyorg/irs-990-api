@@ -3,15 +3,15 @@ type IrsContribution @key(fields: "id") {
   year: Int
   fromEin: String
   toId: String # ein or name if no ein
-  toName: String @fixAllCaps
+  toName: String @nameCase
   toExemptStatus: String
-  toCity: String
+  toCity: String @nameCase
   toState: String
   amount: BigInt
   nteeMajor: String
   nteeMinor: String
-  relationship: String
-  purpose: String
+  relationship: String @sentenceCase
+  purpose: String @sentenceCase
 }
 
 type IrsContributionConnection {

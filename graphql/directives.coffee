@@ -5,11 +5,19 @@ router = require 'exoid-router'
 {SchemaDirectiveVisitor} = require 'graphql-tools'
 
 module.exports = {
-  fixAllCaps: class FixAllCaps extends SchemaDirectiveVisitor
+  nameCase: class NameCase extends SchemaDirectiveVisitor
     visitFieldDefinition: (field) ->
       {resolve = defaultFieldResolver} = field
       field.resolve = (...args) ->
         str = resolve.apply this, args
-        Format.fixAllCaps str
+        Format.nameCase str
+      return # req'd bc of coffeescript
+
+  sentenceCase: class SentenceCase extends SchemaDirectiveVisitor
+    visitFieldDefinition: (field) ->
+      {resolve = defaultFieldResolver} = field
+      field.resolve = (...args) ->
+        str = resolve.apply this, args
+        Format.sentenceCase str
       return # req'd bc of coffeescript
 }

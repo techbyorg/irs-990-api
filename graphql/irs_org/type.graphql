@@ -1,7 +1,7 @@
 type IrsOrg {
   ein: String
-  name: String @fixAllCaps
-  city: String @fixAllCaps
+  name: String @nameCase
+  city: String @nameCase
   state: String # 2 letter code
   nteecc: String # https://nccs.urban.org/project/national-taxonomy-exempt-entities-ntee-codes
 

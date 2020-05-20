@@ -7,8 +7,8 @@ type IrsOrg990 {
   pdfUrl: String
   importVersion: Int
 
-  name: String @fixAllCaps
-  city: String @fixAllCaps
+  name: String @nameCase
+  city: String @nameCase
   state: String
   website: String
   mission: String

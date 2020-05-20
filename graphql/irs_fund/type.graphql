@@ -1,6 +1,6 @@
 type IrsFund {
   ein: String
-  name: String @fixAllCaps
+  name: String @nameCase
   city: String
   state: String # 2 letter code
   nteecc: String # https://nccs.urban.org/project/national-taxonomy-exempt-entities-ntee-codes
@@ -8,6 +8,45 @@ type IrsFund {
   website: String
   mission: String
   exemptStatus: String
+
+  applicantInfo: ApplicantInfo
+  directCharitableActivities: [DirectCharitableActivity]
+  programRelatedInvestments: [ProgramRelatedInvestment]
+
+  assets: BigInt
+  netAssets: BigInt
+  liabilities: BigInt
+
+  lastRevenue: BigInt
+  lastExpenses: BigInt
+  lastContributionsAndGrants: BigInt
+}
+
+type ApplicantInfo {
+  acceptsUnsolicitedRequests: Boolean
+  address: String
+  recipientName: String
+  requirements: String
+  deadlines: String
+  restrictions: String
+}
+
+type DirectCharitableActivity {
+  lineItem: DirectCharitableActivityLineItem
+}
+
+type DirectCharitableActivityLineItem {
+  description: String
+  expenses: BigInt
+}
+
+type ProgramRelatedInvestment {
+  lineItem: ProgramRelatedInvestmentLineItem
+}
+
+type ProgramRelatedInvestmentLineItem {
+  description: String
+  expenses: BigInt
 }
 
 type IrsFundConnection {
