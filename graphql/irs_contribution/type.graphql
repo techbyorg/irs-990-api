@@ -3,7 +3,7 @@ type IrsContribution @key(fields: "id") {
   year: Int
   fromEin: String
   toId: String # ein or name if no ein
-  toName: String
+  toName: String @fixAllCaps
   toExemptStatus: String
   toCity: String
   toState: String

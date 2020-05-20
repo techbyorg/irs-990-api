@@ -71,11 +71,4 @@ class IrsOrgModel extends Base
     .run {isSingle: true}
     .then @defaultOutput
 
-  defaultOutput: (row) ->
-    super row
-    if row
-      row.city = Format.fixAllCaps row.city
-      row.name = Format.fixAllCaps row.name
-    row
-
 module.exports = new IrsOrgModel()

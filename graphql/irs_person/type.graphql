@@ -1,9 +1,9 @@
 type IrsPerson {
   ein: String
-  entityName: String
+  entityName: String @fixAllCaps
   entityType: String
   year: Int
-  name: String
+  name: String @fixAllCaps
   title: String
   compensation: Int
   relatedCompensation: Int

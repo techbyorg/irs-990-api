@@ -1,6 +1,6 @@
 type IrsFund {
   ein: String
-  name: String
+  name: String @fixAllCaps
   city: String
   state: String # 2 letter code
   nteecc: String # https://nccs.urban.org/project/national-taxonomy-exempt-entities-ntee-codes

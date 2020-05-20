@@ -1,0 +1,1 @@
+directive @fixAllCaps on FIELD_DEFINITION

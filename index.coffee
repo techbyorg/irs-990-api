@@ -12,6 +12,7 @@ Redis = require 'ioredis'
 router = require 'exoid-router'
 {ApolloServer} = require 'apollo-server-express'
 {buildFederatedSchema} = require '@apollo/federation'
+{SchemaDirectiveVisitor} = require 'graphql-tools'
 
 config = require './config'
 helperConfig = require 'phil-helpers/lib/config'
@@ -22,7 +23,7 @@ helperConfig.set _.pick(config, config.SHARED_WITH_PHIL_HELPERS)
 directives = require './graphql/directives'
 typeDefs = fs.readFileSync './graphql/type.graphql', 'utf8'
 
-schema = Schema.getSchema({directives, typeDefs, dirName: __dirname})
+schema = Schema.getSchema {directives, typeDefs, dirName: __dirname}
 
 Promise.config {warnings: false}
 
@@ -164,8 +165,13 @@ app.get '/parseGrantMakingWebsites', (req, res) ->
   parseGrantMakingWebsites()
   res.send 'syncing'
 
+{typeDefs, resolvers, schemaDirectives} = schema
+schema = buildFederatedSchema {typeDefs, resolvers}
+# https://github.com/apollographql/apollo-feature-requests/issues/145
+SchemaDirectiveVisitor.visitSchemaDirectives schema, schemaDirectives
+
 graphqlServer = new ApolloServer {
-  schema: buildFederatedSchema schema
+  schema: schema
   introspection: true
   playground: true
 }
