@@ -45,10 +45,10 @@ type IrsOrg990Connection {
 }
 
 extend type IrsOrg {
-  irsOrg990s: IrsOrg990Connection
+  irsOrg990s(limit: Int): IrsOrg990Connection
 }
 
 extend type Query {
-  irsOrg990s(ein: String): IrsOrg990Connection
-  irsOrg990s(query: JSON): IrsOrg990Connection
+  irsOrg990s(ein: String, limit: Int): IrsOrg990Connection
+  irsOrg990s(query: JSON, limit: Int): IrsOrg990Connection
 }

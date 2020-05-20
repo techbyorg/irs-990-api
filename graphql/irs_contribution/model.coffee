@@ -67,7 +67,7 @@ class IrsContributionModel extends Base
       }
     ]
 
-  getByAllByFromEin: (fromEin) =>
+  getAllByFromEin: (fromEin) =>
     cknex().select '*'
     .from 'irs_contributions_by_fromEin_and_toId'
     .where 'fromEin', '=', fromEin

@@ -28,6 +28,6 @@ type IrsOrgConnection {
 }
 
 extend type Query {
-  irsOrg(ein: String): IrsOrg
-  irsOrgs(query: JSON!): IrsOrgConnection
+  irsOrg(ein: String, limit: Int): IrsOrg
+  irsOrgs(query: JSON!, limit: Int): IrsOrgConnection
 }

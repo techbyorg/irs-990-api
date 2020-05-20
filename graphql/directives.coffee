@@ -10,5 +10,5 @@ module.exports = {
   #       unless context.user?
   #         router.throw status: 401, info: 'Unauthorized', ignoreLog: true
   #       resolve result, args, context, info
-  #     return # req'd bc of coffeescript
+  #     return # req'd bc of
 }

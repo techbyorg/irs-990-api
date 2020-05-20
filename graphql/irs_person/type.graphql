@@ -21,7 +21,15 @@ type IrsPersonConnection {
   totalCount: Int
 }
 
+extend type IrsFund {
+  irsPersons(limit: Int): IrsPersonConnection
+}
+
+extend type IrsOrg {
+  irsPersons(limit: Int): IrsPersonConnection
+}
+
 extend type Query {
-  irsPersons(ein: String): IrsPersonConnection
-  irsPersons(query: JSON): IrsPersonConnection
+  irsPersons(ein: String, limit: Int): IrsPersonConnection
+  irsPersons(query: JSON, limit: Int): IrsPersonConnection
 }

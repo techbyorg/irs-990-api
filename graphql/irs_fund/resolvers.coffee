@@ -7,7 +7,7 @@ module.exports = {
     irsFund: (rootValue, {ein}) ->
       IrsFund.getByEin ein
 
-    irsFunds: (rootValue, {query}) ->
-      IrsFund.search {query}
+    irsFunds: (rootValue, {query, limit}) ->
+      IrsFund.search {query, limit}
       .then GraphqlFormatter.fromElasticsearch
 }

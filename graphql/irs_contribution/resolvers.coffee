@@ -11,11 +11,16 @@ irsContributionLoader = Loader.withContext (ids, context) ->
 
 module.exports = {
   Query:
-    irsContributions: (_, {ein}) ->
-      IrsContribution.getAllByFromEin ein
+    irsContributions: (_, {fromEin, limit}) ->
+      IrsContribution.getAllByFromEin fromEin, {limit}
       .then GraphqlFormatter.fromScylla
 
   IrsContribution:
     __resolveReference: (irsContribution) ->
       irsContributionLoader(context).load irsContribution.id
+
+  IrsFund:
+    irsContributions: (irsFund) ->
+      IrsContribution.getAllByFromEin irsFund.ein
+      .then GraphqlFormatter.fromScylla
 }

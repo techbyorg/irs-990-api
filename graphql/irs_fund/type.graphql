@@ -16,6 +16,6 @@ type IrsFundConnection {
 }
 
 extend type Query {
-  irsFund(ein: String): IrsFund
-  irsFunds(query: JSON!): IrsFundConnection
+  irsFund(ein: String, limit: Int): IrsFund
+  irsFunds(query: JSON!, limit: Int): IrsFundConnection
 }

@@ -18,9 +18,11 @@ helperConfig = require 'phil-helpers/lib/config'
 helperConfig.set _.pick(config, config.SHARED_WITH_PHIL_HELPERS)
 {Schema} = require 'phil-helpers'
 {setup, childSetup} = require './services/setup'
-directives = require './graphql/directives'
 
-schema = Schema.getSchema({directives, dirName: __dirname})
+directives = require './graphql/directives'
+typeDefs = fs.readFileSync './graphql/type.graphql', 'utf8'
+
+schema = Schema.getSchema({directives, typeDefs, dirName: __dirname})
 
 Promise.config {warnings: false}
 

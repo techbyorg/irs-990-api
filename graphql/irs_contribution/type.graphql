@@ -19,6 +19,10 @@ type IrsContributionConnection {
   totalCount: Int
 }
 
+extend type IrsFund {
+  irsContributions(limit: Int): IrsContributionConnection
+}
+
 extend type Query {
-  irsContributions(ein: String): IrsContributionConnection
+  irsContributions(fromEin: String, limit: Int): IrsContributionConnection
 }
