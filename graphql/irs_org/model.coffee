@@ -58,6 +58,7 @@ class IrsOrgModel extends Base
           lastRevenue: {type: 'long'}
           lastExpenses: {type: 'long'}
 
+          # TODO: specify properties & reindex
           topSalary: {type: 'object'}
 
           websiteText: {type: 'text'} # TODO: move to diff table?

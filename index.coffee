@@ -148,7 +148,7 @@ app.get '/processUnprocessedOrgs', (req, res) ->
 
 app.get '/processEin', (req, res) ->
   {processEin} = require './services/irs_990_importer'
-  processEin req.query.ein
+  processEin req.query.ein, {type: req.query.type}
   res.send 'processing org'
 
 # chunkConcurrency=10

@@ -13,13 +13,16 @@ config = require '../../config'
 # FIXME: classify community foundatoins (990 instead of 990pf) as fund and org?
 
 class Irs990Service
-  processEin: (ein) =>
-    chunk = await IrsOrg990.getAllByEin ein
+  processEin: (ein, {type}) =>
+    Model = if type is 'fund' then IrsFund990 else IrsOrg990
+    chunk = await Model.getAllByEin ein
     JobCreate.createJob {
       queue: JobService.QUEUES.DEFAULT
       waitForCompletion: true
       job: {chunk}
-      type: JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
+      type: if type is 'fund' \
+            then JobService.TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK \
+            else JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
       ttlMs: 120000
       priority: JobService.PRIORITIES.NORMAL
     }

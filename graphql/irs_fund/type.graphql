@@ -1,7 +1,7 @@
 type IrsFund {
   ein: String
   name: String @nameCase
-  city: String
+  city: String @nameCase
   state: String # 2 letter code
   nteecc: String # https://nccs.urban.org/project/national-taxonomy-exempt-entities-ntee-codes
 
@@ -17,9 +17,8 @@ type IrsFund {
   netAssets: BigInt
   liabilities: BigInt
 
-  lastRevenue: BigInt
-  lastExpenses: BigInt
-  lastContributionsAndGrants: BigInt
+  lastYearStats: LastYearStats
+  fundedNteeMajors: JSONObject # {<nteeMajor>: {percent, count}}
 }
 
 type ApplicantInfo {
@@ -47,6 +46,17 @@ type ProgramRelatedInvestment {
 type ProgramRelatedInvestmentLineItem {
   description: String
   expenses: BigInt
+}
+
+type LastYearStats {
+  year: Int
+  revenue: BigInt
+  expenses: BigInt
+  grants: Int
+  grantSum: BigInt
+  grantMin: Int
+  grantMedian: Float
+  grantMax: Int
 }
 
 type IrsFundConnection {

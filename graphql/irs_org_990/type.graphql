@@ -22,10 +22,10 @@ type IrsOrg990 {
   volunteerCount: Int
 
   revenue: IrsOrg990Revenue
-  expenses: String
-  assets: String
-  liabilities: String
-  netAssets: String
+  expenses: String # TODO
+  assets: String # TODO
+  liabilities: String # TODO
+  netAssets: String # TODO
 }
 
 type IrsOrg990Revenue {

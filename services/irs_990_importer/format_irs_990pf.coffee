@@ -1,8 +1,10 @@
 _ = require 'lodash'
 Promise = require 'bluebird'
 md5 = require 'md5'
+stats = require 'stats-lite'
 
-{formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling} = require './helpers'
+{formatInt, formatBigInt, formatWebsite, formatFloat,
+  roundTwoDigits, getOrgNameByFiling} = require './helpers'
 {getEinNteeFromNameCityState} = require './ntee'
 
 module.exports = {
@@ -130,16 +132,31 @@ module.exports = {
       website: fund990.website
     }
 
-    maxExistingYear = _.maxBy existing990s, 'year'
+    maxExistingYear = _.maxBy(existing990s, 'year')?.year
     if fund990.year >= maxExistingYear or not maxExistingYear
       fund.maxYear = fund990.year
       fund.assets = fund990.assets.eoy
       fund.netAssetSales = fund990.netAssets.eoy
       fund.liabilities = fund990.liabilities.eoy
 
-      fund.lastRevenue = fund990.revenue.total
-      fund.lastExpenses = fund990.expenses.total
-      fund.lastContributionsAndGrants = fund990.expenses.contributionsAndGrants
+      grantAmounts = _.map contributions, 'amount'
+      hasGrants = grantAmounts.length > 0
+      fund.lastYearStats =
+        year: fund990.year
+        revenue: fund990.revenue.total
+        expenses: fund990.expenses.total
+        grants: contributions.length
+        grantSum: fund990.expenses.contributionsAndGrants
+        grantMin: if hasGrants then _.min grantAmounts else 0
+        grantMedian: if hasGrants then stats.median grantAmounts else 0
+        grantMax: if hasGrants then _.max grantAmounts else 0
+
+      contributionsWithNteeMajor = _.filter contributions, ({nteeMajor}) ->
+        nteeMajor and nteeMajor isnt '?'
+      nteeCounts = _.countBy _.map contributionsWithNteeMajor, 'nteeMajor'
+      fund.fundedNteeMajors = _.mapValues nteeCounts, (count) ->
+        percent = roundTwoDigits 100 * count / contributionsWithNteeMajor.length
+        {count, percent}
 
       fund.applicantInfo = fund990.applicantInfo
       fund.directCharitableActivities = fund990.directCharitableActivities
@@ -212,6 +229,4 @@ module.exports = {
 
       contribution
     , {concurrency: 5}
-
-
 }

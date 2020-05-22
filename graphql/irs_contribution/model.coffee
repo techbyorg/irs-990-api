@@ -67,11 +67,26 @@ class IrsContributionModel extends Base
       }
     ]
 
-  getAllByFromEin: (fromEin) =>
-    cknex().select '*'
+  getAllByFromEin: (fromEin, {limit} = {}) =>
+    q = cknex().select '*'
     .from 'irs_contributions_by_fromEin_and_toId'
     .where 'fromEin', '=', fromEin
-    .run()
+
+    if limit
+      q.limit limit
+
+    q.run()
+    .map @defaultOutput
+
+  getAllByToId: (toId, {limit} = {}) =>
+    q = cknex().select '*'
+    .from 'irs_contributions_by_toId'
+    .where 'toId', '=', toId
+
+    if limit
+      q.limit limit
+
+    q.run()
     .map @defaultOutput
 
 module.exports = new IrsContributionModel()

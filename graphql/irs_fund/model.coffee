@@ -28,9 +28,9 @@ class IrsFundModel extends Base
           netAssets: 'bigint'
           liabilities: 'bigint'
 
-          lastRevenue: 'bigint'
-          lastExpenses: 'bigint'
-          lastContributionsAndGrants: 'bigint'
+          lastYearStats: 'json'
+          # {<nteeMajor>: {count, percent}}
+          fundedNteeMajors: 'json'
         primaryKey:
           partitionKey: ['ein']
       }
@@ -51,16 +51,50 @@ class IrsFundModel extends Base
           mission: {type: 'text'}
           exemptStatus: {type: 'text'}
 
+          applicantInfo:
+            properties:
+              acceptsUnsolicitedRequests: {type: 'boolean'}
+              address:
+                properties:
+                  street1: {type: 'keyword'}
+                  street2: {type: 'keyword'}
+                  postalCode: {type: 'keyword'}
+                  city: {type: 'keyword'}
+                  state: {type: 'keyword'}
+                  countryCode: {type: 'keyword'}
+              recipientName: {type: 'text'}
+              requirements: {type: 'text'}
+              deadlines: {type: 'text'}
+              restrictions: {type: 'text'}
+          directCharitableActivities:
+            properties:
+              lineItem:
+                properties:
+                  description: {type: 'text'}
+                  expenses: {type: 'long'}
+          programRelatedInvestments:
+            properties:
+              lineItem:
+                properties:
+                  description: {type: 'text'}
+                  expenses: {type: 'long'}
+
           assets: {type: 'long'}
           netAssets: {type: 'long'}
           liabilities: {type: 'long'}
-          lastRevenue: {type: 'long'}
-          lastExpenses: {type: 'long'}
-          lastContributionsAndGrants: {type: 'long'}
 
-          applicantInfo: {type: 'object'}
-          directCharitableActivities: {type: 'object'}
-          programRelatedInvestments: {type: 'object'}
+          lastYearStats:
+            properties:
+              year: {type: 'integer'}
+              revenue: {type: 'long'}
+              expenses: {type: 'long'}
+              grants: {type: 'integer'}
+              grantSum: {type: 'long'}
+              grantMin: {type: 'integer'}
+              grantMedian: {type: 'float'}
+              grantMax: {type: 'integer'}
+
+          fundedNteeMajors: {type: 'object'}
 
           websiteText: {type: 'text'} # TODO: move to diff table?
       }

@@ -83,6 +83,7 @@ class IrsOrg990Model extends Base
           employeeCount: {type: 'integer'}
           volunteerCount: {type: 'integer'}
 
+          # TODO specify properties & reindex
           revenue: {type: 'object'}
           expenses: {type: 'object'}
           assets: {type: 'object'}

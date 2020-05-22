@@ -18,6 +18,8 @@ type IrsOrg {
   lastRevenue: BigInt
   lastExpenses: BigInt
 
+  # TODO: switch over to lastYearStats like funds
+
   topSalary: JSONObject
   websiteText: String
 }

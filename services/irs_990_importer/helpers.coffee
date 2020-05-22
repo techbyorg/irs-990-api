@@ -19,4 +19,6 @@ module.exports = {
       entityName += " #{filing.ReturnHeader.BsnssNm_BsnssNmLn2Txt}"
     entityName
 
+  roundTwoDigits: (num) ->
+    Math.round(num * 100) / 100
 }

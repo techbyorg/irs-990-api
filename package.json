@@ -55,6 +55,7 @@
     "redlock": "^2.0.0",
     "request": "^2.88.2",
     "request-promise": "^4.1.1",
+    "stats-lite": "^2.2.0",
     "string-similarity": "^3.0.0"
   }
 }
