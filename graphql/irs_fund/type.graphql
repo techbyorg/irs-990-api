@@ -19,6 +19,9 @@ type IrsFund {
 
   lastYearStats: LastYearStats
   fundedNteeMajors: JSONObject # {<nteeMajor>: {percent, count}}
+
+  contributionStats: JSONObject
+  yearlyStats: JSONObject
 }
 
 type ApplicantInfo {

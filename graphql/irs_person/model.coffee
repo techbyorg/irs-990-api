@@ -7,7 +7,7 @@ class IrsPersonModel extends Base
   getScyllaTables: ->
     [
       {
-        name: 'irs_persons_by_ein_and_name'
+        name: 'irs_persons_by_ein_and_year_and_name'
         keyspace: 'irs_990_api'
         fields:
           ein: 'text'
@@ -28,7 +28,9 @@ class IrsPersonModel extends Base
           isBusiness: {type: 'boolean', defaultFn: -> false}
         primaryKey:
           partitionKey: ['ein']
-          clusteringColumns: ['name']
+          clusteringColumns: ['name', 'year']
+        # could do a materialized view on [[ein], [year, name]], but
+        # #s are small enough that server-side ordering should be fine...
       }
     ]
 
@@ -59,5 +61,14 @@ class IrsPersonModel extends Base
     .where 'ein', '=', ein
     .run()
     .map @defaultOutput
+
+  groupByYear: (persons) ->
+    groupedPersons = _.groupBy persons, 'name'
+    baseFields = ['ein', 'name', 'entityName', 'entityType']
+    _.map groupedPersons, (persons) ->
+      base = _.pick persons[0], baseFields
+      years = _.map persons, (person) ->
+        _.omit person, baseFields
+      _.defaults {years}, base
 
 module.exports = new IrsPersonModel()

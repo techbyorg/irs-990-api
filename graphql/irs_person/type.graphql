@@ -4,6 +4,23 @@ type IrsPerson {
   entityType: String
   year: Int
   name: String @nameCase
+  years: [IrsPersonYear]
+
+  title: String
+  compensation: Int
+  relatedCompensation: Int
+  otherCompensation: Int
+  weeklyHours: Int
+  isOfficer: Boolean
+  isFormerOfficer: Boolean
+  isKeyEmployee: Boolean
+  isHighestPaidEmployee: Boolean
+  isBusiness: Boolean
+}
+
+type IrsPersonYear {
+  year: Int
+
   title: String
   compensation: Int
   relatedCompensation: Int
