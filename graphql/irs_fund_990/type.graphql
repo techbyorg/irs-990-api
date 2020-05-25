@@ -2,9 +2,9 @@ type IrsFund990 {
   ein: String
   year: Int
   objectId: String # irs-defined, unique per filing
+  taxPeriod: String # irs-defined
   type: String # 990, 990ez, 990pf
   xmlUrl: String
-  pdfUrl: String
   importVersion: Int
 
   name: String @nameCase

@@ -57,7 +57,7 @@ class IrsPersonModel extends Base
 
   getAllByEin: (ein) =>
     cknex().select '*'
-    .from 'irs_persons_by_ein_and_name'
+    .from 'irs_persons_by_ein_and_year_and_name'
     .where 'ein', '=', ein
     .run()
     .map @defaultOutput
@@ -65,10 +65,13 @@ class IrsPersonModel extends Base
   groupByYear: (persons) ->
     groupedPersons = _.groupBy persons, 'name'
     baseFields = ['ein', 'name', 'entityName', 'entityType']
-    _.map groupedPersons, (persons) ->
+    persons = _.map groupedPersons, (persons) ->
       base = _.pick persons[0], baseFields
       years = _.map persons, (person) ->
         _.omit person, baseFields
-      _.defaults {years}, base
+      maxYear = _.maxBy(years, 'year').year
+      _.defaults {maxYear, years}, base
+
+    _.orderBy persons, 'maxYear', 'desc'
 
 module.exports = new IrsPersonModel()

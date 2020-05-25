@@ -43,6 +43,7 @@ module.exports = {
             {
               ein: filing.EIN
               year: filing.TaxPeriod.substr(0, 4)
+              taxPeriod: filing.TaxPeriod
               objectId: filing.ObjectId
               submitDate: new Date filing.SubmittedOn
               lastIrsUpdate: new Date filing.LastUpdated
@@ -61,6 +62,7 @@ module.exports = {
             {
               ein: filing.EIN
               year: filing.TaxPeriod.substr(0, 4)
+              taxPeriod: filing.TaxPeriod
               objectId: filing.ObjectId
               submitDate: new Date filing.SubmittedOn
               lastIrsUpdate: new Date filing.LastUpdated

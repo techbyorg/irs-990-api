@@ -6,7 +6,7 @@ type IrsPerson {
   name: String @nameCase
   years: [IrsPersonYear]
 
-  title: String
+  title: String @nameCase
   compensation: Int
   relatedCompensation: Int
   otherCompensation: Int
@@ -21,7 +21,7 @@ type IrsPerson {
 type IrsPersonYear {
   year: Int
 
-  title: String
+  title: String @nameCase
   compensation: Int
   relatedCompensation: Int
   otherCompensation: Int

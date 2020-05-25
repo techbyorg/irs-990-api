@@ -12,13 +12,14 @@ class IrsFund990Model extends Base
         fields:
           ein: 'text'
           year: 'int'
+          taxPeriod: 'text'
           objectId: 'text' # irs-defined, unique per filing
           filingVersion: 'text' # irs-defined
           submitDate: 'timestamp'
           lastIrsUpdate: 'timestamp'
           type: 'text' # 990, 990ez, 990pf
           xmlUrl: 'text'
-          pdfUrl: 'text'
+          # pdfUrl: 'text' # TODO: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads
           importVersion: {type: 'int', defaultFn: -> 0}
 
           name: 'text'
@@ -60,6 +61,7 @@ class IrsFund990Model extends Base
         mappings:
           ein: {type: 'keyword'}
           year: {type: 'integer'}
+          taxPeriod: {type: 'keyword'}
           objectId: {type: 'keyword'} # irs-defined, unique per filing
           filingVersion: {type: 'keyword'} # irs-defined
           submitDate: {type: 'date'}

@@ -26,11 +26,20 @@ type IrsFund {
 
 type ApplicantInfo {
   acceptsUnsolicitedRequests: Boolean
-  address: String
-  recipientName: String
-  requirements: String
-  deadlines: String
-  restrictions: String
+  address: ApplicantInfoAddress
+  recipientName: String @nameCase
+  requirements: String @sentenceCase
+  deadlines: String @sentenceCase
+  restrictions: String @sentenceCase
+}
+
+type ApplicantInfoAddress {
+  street1: String @nameCase
+  street2: String @nameCase
+  postalCode: String
+  city: String @nameCase
+  state: String
+  countryCode: String
 }
 
 type DirectCharitableActivity {
