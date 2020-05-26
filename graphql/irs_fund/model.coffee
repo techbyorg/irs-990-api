@@ -31,6 +31,8 @@ class IrsFundModel extends Base
           lastYearStats: 'json'
           # {<nteeMajor>: {count, percent}}
           fundedNteeMajors: 'json'
+          fundedNtees: 'json'
+          fundedStates: 'json'
         primaryKey:
           partitionKey: ['ein']
       }
@@ -94,7 +96,39 @@ class IrsFundModel extends Base
               grantMedian: {type: 'float'}
               grantMax: {type: 'integer'}
 
-          fundedNteeMajors: {type: 'object'}
+          fundedNteeMajors:
+            type: 'nested'
+            properties:
+              count: {type: 'integer'}
+              percent:
+                type: 'scaled_float'
+                scaling_factor: 100
+              sum: {type: 'long'}
+              sumPercent:
+                type: 'scaled_float'
+                scaling_factor: 100
+          fundedNtees:
+            type: 'nested'
+            properties:
+              count: {type: 'integer'}
+              percent:
+                type: 'scaled_float'
+                scaling_factor: 100
+              sum: {type: 'long'}
+              sumPercent:
+                type: 'scaled_float'
+                scaling_factor: 100
+          fundedStates:
+            type: 'nested'
+            properties:
+              count: {type: 'integer'}
+              percent:
+                type: 'scaled_float'
+                scaling_factor: 100
+              sum: {type: 'long'}
+              sumPercent:
+                type: 'scaled_float'
+                scaling_factor: 100
 
           websiteText: {type: 'text'} # TODO: move to diff table?
       }

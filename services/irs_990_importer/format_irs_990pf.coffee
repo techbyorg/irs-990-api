@@ -4,7 +4,7 @@ md5 = require 'md5'
 stats = require 'stats-lite'
 
 {formatInt, formatBigInt, formatWebsite, formatFloat,
-  roundTwoDigits, getOrgNameByFiling} = require './helpers'
+  roundTwoDigits, getOrgNameByFiling, sumByLong} = require './helpers'
 {getEinNteeFromNameCityState} = require './ntee'
 
 module.exports = {
@@ -153,10 +153,22 @@ module.exports = {
 
       contributionsWithNteeMajor = _.filter contributions, ({nteeMajor}) ->
         nteeMajor and nteeMajor isnt '?'
-      nteeCounts = _.countBy _.map contributionsWithNteeMajor, 'nteeMajor'
-      fund.fundedNteeMajors = _.mapValues nteeCounts, (count) ->
-        percent = roundTwoDigits 100 * count / contributionsWithNteeMajor.length
-        {count, percent}
+      nteeMajorGroups = _.groupBy contributionsWithNteeMajor, 'nteeMajor'
+      fund.fundedNteeMajors = getStatsForContributionGroups nteeMajorGroups, {
+        allContributions: contributionsWithNteeMajor
+      }
+
+      nteeGroups = _.groupBy contributionsWithNteeMajor, (contribution) ->
+        "#{contribution.nteeMajor}#{contribution.nteeMinor}"
+      fund.fundedNtees = getStatsForContributionGroups nteeGroups, {
+        allContributions: contributionsWithNteeMajor
+      }
+
+      contributionsWithState = _.filter contributions, 'toState'
+      stateGroups = _.groupBy contributionsWithState, 'toState'
+      fund.fundedStates = getStatsForContributionGroups stateGroups, {
+        allContributions: contributionsWithState
+      }
 
       fund.applicantInfo = fund990.applicantInfo
       fund.directCharitableActivities = fund990.directCharitableActivities
@@ -230,3 +242,18 @@ module.exports = {
       contribution
     , {concurrency: 5}
 }
+
+getStatsForContributionGroups = (contributionGroups, {allContributions}) ->
+  allContributionsCount = allContributions.length
+  allContributionsSum = sumByLong allContributions, 'amount'
+
+  _.map contributionGroups, (groupContributions, key) ->
+    count = groupContributions.length
+    sum = sumByLong groupContributions, 'amount'
+    {
+      key
+      count
+      percent: roundTwoDigits 100 * count / allContributionsCount
+      sum
+      sumPercent: roundTwoDigits 100 * sum / allContributionsSum
+    }

@@ -18,10 +18,28 @@ type IrsFund {
   liabilities: BigInt
 
   lastYearStats: LastYearStats
-  fundedNteeMajors: JSONObject # {<nteeMajor>: {percent, count}}
+  fundedNteeMajors: [FundedStats] # {<nteeMajor>: {count, percent, sum, sumPercent}}
+  fundedNtees: [FundedStats] # {<ntee>: {count, percent, sum, sumPercent}}
+  fundedStates: [FundedStats] # {<state>: {count, percent, sum, sumPercent}}
 
-  contributionStats: JSONObject
-  yearlyStats: JSONObject
+  yearlyStats: YearlyStats
+}
+
+type YearlyStats {
+  years: [YearStats]
+}
+
+type YearStats {
+  year: Int
+  assets: BigInt
+}
+
+type FundedStats {
+  key: String
+  count: Int
+  percent: Float
+  sum: BigInt
+  sumPercent: Float
 }
 
 type ApplicantInfo {

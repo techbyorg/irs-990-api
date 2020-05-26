@@ -16,25 +16,13 @@ module.exports = {
 
   IrsFund:
     yearlyStats: (irsFund) ->
-      console.log 'get'
       irs990s = await IrsFund990.getAllByEin irsFund.ein
       irs990s = _.orderBy irs990s, 'year'
       {
         years: _.map irs990s, (irs990) ->
           {
             year: irs990.year
-            assets: irs990.assets.eoy
+            assets: irs990.assets?.eoy
           }
       }
-
-    contributionStats: (irsFund) ->
-      contributions = await IrsContribution.getAllByFromEin irsFund.ein
-      # TODO: cache result
-      contributionsByState = _.groupBy contributions, 'toState'
-      states = _.mapValues contributionsByState, (contributions) ->
-        sum = _.reduce contributions, (long, {amount}) ->
-          long.add amount
-        , cknex.Long.fromValue(0)
-        {sum, count: contributions.length}
-      {states}
 }
