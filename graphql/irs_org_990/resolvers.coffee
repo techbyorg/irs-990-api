@@ -1,4 +1,4 @@
-{GraphqlFormatter} = require 'phil-helpers'
+{GraphqlFormatter} = require 'backend-shared'
 
 IrsOrg990 = require './model'
 

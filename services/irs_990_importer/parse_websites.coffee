@@ -1,5 +1,5 @@
 _ = require 'lodash'
-{JobCreate} = require 'phil-helpers'
+{JobCreate} = require 'backend-shared'
 
 IrsOrg = require '../../graphql/irs_org/model'
 JobService = require '../../services/job'

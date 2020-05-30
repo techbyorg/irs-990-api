@@ -1,5 +1,5 @@
 _ = require 'lodash'
-{cknex, GraphqlFormatter} = require 'phil-helpers'
+{cknex, GraphqlFormatter} = require 'backend-shared'
 
 IrsFund = require './model'
 IrsFund990 = require '../irs_fund_990/model'

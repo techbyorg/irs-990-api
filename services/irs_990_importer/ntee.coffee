@@ -1,6 +1,6 @@
 _ = require 'lodash'
 stringSimilarity = require 'string-similarity'
-{Cache} = require 'phil-helpers'
+{Cache} = require 'backend-shared'
 
 IrsOrg = require '../../graphql/irs_org/model'
 CacheService = require '../../services/cache'

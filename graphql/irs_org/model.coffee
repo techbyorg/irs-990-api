@@ -1,5 +1,5 @@
 _ = require 'lodash'
-{Base, cknex, elasticsearch, Format} = require 'phil-helpers'
+{Base, cknex, elasticsearch, Format} = require 'backend-shared'
 
 config = require '../../config'
 

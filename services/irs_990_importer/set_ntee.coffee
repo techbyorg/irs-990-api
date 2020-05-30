@@ -2,7 +2,7 @@ _ = require 'lodash'
 requestNonPromise = require 'request'
 csv = require 'csvtojson'
 fs = require 'fs'
-{JobCreate} = require 'phil-helpers'
+{JobCreate} = require 'backend-shared'
 
 IrsOrg = require '../../graphql/irs_org/model'
 JobService = require '../../services/job'

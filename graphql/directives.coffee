@@ -1,5 +1,5 @@
 router = require 'exoid-router'
-{Format} = require 'phil-helpers'
+{Format} = require 'backend-shared'
 
 {defaultFieldResolver} = require 'graphql'
 {SchemaDirectiveVisitor} = require 'graphql-tools'

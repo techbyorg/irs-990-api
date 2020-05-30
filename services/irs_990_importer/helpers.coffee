@@ -1,6 +1,6 @@
 normalizeUrl = require 'normalize-url'
 _ = require 'lodash'
-{cknex} = require 'phil-helpers'
+{cknex} = require 'backend-shared'
 
 module.exports = {
   formatInt: (int) -> if int? then parseInt(int) else null

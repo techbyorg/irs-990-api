@@ -1,4 +1,4 @@
-{GraphqlFormatter, Loader} = require 'phil-helpers'
+{GraphqlFormatter, Loader} = require 'backend-shared'
 
 IrsContribution = require './model'
 

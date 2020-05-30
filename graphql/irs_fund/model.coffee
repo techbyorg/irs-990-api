@@ -1,5 +1,5 @@
 _ = require 'lodash'
-{Base, cknex, elasticsearch} = require 'phil-helpers'
+{Base, cknex, elasticsearch} = require 'backend-shared'
 
 config = require '../../config'
 
@@ -29,10 +29,9 @@ class IrsFundModel extends Base
           liabilities: 'bigint'
 
           lastYearStats: 'json'
-          # {<nteeMajor>: {count, percent}}
-          fundedNteeMajors: 'json'
-          fundedNtees: 'json'
-          fundedStates: 'json'
+          fundedNteeMajors: {type: 'json', defaultFn: -> []}
+          fundedNtees: {type: 'json', defaultFn: -> []}
+          fundedStates: {type: 'json', defaultFn: -> []}
         primaryKey:
           partitionKey: ['ein']
       }

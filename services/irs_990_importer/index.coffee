@@ -1,6 +1,6 @@
 Promise = require 'bluebird'
 _ = require 'lodash'
-{JobCreate} = require 'phil-helpers'
+{JobCreate} = require 'backend-shared'
 
 IrsContribution = require '../../graphql/irs_contribution/model'
 IrsFund = require '../../graphql/irs_fund/model'

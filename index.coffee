@@ -15,9 +15,9 @@ router = require 'exoid-router'
 {SchemaDirectiveVisitor} = require 'graphql-tools'
 
 config = require './config'
-helperConfig = require 'phil-helpers/lib/config'
+helperConfig = require 'backend-shared/lib/config'
 helperConfig.set _.pick(config, config.SHARED_WITH_PHIL_HELPERS)
-{Schema} = require 'phil-helpers'
+{Schema} = require 'backend-shared'
 {setup, childSetup} = require './services/setup'
 
 directives = require './graphql/directives'
@@ -44,7 +44,7 @@ validTables = [
 app.get '/tableCount', (req, res) ->
   if validTables.indexOf(req.query.tableName) is -1
     res.send {error: 'invalid table name'}
-  {elasticsearch} = require 'phil-helpers'
+  {elasticsearch} = require 'backend-shared'
   elasticsearch.count {
     index: req.query.tableName
   }
@@ -69,7 +69,7 @@ app.get '/unprocessedCount', (req, res) ->
 # settings that supposedly make ES bulk insert faster
 # (refresh interval -1 and 0 replicas). but it doesn't seem to make it faster
 app.get '/setES', (req, res) ->
-  {elasticsearch} = require 'phil-helpers'
+  {elasticsearch} = require 'backend-shared'
 
   if req.query.mode is 'bulk'
     replicas = 0
@@ -101,7 +101,7 @@ app.get '/setMaxWindow', (req, res) ->
   if maxResultWindow < 10000 or maxResultWindow > 100000
     res.send {error: 'must be number between 10,000 and 100,000'}
 
-  {elasticsearch} = require 'phil-helpers'
+  {elasticsearch} = require 'backend-shared'
 
   res.send await elasticsearch.indices.putSettings {
     index: req.query.tableName

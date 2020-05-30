@@ -6,7 +6,7 @@ env = process.env
 config =
   CURRENT_IMPORT_VERSION: 16 # increment any time you want to repull all data
   VALID_RETURN_VERSIONS: [
-    # https://github.com/breezyhq/990-xml-reader/blob/master/irs_reader/settings.py#L36
+    # https://github.com/techbyorg/990-xml-reader/blob/master/irs_reader/settings.py#L36
     '2013v3.0', '2013v3.1', '2013v4.0', '2014v5.0', '2014v6.0',
     '2015v2.0', '2015v2.1', '2015v3.0', '2016v3.0', '2016v3.1',
     '2017v2.0', '2017v2.1', '2017v2.2', '2017v2.3', '2018v3.0',

@@ -2,7 +2,7 @@ fs = require 'fs'
 path = require 'path'
 _ = require 'lodash'
 Promise = require 'bluebird'
-{cknex, ElasticsearchSetup, JobRunner, ScyllaSetup} = require 'phil-helpers'
+{cknex, ElasticsearchSetup, JobRunner, ScyllaSetup} = require 'backend-shared'
 
 config = require '../config'
 {RUNNERS} = require './job'
