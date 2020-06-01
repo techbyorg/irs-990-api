@@ -26,9 +26,7 @@ class IrsOrgModel extends Base
           employeeCount: 'int'
           volunteerCount: 'int'
 
-          lastRevenue: 'bigint'
-          lastExpenses: 'bigint'
-          topSalary: 'json'
+          lastYearStats: 'json'
         primaryKey:
           partitionKey: ['ein']
       }
@@ -55,11 +53,17 @@ class IrsOrgModel extends Base
           employeeCount: {type: 'integer'}
           volunteerCount: {type: 'integer'}
 
-          lastRevenue: {type: 'long'}
-          lastExpenses: {type: 'long'}
-
-          # TODO: specify properties & reindex
-          topSalary: {type: 'object'}
+          lastYearStats:
+            properties:
+              year: {type: 'integer'}
+              revenue: {type: 'long'}
+              expenses: {type: 'long'}
+              revenue: {type: 'long'}
+              topSalary:
+                properties:
+                  name: {type: 'text'}
+                  title: {type: 'text'}
+                  compensation: {type: 'int'}
 
           websiteText: {type: 'text'} # TODO: move to diff table?
       }

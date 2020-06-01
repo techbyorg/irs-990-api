@@ -11,7 +11,12 @@ module.exports = {
       IrsFund.getByEin ein
 
     irsFunds: (rootValue, {query, limit}) ->
+      console.log 'search'
+      start = Date.now()
       IrsFund.search {query, limit}
+      .then (r) ->
+        console.log Date.now() - start
+        r
       .then GraphqlFormatter.fromElasticsearch
 
   IrsFund:

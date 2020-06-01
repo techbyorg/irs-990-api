@@ -1,3 +1,6 @@
+"""
+990PF (form for private foundations AKA funds)
+"""
 type IrsFund990 {
   ein: String
   year: Int
@@ -14,6 +17,9 @@ type IrsFund990 {
   mission: String
 }
 
+"""
+List of 990PFs
+"""
 type IrsFund990Connection {
   nodes: [IrsFund990!]
   totalCount: Int

@@ -173,7 +173,12 @@ SchemaDirectiveVisitor.visitSchemaDirectives schema, schemaDirectives
 graphqlServer = new ApolloServer {
   schema: schema
   introspection: true
-  playground: true
+  playground:
+    settings:
+      docExplorerOpen: true
+  graphiqlExpress:
+    docExplorerOpen: true
+
 }
 graphqlServer.applyMiddleware {app, path: '/graphql'}
 

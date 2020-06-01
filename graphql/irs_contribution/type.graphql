@@ -1,4 +1,8 @@
-type IrsContribution @key(fields: "id") {
+# type IrsContribution @key(fields: "id") {
+"""
+A grant/contribution from a private foundation to a nonprofit
+"""
+type IrsContribution {
   id: ID!
   year: Int
   fromEin: String
@@ -14,6 +18,9 @@ type IrsContribution @key(fields: "id") {
   purpose: String @sentenceCase
 }
 
+"""
+List of contributions
+"""
 type IrsContributionConnection {
   nodes: [IrsContribution!]
   totalCount: Int

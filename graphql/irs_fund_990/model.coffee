@@ -51,6 +51,7 @@ class IrsFund990Model extends Base
         primaryKey:
           partitionKey: ['ein']
           clusteringColumns: ['year', 'objectId']
+          # TODO withclusteringorderby year desc
       }
     ]
 

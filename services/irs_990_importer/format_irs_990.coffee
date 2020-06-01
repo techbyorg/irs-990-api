@@ -81,11 +81,13 @@ module.exports = {
       org.employeeCount = org990.employeeCount
       org.volunteerCount = org990.volunteerCount
 
-      org.lastRevenue = org990.revenue.total
-      org.lastExpenses = org990.expenses.total
-      org.topSalary = _.pick _.maxBy(persons, 'compensation'), [
-        'name', 'title', 'compensation'
-      ]
+      org.lastYearStats =
+        year: org990.year
+        revenue: org990.revenue.total
+        expenses: org990.expenses.total
+        topSalary: _.pick _.maxBy(persons, 'compensation'), [
+          'name', 'title', 'compensation'
+        ]
 
     org
 

@@ -1,3 +1,6 @@
+"""
+A private foundation, determined by 990PF form
+"""
 type IrsFund {
   ein: String
   name: String @nameCase
@@ -25,15 +28,25 @@ type IrsFund {
   yearlyStats: YearlyStats
 }
 
+"""
+Per-year stats
+"""
 type YearlyStats {
   years: [YearStats]
 }
 
+"""
+Stats for a given year
+"""
 type YearStats {
   year: Int
   assets: BigInt
 }
 
+"""
+Information about some key/category and how the fund has contributed to that category.
+Broken down by keys of NTEE majors, NTEEs, and US states
+"""
 type FundedStats {
   key: String
   count: Int
@@ -42,6 +55,9 @@ type FundedStats {
   sumPercent: Float
 }
 
+"""
+Information on how to apply for a grant from a fund
+"""
 type ApplicantInfo {
   acceptsUnsolicitedRequests: Boolean
   address: ApplicantInfoAddress
@@ -60,15 +76,22 @@ type ApplicantInfoAddress {
   countryCode: String
 }
 
+"""
+A charitable activity the fund has listed in the 990PF
+"""
 type DirectCharitableActivity {
   lineItem: DirectCharitableActivityLineItem
 }
+
 
 type DirectCharitableActivityLineItem {
   description: String
   expenses: BigInt
 }
 
+"""
+A program-related investment the fund has listed in the 990PF
+"""
 type ProgramRelatedInvestment {
   lineItem: ProgramRelatedInvestmentLineItem
 }
@@ -78,6 +101,9 @@ type ProgramRelatedInvestmentLineItem {
   expenses: BigInt
 }
 
+"""
+Statistics from the most recently available 990PF
+"""
 type LastYearStats {
   year: Int
   revenue: BigInt
@@ -89,6 +115,9 @@ type LastYearStats {
   grantMax: Int
 }
 
+"""
+List of funds (private foundations)
+"""
 type IrsFundConnection {
   nodes: [IrsFund!]
   totalCount: Int
@@ -96,5 +125,5 @@ type IrsFundConnection {
 
 extend type Query {
   irsFund(ein: String, limit: Int): IrsFund
-  irsFunds(query: JSON!, limit: Int): IrsFundConnection
+  irsFunds(query: ESQuery!, limit: Int): IrsFundConnection
 }

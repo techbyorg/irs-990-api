@@ -19,9 +19,9 @@ module.exports = {
         IrsContribution.getAllByToId toId, {limit}
         .then GraphqlFormatter.fromScylla
 
-  IrsContribution:
-    __resolveReference: (irsContribution) ->
-      irsContributionLoader(context).load irsContribution.id
+  # IrsContribution:
+  #   __resolveReference: (irsContribution) ->
+  #     irsContributionLoader(context).load irsContribution.id
 
   IrsFund:
     irsContributions: (irsFund, {limit}) ->

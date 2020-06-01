@@ -1,3 +1,6 @@
+"""
+A nonprofit, determined by 990/990EZ form
+"""
 type IrsOrg {
   ein: String
   name: String @nameCase
@@ -24,6 +27,9 @@ type IrsOrg {
   websiteText: String
 }
 
+"""
+List of nonprofits
+"""
 type IrsOrgConnection {
   nodes: [IrsOrg!]
   totalCount: Int
@@ -31,5 +37,5 @@ type IrsOrgConnection {
 
 extend type Query {
   irsOrg(ein: String, limit: Int): IrsOrg
-  irsOrgs(query: JSON!, limit: Int): IrsOrgConnection
+  irsOrgs(query: ESQuery!, limit: Int): IrsOrgConnection
 }

@@ -1,3 +1,6 @@
+"""
+Person associated with a nonprofit (org) or foundation (fund).
+"""
 type IrsPerson {
   ein: String
   entityName: String @nameCase
@@ -18,6 +21,9 @@ type IrsPerson {
   isBusiness: Boolean
 }
 
+"""
+Information on a given year a person was affiliated with an org/fund
+"""
 type IrsPersonYear {
   year: Int
 
@@ -33,6 +39,9 @@ type IrsPersonYear {
   isBusiness: Boolean
 }
 
+"""
+List of persons
+"""
 type IrsPersonConnection {
   nodes: [IrsPerson!]
   totalCount: Int
@@ -48,5 +57,5 @@ extend type IrsOrg {
 
 extend type Query {
   irsPersons(ein: String, limit: Int): IrsPersonConnection
-  irsPersons(query: JSON, limit: Int): IrsPersonConnection
+  irsPersons(query: ESQuery, limit: Int): IrsPersonConnection
 }
