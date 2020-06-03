@@ -1,5 +1,10 @@
 ## README
-This was never really intended to be used by others, so the code is probably a little confusing :P But hopefully it's helpful.
+The best way to get familiar with this API is through the documentation on the GraphQL Playground: [https://api.techby.org/990/v1/graphql](https://api.techby.org/990/v1/graphql)
+
+Click the "Docs" button on the right of the screen to see what is possible. Most advanced queries you write will use Elasticsearch DSL.
+
+## Importing
+If you want to run your own instance and import data, here's how:
 
 ### Getting Started
 `npm install`
@@ -37,8 +42,6 @@ http://localhost:3000/parseGrantMakingWebsites
   - you can tweak the fns for your own purpose
 
 ### Examples
-This doesn't actually take advantage of Elasticsearch yet :P I'd have to write some more graphql resolvers for search
-
 Types: IrsOrg, IrsFund, IrsOrg990, IrsFund990, IrsPerson
 
 Get schema for a type (IrsOrg for example) so you know all fields you can specify (or just look at the type.graphql files)
