@@ -14,7 +14,7 @@ class IrsOrg990Model extends Base
           year: 'int'
           objectId: 'text' # irs-defined, unique per filing
           taxPeriod: 'text' # irs-defined
-          filingVersion: 'text' # irs-defined
+          returnVersion: 'text' # irs-defined
           submitDate: 'timestamp'
           lastIrsUpdate: 'timestamp'
           type: 'text' # 990, 990ez, 990pf
@@ -52,6 +52,8 @@ class IrsOrg990Model extends Base
         primaryKey:
           partitionKey: ['ein']
           clusteringColumns: ['year', 'objectId']
+          # TODO
+          # withClusteringOrderBy: ['year', 'desc']
       }
     ]
 
@@ -64,7 +66,7 @@ class IrsOrg990Model extends Base
           year: {type: 'integer'}
           taxPeriod: {type: 'keyword'}
           objectId: {type: 'keyword'} # irs-defined, unique per filing
-          filingVersion: {type: 'keyword'} # irs-defined
+          returnVersion: {type: 'keyword'} # irs-defined
           submitDate: {type: 'date'}
           lastIrsUpdate: {type: 'date'}
           type: {type: 'keyword'} # 990, 990ez, 990pf
@@ -99,6 +101,8 @@ class IrsOrg990Model extends Base
     .from 'irs_org_990s_by_ein_and_year'
     .where 'ein', '=', ein
     .run()
+    # TODO: order with withClusteringOrderBy instead of this
+    .orderBy 'year', 'desc'
     .map @defaultOutput
 
 

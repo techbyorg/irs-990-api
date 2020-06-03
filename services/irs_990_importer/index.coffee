@@ -14,8 +14,8 @@ config = require '../../config'
 
 class Irs990Service
   processEin: (ein, {type}) =>
-    Model = if type is 'fund' then IrsFund990 else IrsOrg990
-    chunk = await Model.getAllByEin ein
+    Model990 = if type is 'fund' then IrsFund990 else IrsOrg990
+    chunk = await Model990.getAllByEin ein
     JobCreate.createJob {
       queue: JobService.QUEUES.DEFAULT
       waitForCompletion: true
@@ -27,6 +27,30 @@ class Irs990Service
       priority: JobService.PRIORITIES.NORMAL
     }
 
+  # some large funds need to be processed 1 by 1 to not overload scylla
+  fixBadFundImports: ({limit = 10000}) =>
+    irsFunds = await IrsFund.search {
+      trackTotalHits: true
+      limit: limit
+      query:
+        bool:
+          must: [
+            {
+              range:
+                'lastYearStats.grants': gt: 1
+            }
+            {
+              range:
+                'assets': gt: 100000000
+            }
+          ]
+    }
+    console.log "Fetched #{irsFunds.rows.length} / #{irsFunds.total}"
+    Promise.each irsFunds.rows, (irsFund) =>
+      @processEin irsFund.ein, {type: 'fund'}
+    .then ->
+      console.log 'done all'
+
   processUnprocessed: (options) =>
     {limit = 6000, chunkSize = 300, chunkConcurrency, recursive,
       Model990, jobType} = options
@@ -36,11 +60,12 @@ class Irs990Service
       limit: limit
       query:
         bool:
+          # should: _.map config.VALID_RETURN_VERSIONS, (version) ->
+          #   match: returnVersion: version
           must:
-            # TODO: ignore returnVersions we can't process
             range:
-              importVersion:
-                lt: config.CURRENT_IMPORT_VERSION
+              # 'assets.eoy': gt: 100000000
+              importVersion: lt: config.CURRENT_IMPORT_VERSION
     }
     .then (model990s) =>
       console.log "Fetched #{model990s.rows.length} / #{model990s.total} in #{Date.now() - start} ms"

@@ -39,10 +39,12 @@ class IrsContributionModel extends Base
             primaryKey:
               partitionKey: ['fromEin']
               clusteringColumns: ['year', 'toId', 'hash']
+            withClusteringOrderBy: [['year', 'desc'], ['toId', 'asc']]
           irs_contributions_by_toId:
             primaryKey:
               partitionKey: ['toId']
               clusteringColumns: ['year', 'fromEin', 'hash']
+            withClusteringOrderBy: ['year', 'desc']
       }
     ]
 
@@ -69,12 +71,10 @@ class IrsContributionModel extends Base
 
   getAllByFromEin: (fromEin, {limit} = {}) =>
     q = cknex().select '*'
-    .from 'irs_contributions_by_fromEin_and_toId'
+    .from 'irs_contributions_by_fromEin_and_year'
     .where 'fromEin', '=', fromEin
-
     if limit
       q.limit limit
-
     q.run()
     .map @defaultOutput
 
@@ -82,11 +82,17 @@ class IrsContributionModel extends Base
     q = cknex().select '*'
     .from 'irs_contributions_by_toId'
     .where 'toId', '=', toId
-
-    if limit
-      q.limit limit
-
-    q.run()
+    .run()
+    .then (irsContributions) ->
+      irsContributions.reverse()
+      if limit
+        _.take irsContributions, limit
+      else
+        irsContributions
+    # TODO: limit in scylla, not node once withclusteringorderby is done
+    # if limit
+    #   q.limit limit
+    # q.run()
     .map @defaultOutput
 
 module.exports = new IrsContributionModel()

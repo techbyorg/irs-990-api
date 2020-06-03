@@ -4,7 +4,7 @@ assertNoneMissing = require 'assert-none-missing'
 env = process.env
 
 config =
-  CURRENT_IMPORT_VERSION: 18 # increment any time you want to repull all data
+  CURRENT_IMPORT_VERSION: 19 # increment any time you want to repull all data
   VALID_RETURN_VERSIONS: [
     # https://github.com/techbyorg/990-xml-reader/blob/master/irs_reader/settings.py#L36
     '2013v3.0', '2013v3.1', '2013v4.0', '2014v5.0', '2014v6.0',
@@ -12,7 +12,7 @@ config =
     '2017v2.0', '2017v2.1', '2017v2.2', '2017v2.3', '2018v3.0',
     '2018v3.1'
   ]
-  PORT: env.BACKEND_PORT or 3000
+  PORT: env.IRS_990_PORT or 3000
   ENV: env.DEBUG_ENV or env.NODE_ENV
   MAX_CPU: env.IRS_990_API_MAX_CPU or 1
   IRSX_CACHE_DIRECTORY: '/tmp'

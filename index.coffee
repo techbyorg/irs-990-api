@@ -151,10 +151,17 @@ app.get '/processEin', (req, res) ->
   processEin req.query.ein, {type: req.query.type}
   res.send 'processing org'
 
+app.get '/fixBadFundImports', (req, res) ->
+  {fixBadFundImports} = require './services/irs_990_importer'
+  fixBadFundImports {limit: req.query.limit}
+  res.send 'fixing bad fund imports'
+
 # chunkConcurrency=10
 # chunkConcurrency = how many orgs of a chunk to process simultaneously...
 # doesn't matter for orgs, but for funds it does (since there's an es fetch)
 # sweet spot is 1600&chunkSize=50&chunkConcurrency=3 (slow)
+# even with that, scylla might fail upserts for large funds
+# so maybe run at chunk 1 concurrency 1 for assets > 100m
 app.get '/processUnprocessedFunds', (req, res) ->
   {processUnprocessedFunds} = require './services/irs_990_importer'
   processUnprocessedFunds req.query
