@@ -182,9 +182,11 @@ graphqlServer = new ApolloServer {
   introspection: true
   playground:
     settings:
-      docExplorerOpen: true
-  graphiqlExpress:
-    docExplorerOpen: true
+      endpoint: if config.ENV is config.ENVS.PROD
+        'https://api.techby.org/990/v1/graphql'
+      else
+        undefined
+      # docExplorerOpen: true
 
 }
 graphqlServer.applyMiddleware {app, path: '/graphql'}
