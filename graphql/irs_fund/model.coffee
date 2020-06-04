@@ -29,9 +29,9 @@ class IrsFundModel extends Base
           liabilities: 'bigint'
 
           lastYearStats: 'json'
-          fundedNteeMajors: {type: 'json', defaultFn: -> []}
-          fundedNtees: {type: 'json', defaultFn: -> []}
-          fundedStates: {type: 'json', defaultFn: -> []}
+          fundedNteeMajors: {type: 'json', defaultOutputFn: -> []}
+          fundedNtees: {type: 'json', defaultOutputFn: -> []}
+          fundedStates: {type: 'json', defaultOutputFn: -> []}
         primaryKey:
           partitionKey: ['ein']
       }
