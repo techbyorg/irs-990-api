@@ -14,18 +14,14 @@
   },
   "author": "",
   "devDependencies": {
-    "caller-id": "^0.1.0",
     "clay-coffeescript-style-guide": "^1.1.0",
     "gulp": "^3.9.1",
-    "gulp-coffee-istanbul": "git://github.com/claydotio/gulp-coffee-istanbul.git",
     "gulp-coffeelint": "git://github.com/claydotio/gulp-coffeelint.git",
-    "gulp-mocha": "^2.2.0",
-    "gulp-shell": "^0.5.2",
-    "traceur": "0.0.111"
+    "gulp-shell": "^0.5.2"
   },
   "dependencies": {
     "@apollo/federation": "^0.16.0",
-    "apollo-server-express": "^2.13.1",
+    "apollo-server-express": "^2.14.2",
     "assert-none-missing": "^0.1.2",
     "backend-shared": "github:techbyorg/backend-shared",
     "bluebird": "^3.5.3",
