@@ -125,5 +125,5 @@ type IrsFundConnection {
 
 extend type Query {
   irsFund(ein: String, limit: Int): IrsFund
-  irsFunds(query: ESQuery!, limit: Int): IrsFundConnection
+  irsFunds(query: ESQuery!, sort: JSON, limit: Int): IrsFundConnection
 }

@@ -177,16 +177,40 @@ schema = buildFederatedSchema {typeDefs, resolvers}
 # https://github.com/apollographql/apollo-feature-requests/issues/145
 SchemaDirectiveVisitor.visitSchemaDirectives schema, schemaDirectives
 
+defaultQuery = '''
+query($query: ESQuery!) {
+  irsOrgs(query: $query) {
+    nodes {
+      name
+      employeeCount
+      volunteerCount
+    }
+  }
+}
+'''
+
+defaultQueryVariables = '''
+{
+  "query": {"range": {"volunteerCount": {"gte": 10000}}}
+}
+'''
+
 graphqlServer = new ApolloServer {
   schema: schema
   introspection: true
   playground:
-    settings:
-      endpoint: if config.ENV is config.ENVS.PROD
-        'https://api.techby.org/990/v1/graphql'
-      else
-        undefined
-      # docExplorerOpen: true
+    # settings:
+    tabs: [
+      {
+        endpoint: if config.ENV is config.ENVS.DEV
+          "http://localhost:#{config.PORT}/graphql"
+        else
+          'https://api.techby.org/990/v1/graphql'
+        query: defaultQuery
+        variables: defaultQueryVariables
+      }
+    ]
+
 
 }
 graphqlServer.applyMiddleware {app, path: '/graphql'}
