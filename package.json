@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@apollo/federation": "^0.16.0",
-    "apollo-server-express": "^2.13.1",
+    "apollo-server-express": "^2.14.2",
     "assert-none-missing": "^0.1.2",
     "backend-shared": "github:techbyorg/backend-shared",
     "bluebird": "^3.5.3",
