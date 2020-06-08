@@ -100,9 +100,9 @@ class IrsOrg990Model extends Base
     cknex().select '*'
     .from 'irs_org_990s_by_ein_and_year'
     .where 'ein', '=', ein
-    .run()
     # TODO: order with withClusteringOrderBy instead of this
     .orderBy 'year', 'desc'
+    .run()
     .map @defaultOutput
 
 
