@@ -95,4 +95,10 @@ class IrsContributionModel extends Base
     # q.run()
     .map @defaultOutput
 
+  getAllFromEinsFromToEins: (toIds) ->
+    q = cknex().select 'fromEin', 'toId', 'amount'
+    .from 'irs_contributions_by_toId'
+    .where 'toId', 'IN', toIds
+    .run()
+
 module.exports = new IrsContributionModel()

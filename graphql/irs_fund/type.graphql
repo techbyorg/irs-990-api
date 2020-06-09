@@ -41,6 +41,8 @@ Stats for a given year
 type YearStats {
   year: Int
   assets: BigInt
+  grantSum: BigInt
+  officerSalaries: BigInt
 }
 
 """

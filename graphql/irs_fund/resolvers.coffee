@@ -23,6 +23,8 @@ module.exports = {
           {
             year: irs990.year
             assets: irs990.assets?.eoy
+            grantSum: irs990.expenses?.contributionsAndGrants
+            officerSalaries: irs990.expenses?.officerSalaries
           }
       }
 }
