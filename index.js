@@ -1,33 +1,31 @@
-/* eslint-disable
-    no-unused-vars,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
 import fs from 'fs'
 import _ from 'lodash'
-import log from 'loga'
 import cors from 'cors'
 import express from 'express'
 import Promise from 'bluebird'
 import bodyParser from 'body-parser'
-import cluster from 'cluster'
 import http from 'http'
-
-// socketIORedis = require 'socket.io-redis'
-import Redis from 'ioredis'
-
-import router from 'exoid-router'
 import { ApolloServer } from 'apollo-server-express'
 import { buildFederatedSchema } from '@apollo/federation'
 import { SchemaDirectiveVisitor } from 'graphql-tools'
-import config from './config'
-import helperConfig from 'backend-shared/lib/config'
-let resolvers, schemaDirectives
-helperConfig.set(_.pick(config, config.SHARED_WITH_PHIL_HELPERS))
-const { Schema } = require('backend-shared')
-const { setup, childSetup } = require('./services/setup')
+import { Schema, elasticsearch } from 'backend-shared'
+import helperConfig from 'backend-shared/lib/config.js'
 
-const directives = require('./graphql/directives')
+import { setup, childSetup } from './services/setup.js'
+import { setNtee } from './services/irs_990_importer/set_ntee.js'
+import { loadAllForYear } from './services/irs_990_importer/load_all_for_year.js'
+import {
+  processUnprocessedOrgs, processEin, fixBadFundImports, processUnprocessedFunds
+} from './services/irs_990_importer.js'
+import { parseGrantMakingWebsites } from './services/irs_990_importer/parse_websites.js'
+import IrsOrg990 from './graphql/irs_org_990/model.js'
+import directives from './graphql/directives.js.js'
+import config from './config.js'
+
+// FIXME: change to a setup fn that everything else waits on
+helperConfig.set(_.pick(config, config.SHARED_WITH_PHIL_HELPERS))
+
+let resolvers, schemaDirectives
 let typeDefs = fs.readFileSync('./graphql/type.graphql', 'utf8')
 
 let schema = Schema.getSchema({ directives, typeDefs, dirName: __dirname })
@@ -52,7 +50,6 @@ app.get('/tableCount', function (req, res) {
   if (validTables.indexOf(req.query.tableName) === -1) {
     res.send({ error: 'invalid table name' })
   }
-  const { elasticsearch } = require('backend-shared')
   return elasticsearch.count({
     index: req.query.tableName
   })
@@ -60,7 +57,6 @@ app.get('/tableCount', function (req, res) {
 })
 
 app.get('/unprocessedCount', function (req, res) {
-  const IrsOrg990 = require('./graphql/irs_org_990/model')
   return IrsOrg990.search({
     trackTotalHits: true,
     limit: 1, // 16 cpus, 16 chunks
@@ -83,7 +79,6 @@ app.get('/unprocessedCount', function (req, res) {
 // (refresh interval -1 and 0 replicas). but it doesn't seem to make it faster
 app.get('/setES', async function (req, res) {
   let replicas
-  const { elasticsearch } = require('backend-shared')
 
   if (req.query.mode === 'bulk') {
     replicas = 0
@@ -120,8 +115,6 @@ app.get('/setMaxWindow', async function (req, res) {
     res.send({ error: 'must be number between 10,000 and 100,000' })
   }
 
-  const { elasticsearch } = require('backend-shared')
-
   return res.send(await elasticsearch.indices.putSettings({
     index: req.query.tableName,
     body: { max_result_window: maxResultWindow }
@@ -135,7 +128,6 @@ app.get('/setMaxWindow', async function (req, res) {
 // set to as high as you can without getting scylla complaints.
 // 25/s seems to be the sweet spot with current scylla/es setup (1 each)
 app.get('/setNtee', function (req, res) {
-  const { setNtee } = require('./services/irs_990_importer/set_ntee')
   setNtee()
   return res.send('syncing')
 })
@@ -146,7 +138,6 @@ app.get('/setNtee', function (req, res) {
 // each takes ~3 min (1 cpu)
 // bottleneck is elasticsearch writes (bulk goes through, but some error if server is overwhelmed).
 app.get('/loadAllForYear', function (req, res) {
-  const { loadAllForYear } = require('./services/irs_990_importer/load_all_for_year')
   loadAllForYear(req.query.year)
   return res.send(`syncing ${req.query.year || 'sample_index'}`)
 })
@@ -164,19 +155,16 @@ app.get('/loadAllForYear', function (req, res) {
 //    could probably go faster with more cpus (bottleneck at this point is irsx)
 // might need to increase thread_pool.write.queue_size to 1000
 app.get('/processUnprocessedOrgs', function (req, res) {
-  const { processUnprocessedOrgs } = require('./services/irs_990_importer')
   processUnprocessedOrgs(req.query)
   return res.send('processing orgs')
 })
 
 app.get('/processEin', function (req, res) {
-  const { processEin } = require('./services/irs_990_importer')
   processEin(req.query.ein, { type: req.query.type })
   return res.send('processing org')
 })
 
 app.get('/fixBadFundImports', function (req, res) {
-  const { fixBadFundImports } = require('./services/irs_990_importer')
   fixBadFundImports({ limit: req.query.limit })
   return res.send('fixing bad fund imports')
 })
@@ -188,13 +176,11 @@ app.get('/fixBadFundImports', function (req, res) {
 // even with that, scylla might fail upserts for large funds
 // so maybe run at chunk 1 concurrency 1 for assets > 100m
 app.get('/processUnprocessedFunds', function (req, res) {
-  const { processUnprocessedFunds } = require('./services/irs_990_importer')
   processUnprocessedFunds(req.query)
   return res.send('processing funds')
 })
 
 app.get('/parseGrantMakingWebsites', function (req, res) {
-  const { parseGrantMakingWebsites } = require('./services/irs_990_importer/parse_websites')
   parseGrantMakingWebsites()
   return res.send('syncing')
 });
@@ -204,7 +190,7 @@ schema = buildFederatedSchema({ typeDefs, resolvers })
 // https://github.com/apollographql/apollo-feature-requests/issues/145
 SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives)
 
-const defaultQuery = `\
+const defaultQuery = `
 query($query: ESQuery!) {
   irsOrgs(query: $query) {
     nodes {
@@ -213,13 +199,13 @@ query($query: ESQuery!) {
       volunteerCount
     }
   }
-}\
+}
 `
 
-const defaultQueryVariables = `\
+const defaultQueryVariables = `
 {
   "query": {"range": {"volunteerCount": {"gte": 10000}}}
-}\
+}
 `
 
 const graphqlServer = new ApolloServer({

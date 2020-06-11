@@ -1,23 +1,23 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-import _ from 'lodash';
-import { formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling } from './helpers';
+import _ from 'lodash'
+
+import { formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling } from './helpers.js'
 
 export default {
-  getOrg990Json(filing, {ein, year}) {
-    const entityName = getOrgNameByFiling(filing);
+  getOrg990Json (filing, { ein, year }) {
+    const entityName = getOrgNameByFiling(filing)
 
     const exemptStatus = (() => {
-      if (filing.IRS990.parts.part_0?.Orgnztn527Ind) { 
-                   return '527'; 
-                   } else if (filing.IRS990.parts.part_0?.Orgnztn49471NtPFInd) { 
-                   return '4947a1'; 
-                   } else if (filing.IRS990.parts.part_0?.Orgnztn501c3Ind) { 
-                   return '501c3'; }
-    })();
-                   // https://github.com/jsfenfen/990-xml-reader/issues/26
-                   // else if filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd
-                   // then "501c#{filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd}"
+      if (filing.IRS990.parts.part_0?.Orgnztn527Ind) {
+        return '527'
+      } else if (filing.IRS990.parts.part_0?.Orgnztn49471NtPFInd) {
+        return '4947a1'
+      } else if (filing.IRS990.parts.part_0?.Orgnztn501c3Ind) {
+        return '501c3'
+      }
+    })()
+    // https://github.com/jsfenfen/990-xml-reader/issues/26
+    // else if filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd
+    // then "501c#{filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd}"
 
     return {
       ein,
@@ -65,11 +65,11 @@ export default {
 
       employeeCount: formatInt(filing.IRS990.parts.part_i?.TtlEmplyCnt), // **
       volunteerCount: formatInt(filing.IRS990.parts.part_i?.TtlVlntrsCnt) // **
-    };
+    }
   },
 
   // 990ez / 990pf
-  getOrgJson(org990, persons, existing990s) {
+  getOrgJson (org990, persons, existing990s) {
     const org = {
       // TODO: org type (501..)
       ein: org990.ein,
@@ -79,16 +79,16 @@ export default {
       website: org990.website,
       mission: org990.mission,
       exemptStatus: org990.exemptStatus
-    };
+    }
 
-    const maxExistingYear = _.maxBy(existing990s, 'year')?.year;
+    const maxExistingYear = _.maxBy(existing990s, 'year')?.year
     if ((org990.year >= maxExistingYear) || !maxExistingYear) {
-      org.maxYear = org990.year;
-      org.assets = org990.assets.eoy;
-      org.netAssets = org990.netAssets.eoy;
-      org.liabilities = org990.liabilities.eoy;
-      org.employeeCount = org990.employeeCount;
-      org.volunteerCount = org990.volunteerCount;
+      org.maxYear = org990.year
+      org.assets = org990.assets.eoy
+      org.netAssets = org990.netAssets.eoy
+      org.liabilities = org990.liabilities.eoy
+      org.employeeCount = org990.employeeCount
+      org.volunteerCount = org990.volunteerCount
 
       org.lastYearStats = {
         year: org990.year,
@@ -97,20 +97,20 @@ export default {
         topSalary: _.pick(_.maxBy(persons, 'compensation'), [
           'name', 'title', 'compensation'
         ])
-      };
+      }
     }
 
-    return org;
+    return org
   },
 
   // TODO: mark people from previous years as inactive people for org
-  getOrgPersonsJson(filing) {
-    const entityName = getOrgNameByFiling(filing);
+  getOrgPersonsJson (filing) {
+    const entityName = getOrgNameByFiling(filing)
 
-    return _.map(filing.IRS990.groups.Frm990PrtVIISctnA, function(person) {
-      let businessName = person.BsnssNmLn1Txt;
+    return _.map(filing.IRS990.groups.Frm990PrtVIISctnA, function (person) {
+      let businessName = person.BsnssNmLn1Txt
       if (person.BsnssNmLn2Txt) {
-        businessName += ` ${person.BsnssNmLn2Txt}`;
+        businessName += ` ${person.BsnssNmLn2Txt}`
       }
       return {
         name: person.PrsnNm || businessName,
@@ -127,8 +127,8 @@ export default {
         isFormerOfficer: person.FrmrOfcrDrctrTrstInd === 'X',
         isKeyEmployee: person.KyEmplyInd === 'X',
         isHighestPaidEmployee: person.HghstCmpnstdEmplyInd === 'X'
-      };
-  });
+      }
+    })
   }
 
-};
+}

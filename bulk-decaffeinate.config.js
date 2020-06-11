@@ -3,7 +3,7 @@ module.exports = {
   jscodeshiftScripts: ['prefer-function-declarations.js'],
   // searchDirectory: 'src',
   decaffeinateArgs: [
-    '--use-js-modules', '--use-cs2', '--loose', '--disable-suggestion-comment', 
+    '--use-js-modules', '--use-cs2', '--loose', '--disable-suggestion-comment',
     '--use-optional-chaining'
   ]
 }

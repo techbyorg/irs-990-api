@@ -1,15 +1,11 @@
-/* eslint-disable
-    no-unused-vars,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
 import _ from 'lodash'
 import { JobCreate } from 'backend-shared'
-import IrsOrg from '../../graphql/irs_org/model'
-import JobService from '../../services/job'
+
+import IrsOrg from '../../graphql/irs_org/model.js'
+import JobService from '../../services/job.js'
 
 export const parseGrantMakingWebsites = async () => {
-  const { total, rows } = await IrsOrg.search({
+  const { rows } = await IrsOrg.search({
     trackTotalHits: true,
     limit: 10000,
     // limit: 10
@@ -62,6 +58,5 @@ export const parseGrantMakingWebsites = async () => {
     type: JobService.TYPES.DEFAULT.IRS_990_PARSE_WEBSITE,
     ttlMs: 60000,
     priority: JobService.PRIORITIES.NORMAL
-  })
-    .catch(err => console.log('err', err)))
+  }).catch(err => console.log('err', err)))
 }

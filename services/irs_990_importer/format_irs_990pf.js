@@ -1,9 +1,10 @@
+/* eslint-disable camelcase */
 // TODO: This file was created by bulk-decaffeinate.
 // Sanity-check the conversion and remove this comment.
-import _ from 'lodash';
-import Promise from 'bluebird';
-import md5 from 'md5';
-import stats from 'stats-lite';
+import _ from 'lodash'
+import Promise from 'bluebird'
+import md5 from 'md5'
+import stats from 'stats-lite'
 
 import {
   formatInt,
@@ -12,18 +13,18 @@ import {
   formatFloat,
   roundTwoDigits,
   getOrgNameByFiling,
-  sumByLong,
-} from './helpers';
+  sumByLong
+} from './helpers.js'
 
-import { getEinNteeFromNameCityState } from './ntee';
+import { getEinNteeFromNameCityState } from './ntee.js'
 
 export default {
-  getFund990Json(filing, {ein, year}) {
-    let applicantSubmissionAddress;
-    const entityName = getOrgNameByFiling(filing);
+  getFund990Json (filing, { ein, year }) {
+    const entityName = getOrgNameByFiling(filing)
 
-    const website = formatWebsite(filing.IRS990PF.parts.pf_part_viia?.SttmntsRgrdngActy_WbstAddrssTxt);
+    const website = formatWebsite(filing.IRS990PF.parts.pf_part_viia?.SttmntsRgrdngActy_WbstAddrssTxt)
 
+    let applicantSubmissionAddress
     // us address
     if (filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntUSAddrss_ZIPCd) {
       applicantSubmissionAddress = {
@@ -33,19 +34,19 @@ export default {
         city: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntUSAddrss_CtyNm,
         state: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntUSAddrss_SttAbbrvtnCd,
         countryCode: 'US'
-      };
+      }
     // foreign address
     } else if (filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntFrgnAddrss_FrgnPstlCd) {
-      ({
+      applicantSubmissionAddress = {
         street1: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntFrgnAddrss_AddrssLn1Txt,
         street2: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntFrgnAddrss_AddrssLn2Txt,
         postalCode: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntFrgnAddrss_FrgnPstlCd,
         city: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntFrgnAddrss_CtyNm,
         state: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntFrgnAddrss_PrvncOrSttNm,
         countryCode: filing.IRS990PF.groups.PFApplctnSbmssnInf?.[0]?.RcpntFrgnAddrss_CntryCd
-      });
+      }
     } else {
-      applicantSubmissionAddress = null;
+      applicantSubmissionAddress = null
     }
 
     return {
@@ -122,53 +123,52 @@ export default {
       }),
 
       directCharitableActivities: {
-        lineItems: _.filter(_.map(_.range(4), function(i) {
+        lineItems: _.filter(_.map(_.range(4), function (i) {
           if (filing.IRS990PF.parts.pf_part_ixa?.[`Dscrptn${i}Txt`]) {
             return {
               description: filing.IRS990PF.parts.pf_part_ixa[`Dscrptn${i}Txt`],
               expenses: formatBigInt(filing.IRS990PF.parts.pf_part_ixa[`Expnss${i}Amt`]) || 0
-            };
+            }
           }
-      }))
+        }))
       },
 
       programRelatedInvestments: _.pickBy({
-        lineItems:  _.filter(_.map(_.range(4), function(i) {
+        lineItems: _.filter(_.map(_.range(4), function (i) {
           if (filing.IRS990PF.parts.pf_part_ixb?.[`Dscrptn${i}Txt`]) {
             return {
               description: filing.IRS990PF.parts.pf_part_ixb[`Dscrptn${i}Txt`],
               expenses: formatBigInt(filing.IRS990PF.parts.pf_part_ixb[`Expnss${i}Amt`]) || 0
-            };
+            }
           }
-      })),
+        })),
         otherTotal: formatBigInt(filing.IRS990PF.parts.pf_part_ixb?.AllOthrPrgrmRltdInvstTtAmt),
         total: formatBigInt(filing.IRS990PF.parts.pf_part_ixb?.TtlAmt)
       })
 
-
       // TODO: could do some activities on whether or not they do political stuff (viia)
-    };
+    }
   },
 
   // 990pf
-  getFundJson(fund990, fundPersons, contributions, existing990s) {
+  getFundJson (fund990, fundPersons, contributions, existing990s) {
     const fund = {
       ein: fund990.ein,
       name: fund990.name,
       city: fund990.city,
       state: fund990.state,
       website: fund990.website
-    };
+    }
 
-    const maxExistingYear = _.maxBy(existing990s, 'year')?.year;
+    const maxExistingYear = _.maxBy(existing990s, 'year')?.year
     if ((fund990.year >= maxExistingYear) || !maxExistingYear) {
-      fund.maxYear = fund990.year;
-      fund.assets = fund990.assets.eoy;
-      fund.netAssetSales = fund990.netAssets.eoy;
-      fund.liabilities = fund990.liabilities.eoy;
+      fund.maxYear = fund990.year
+      fund.assets = fund990.assets.eoy
+      fund.netAssetSales = fund990.netAssets.eoy
+      fund.liabilities = fund990.liabilities.eoy
 
-      const grantAmounts = _.map(contributions, 'amount');
-      const hasGrants = grantAmounts.length > 0;
+      const grantAmounts = _.map(contributions, 'amount')
+      const hasGrants = grantAmounts.length > 0
       fund.lastYearStats = {
         year: fund990.year,
         revenue: fund990.revenue.total,
@@ -178,40 +178,40 @@ export default {
         grantMin: hasGrants ? _.min(grantAmounts) : 0,
         grantMedian: hasGrants ? stats.median(grantAmounts) : 0,
         grantMax: hasGrants ? _.max(grantAmounts) : 0
-      };
+      }
 
-      const contributionsWithNteeMajor = _.filter(contributions, ({nteeMajor}) => nteeMajor && (nteeMajor !== '?'));
-      const nteeMajorGroups = _.groupBy(contributionsWithNteeMajor, 'nteeMajor');
+      const contributionsWithNteeMajor = _.filter(contributions, ({ nteeMajor }) => nteeMajor && (nteeMajor !== '?'))
+      const nteeMajorGroups = _.groupBy(contributionsWithNteeMajor, 'nteeMajor')
       fund.fundedNteeMajors = getStatsForContributionGroups(nteeMajorGroups, {
         allContributions: contributionsWithNteeMajor
-      });
+      })
 
-      const nteeGroups = _.groupBy(contributionsWithNteeMajor, contribution => `${contribution.nteeMajor}${contribution.nteeMinor}`);
+      const nteeGroups = _.groupBy(contributionsWithNteeMajor, contribution => `${contribution.nteeMajor}${contribution.nteeMinor}`)
       fund.fundedNtees = getStatsForContributionGroups(nteeGroups, {
         allContributions: contributionsWithNteeMajor
-      });
+      })
 
-      const contributionsWithState = _.filter(contributions, 'toState');
-      const stateGroups = _.groupBy(contributionsWithState, 'toState');
+      const contributionsWithState = _.filter(contributions, 'toState')
+      const stateGroups = _.groupBy(contributionsWithState, 'toState')
       fund.fundedStates = getStatsForContributionGroups(stateGroups, {
         allContributions: contributionsWithState
-      });
+      })
 
-      fund.applicantInfo = fund990.applicantInfo;
-      fund.directCharitableActivities = fund990.directCharitableActivities;
-      fund.programRelatedInvestments = fund990.programRelatedInvestments;
+      fund.applicantInfo = fund990.applicantInfo
+      fund.directCharitableActivities = fund990.directCharitableActivities
+      fund.programRelatedInvestments = fund990.programRelatedInvestments
     }
 
-    return fund;
+    return fund
   },
 
-  getFundPersonsJson(filing) {
-    const entityName = getOrgNameByFiling(filing);
+  getFundPersonsJson (filing) {
+    const entityName = getOrgNameByFiling(filing)
 
-    return _.map(filing.IRS990PF.groups.PFOffcrDrTrstKyEmpl, function(person) {
-      let businessName = person.OffcrDrTrstKyEmpl_BsnssNmLn1;
+    return _.map(filing.IRS990PF.groups.PFOffcrDrTrstKyEmpl, function (person) {
+      let businessName = person.OffcrDrTrstKyEmpl_BsnssNmLn1
       if (person.OffcrDrTrstKyEmpl_BsnssNmLn2) {
-        businessName += ` ${person.OffcrDrTrstKyEmpl_BsnssNmLn2}`;
+        businessName += ` ${person.OffcrDrTrstKyEmpl_BsnssNmLn2}`
       }
       return {
         name: person.OffcrDrTrstKyEmpl_PrsnNm || businessName,
@@ -224,24 +224,24 @@ export default {
         compensation: formatInt(person.OffcrDrTrstKyEmpl_CmpnstnAmt),
         benefits: formatInt(person.OffcrDrTrstKyEmpl_EmplyBnftPrgrmAmt),
         expenseAccount: formatInt(person.OffcrDrTrstKyEmpl_ExpnsAccntOthrAllwncAmt)
-      };
-  });
+      }
+    })
   },
 
-  async getContributionsJson(filing) {
-    const contributions = _.map(filing.IRS990PF.groups.PFGrntOrCntrbtnPdDrYr, function(contribution) {
-      const city = contribution.RcpntUSAddrss_CtyNm;
-      const state = contribution.RcpntUSAddrss_SttAbbrvtnCd;
-      let businessName = contribution.RcpntBsnssNm_BsnssNmLn1Txt;
+  async getContributionsJson (filing) {
+    const contributions = _.map(filing.IRS990PF.groups.PFGrntOrCntrbtnPdDrYr, function (contribution) {
+      const city = contribution.RcpntUSAddrss_CtyNm
+      const state = contribution.RcpntUSAddrss_SttAbbrvtnCd
+      let businessName = contribution.RcpntBsnssNm_BsnssNmLn1Txt
       if (contribution.RcpntBsnssNm_BsnssNmLn2Txt) {
-        businessName += ` ${contribution.RcpntBsnssNm_BsnssNmLn2Txt}`;
+        businessName += ` ${contribution.RcpntBsnssNm_BsnssNmLn2Txt}`
       }
 
-      const type = businessName 
-             ? 'org' 
-             : contribution.GrntOrCntrbtnPdDrYr_RcpntPrsnNm 
-             ? 'person' 
-             : 'unknown';
+      const type = businessName
+        ? 'org'
+        : contribution.GrntOrCntrbtnPdDrYr_RcpntPrsnNm
+          ? 'person'
+          : 'unknown'
 
       return {
         year: filing.ReturnHeader.RtrnHdr_TxPrdEndDt.substr(0, 4),
@@ -253,48 +253,48 @@ export default {
         amount: formatBigInt(contribution.GrntOrCntrbtnPdDrYr_Amt),
         relationship: contribution.GrntOrCntrbtnPdDrYr_RcpntRltnshpTxt,
         purpose: contribution.GrntOrCntrbtnPdDrYr_GrntOrCntrbtnPrpsTxt
-      };
-  });
+      }
+    })
 
-    return await Promise.map(contributions, async function(contribution) {
-      const {year, toName, toCity, toState, purpose, amount} = contribution;
-      const einNtee = await getEinNteeFromNameCityState(toName, toCity, toState);
-      const {ein, nteecc} = einNtee || {};
+    return await Promise.map(contributions, async function (contribution) {
+      const { year, toName, toCity, toState, purpose, amount } = contribution
+      const einNtee = await getEinNteeFromNameCityState(toName, toCity, toState)
+      const { ein, nteecc } = einNtee || {}
       contribution = _.defaults({
         toId: ein || toName
-      }, contribution);
+      }, contribution)
       if (!contribution.toId) {
-        console.log('contribution missing toId', contribution);
+        console.log('contribution missing toId', contribution)
       }
       if (nteecc) {
-        contribution.nteeMajor = nteecc.substr(0, 1);
-        contribution.nteeMinor = nteecc.substr(1);
+        contribution.nteeMajor = nteecc.substr(0, 1)
+        contribution.nteeMinor = nteecc.substr(1)
       }
 
       contribution.hash = md5([
         year, toName, toCity, toState, purpose, amount
       ].join(':')
-      );
+      )
 
-      return contribution;
+      return contribution
     }
-    , {concurrency: 5});
+    , { concurrency: 5 })
   }
-};
+}
 
-function getStatsForContributionGroups(contributionGroups, {allContributions}) {
-  const allContributionsCount = allContributions.length;
-  const allContributionsSum = sumByLong(allContributions, 'amount');
+function getStatsForContributionGroups (contributionGroups, { allContributions }) {
+  const allContributionsCount = allContributions.length
+  const allContributionsSum = sumByLong(allContributions, 'amount')
 
-  return _.map(contributionGroups, function(groupContributions, key) {
-    const count = groupContributions.length;
-    const sum = sumByLong(groupContributions, 'amount');
+  return _.map(contributionGroups, function (groupContributions, key) {
+    const count = groupContributions.length
+    const sum = sumByLong(groupContributions, 'amount')
     return {
       key,
       count,
       percent: roundTwoDigits((100 * count) / allContributionsCount),
       sum,
       sumPercent: roundTwoDigits((100 * sum) / allContributionsSum)
-    };
-});
+    }
+  })
 }

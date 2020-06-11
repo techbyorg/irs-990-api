@@ -1,13 +1,7 @@
-/* eslint-disable
-    no-unused-vars,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
 import Queue from 'bull'
-import Redis from 'ioredis'
-import _ from 'lodash'
-import Irs990ImporterJobs from './irs_990_importer/jobs'
-import config from '../config'
+
+import Irs990ImporterJobs from './irs_990_importer/jobs.js'
+import config from '../config.js'
 
 const JOB_QUEUES = {
   DEFAULT:
@@ -55,4 +49,9 @@ const JOB_RUNNERS = {
   }
 }
 
-export { JOB_QUEUES as QUEUES, JOB_TYPES as TYPES, JOB_PRIORITIES as PRIORITIES, JOB_RUNNERS as RUNNERS }
+export {
+  JOB_QUEUES as QUEUES,
+  JOB_TYPES as TYPES,
+  JOB_PRIORITIES as PRIORITIES,
+  JOB_RUNNERS as RUNNERS
+}

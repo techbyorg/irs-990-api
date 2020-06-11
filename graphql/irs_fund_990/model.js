@@ -1,27 +1,9 @@
-/* eslint-disable
-    constructor-super,
-    no-constant-condition,
-    no-eval,
-    no-this-before-super,
-    no-unused-vars,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
-import _ from 'lodash'
-import { Base, cknex, elasticsearch } from 'backend-shared'
-import config from '../../config'
+import { Base, cknex } from 'backend-shared'
 
 class IrsFund990Model extends Base {
   constructor (...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super() }
-      const thisFn = (() => { return this }).toString()
-      const thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1]
-      eval(`${thisName} = this;`)
-    }
-    this.getAllByEin = this.getAllByEin.bind(this)
     super(...args)
+    this.getAllByEin = this.getAllByEin.bind(this)
   }
 
   getScyllaTables () {
@@ -170,7 +152,7 @@ class IrsFund990Model extends Base {
     return cknex().select('*')
       .from('irs_fund_990s_by_ein_and_year')
       .where('ein', '=', ein)
-    // TODO: order with withClusteringOrderBy instead of this
+      // TODO: order with withClusteringOrderBy instead of this
       .orderBy('year', 'desc')
       .run()
       .map(this.defaultOutput)

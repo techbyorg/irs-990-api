@@ -1,23 +1,24 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-import _ from 'lodash';
-import { formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling } from './helpers';
+/* eslint-disable camelcase */
+import _ from 'lodash'
+
+import { formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling } from './helpers.js'
 
 export default {
-  getOrg990EZJson(filing, {ein, year}) {
-    const entityName = getOrgNameByFiling(filing);
+  getOrg990EZJson (filing, { ein, year }) {
+    const entityName = getOrgNameByFiling(filing)
 
     const exemptStatus = (() => {
-      if (filing.IRS990EZ.parts.ez_part_0?.Orgnztn527Ind) { 
-                   return '527'; 
-                   } else if (filing.IRS990EZ.parts.ez_part_0?.Orgnztn49471NtPFInd) { 
-                   return '4947a1'; 
-                   } else if (filing.IRS990EZ.parts.ez_part_0?.Orgnztn501c3Ind) { 
-                   return '501c3'; }
-    })();
-                   // https://github.com/jsfenfen/990-xml-reader/issues/26
-                   // else if filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd
-                   // then "501c#{filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd}"
+      if (filing.IRS990EZ.parts.ez_part_0?.Orgnztn527Ind) {
+        return '527'
+      } else if (filing.IRS990EZ.parts.ez_part_0?.Orgnztn49471NtPFInd) {
+        return '4947a1'
+      } else if (filing.IRS990EZ.parts.ez_part_0?.Orgnztn501c3Ind) {
+        return '501c3'
+      }
+    })()
+    // https://github.com/jsfenfen/990-xml-reader/issues/26
+    // else if filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd
+    // then "501c#{filing.IRS990EZ.parts.ez_part_0?.Orgnztn501cInd}"
 
     return {
       ein,
@@ -79,21 +80,21 @@ export default {
       //
       // employeeCount: filing.IRS990EZ.parts.part_i?.TtlEmplyCnt # **
       // volunteerCount: filing.IRS990EZ.parts.part_i?.TtlVlntrsCnt # **
-    };
+    }
   },
 
-  getOrgEZPersonsJson(filing) {
-    const entityName = getOrgNameByFiling(filing);
+  getOrgEZPersonsJson (filing) {
+    const entityName = getOrgNameByFiling(filing)
 
-    let persons = filing.IRS990EZ.groups.EZOffcrDrctrTrstEmpl;
+    let persons = filing.IRS990EZ.groups.EZOffcrDrctrTrstEmpl
     if (filing.IRS990EZ.groups.EZCmpnstnHghstPdEmpl) {
-      persons.concat(filing.IRS990EZ.groups.EZCmpnstnHghstPdEmpl);
+      persons.concat(filing.IRS990EZ.groups.EZCmpnstnHghstPdEmpl)
     }
 
-    persons = _.map(persons, function(person) {
-      let businessName = person.BsnssNmLn1;
+    persons = _.map(persons, function (person) {
+      let businessName = person.BsnssNmLn1
       if (person.BsnssNmLn2) {
-        businessName += ` ${person.BsnssNmLn2}`;
+        businessName += ` ${person.BsnssNmLn2}`
       }
       return {
         name: person.PrsnNm || businessName,
@@ -106,9 +107,9 @@ export default {
         compensation: formatInt(person.CmpnstnAmt),
         expenseAccount: formatInt(person.ExpnsAccntOthrAllwncAmt),
         otherCompensation: formatInt(person.EmplyBnftPrgrmAmt)
-      };
-  });
-    return _.uniqBy(persons, 'name');
+      }
+    })
+    return _.uniqBy(persons, 'name')
   }
 
-};
+}

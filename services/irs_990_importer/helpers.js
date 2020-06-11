@@ -1,24 +1,35 @@
-/* eslint-disable
-    no-unused-expressions,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
 import normalizeUrl from 'normalize-url'
 import _ from 'lodash'
 import { cknex } from 'backend-shared'
 
 export default {
-  formatInt (int) { if (int != null) { return parseInt(int) } else { return null } },
+  formatInt (int) {
+    if (int != null) {
+      return parseInt(int)
+    } else {
+      return null
+    }
+  },
   // cassanknex doesn't use v4 of cassandra-driver which supports `BigInt`, so have to use Long
-  formatBigInt (bigint) { if (bigint != null) { return cknex.Long.fromValue(bigint) } else { return null } },
-  formatFloat (float) { if (float != null) { return parseFloat(float) } else { return null } },
+  formatBigInt (bigint) {
+    if (bigint != null) {
+      return cknex.Long.fromValue(bigint)
+    } else {
+      return null
+    }
+  },
+  formatFloat (float) {
+    if (float != null) {
+      return parseFloat(float)
+    } else {
+      return null
+    }
+  },
   formatWebsite (website) {
     if (website && (website !== 'N/A')) {
       try {
         website = normalizeUrl(website)
-      } catch (err) {
-        null
-      }
+      } catch (err) {}
     }
     return website
   },

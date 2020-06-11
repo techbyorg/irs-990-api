@@ -1,16 +1,11 @@
-/* eslint-disable
-    no-unused-vars,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
-import _ from 'lodash'
 import requestNonPromise from 'request'
 import csv from 'csvtojson'
 import fs from 'fs'
 import { JobCreate } from 'backend-shared'
 import IrsOrg from '../../graphql/irs_org/model'
-import JobService from '../../services/job'
-import config from '../../config'
+
+import JobService from '../../services/job.js'
+import config from '../../config.js'
 
 export default {
   setNtee () {
@@ -37,8 +32,7 @@ export default {
                 type: JobService.TYPES.DEFAULT.IRS_990_UPSERT_ORGS,
                 ttlMs: 60000,
                 priority: JobService.PRIORITIES.NORMAL
-              })
-                .catch(err => console.log('err', err))
+              }).catch(err => console.log('err', err))
             }
 
             return chunk.push({

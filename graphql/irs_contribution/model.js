@@ -1,33 +1,9 @@
-/* eslint-disable
-    constructor-super,
-    no-constant-condition,
-    no-eval,
-    no-return-assign,
-    no-this-before-super,
-    no-unused-vars,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
 import _ from 'lodash'
-import { Base, cknex, elasticsearch } from 'backend-shared'
-import config from '../../config'
+import { Base, cknex } from 'backend-shared'
 
 // example 990pf: https://s3.amazonaws.com/irs-form-990/201533209349101373_public.xml
 
 class IrsContributionModel extends Base {
-  constructor (...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super() }
-      const thisFn = (() => { return this }).toString()
-      const thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1]
-      eval(`${thisName} = this;`)
-    }
-    this.getAllByFromEin = this.getAllByFromEin.bind(this)
-    this.getAllByToId = this.getAllByToId.bind(this)
-    super(...args)
-  }
-
   getScyllaTables () {
     return [
       {
@@ -107,6 +83,7 @@ class IrsContributionModel extends Base {
     const q = cknex().select('*')
       .from('irs_contributions_by_fromEin_and_year')
       .where('fromEin', '=', fromEin)
+
     if (limit) {
       q.limit(limit)
     }
@@ -115,8 +92,7 @@ class IrsContributionModel extends Base {
   }
 
   getAllByToId (toId, { limit } = {}) {
-    let q
-    return q = cknex().select('*')
+    cknex().select('*')
       .from('irs_contributions_by_toId')
       .where('toId', '=', toId)
       .run()
@@ -131,8 +107,7 @@ class IrsContributionModel extends Base {
   }
 
   getAllFromEinsFromToEins (toIds) {
-    let q
-    return q = cknex().select('fromEin', 'toId', 'amount')
+    return cknex().select('fromEin', 'toId', 'amount')
       .from('irs_contributions_by_toId')
       .where('toId', 'IN', toIds)
       .run()
