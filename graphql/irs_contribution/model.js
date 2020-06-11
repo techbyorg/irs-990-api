@@ -1,24 +1,34 @@
-import _ from 'lodash';
-import { Base, cknex, elasticsearch } from 'backend-shared';
-import config from '../../config';
+/* eslint-disable
+    constructor-super,
+    no-constant-condition,
+    no-eval,
+    no-return-assign,
+    no-this-before-super,
+    no-unused-vars,
+*/
+// TODO: This file was created by bulk-decaffeinate.
+// Fix any style issues and re-enable lint.
+import _ from 'lodash'
+import { Base, cknex, elasticsearch } from 'backend-shared'
+import config from '../../config'
 
 // example 990pf: https://s3.amazonaws.com/irs-form-990/201533209349101373_public.xml
 
 class IrsContributionModel extends Base {
-  constructor(...args) {
+  constructor (...args) {
     {
       // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
+      if (false) { super() }
+      const thisFn = (() => { return this }).toString()
+      const thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1]
+      eval(`${thisName} = this;`)
     }
-    this.getAllByFromEin = this.getAllByFromEin.bind(this);
-    this.getAllByToId = this.getAllByToId.bind(this);
-    super(...args);
+    this.getAllByFromEin = this.getAllByFromEin.bind(this)
+    this.getAllByToId = this.getAllByToId.bind(this)
+    super(...args)
   }
 
-  getScyllaTables() {
+  getScyllaTables () {
     return [
       {
         name: 'irs_contributions_by_fromEin_and_toId',
@@ -35,8 +45,8 @@ class IrsContributionModel extends Base {
           toState: 'text',
           amount: 'bigint',
           type: 'text', // org | person
-          nteeMajor: {type: 'text', defaultFn() { return '?'; }},
-          nteeMinor: {type: 'text', defaultFn() { return '?'; }},
+          nteeMajor: { type: 'text', defaultFn () { return '?' } },
+          nteeMinor: { type: 'text', defaultFn () { return '?' } },
           relationship: 'text',
           purpose: 'text'
         },
@@ -67,65 +77,66 @@ class IrsContributionModel extends Base {
           }
         }
       }
-    ];
+    ]
   }
 
-  getElasticSearchIndices() {
+  getElasticSearchIndices () {
     return [
       {
         name: 'irs_contributions',
         mappings: {
-          fromEin: {type: 'keyword'},
-          year: {type: 'integer'},
-          toId: {type: 'keyword'}, // ein or name if no ein
-          toName: {type: 'text'},
-          hash: {type: 'text'},
-          toExemptStatus: {type: 'keyword'},
-          toCity: {type: 'keyword'},
-          toState: {type: 'keyword'},
-          amount: {type: 'long'},
-          nteeMajor: {type: 'keyword'},
-          nteeMinor: {type: 'keyword'},
-          relationship: {type: 'text'},
-          purpose: {type: 'text'}
+          fromEin: { type: 'keyword' },
+          year: { type: 'integer' },
+          toId: { type: 'keyword' }, // ein or name if no ein
+          toName: { type: 'text' },
+          hash: { type: 'text' },
+          toExemptStatus: { type: 'keyword' },
+          toCity: { type: 'keyword' },
+          toState: { type: 'keyword' },
+          amount: { type: 'long' },
+          nteeMajor: { type: 'keyword' },
+          nteeMinor: { type: 'keyword' },
+          relationship: { type: 'text' },
+          purpose: { type: 'text' }
         }
       }
-    ];
+    ]
   }
 
-  getAllByFromEin(fromEin, {limit} = {}) {
+  getAllByFromEin (fromEin, { limit } = {}) {
     const q = cknex().select('*')
-    .from('irs_contributions_by_fromEin_and_year')
-    .where('fromEin', '=', fromEin);
+      .from('irs_contributions_by_fromEin_and_year')
+      .where('fromEin', '=', fromEin)
     if (limit) {
-      q.limit(limit);
+      q.limit(limit)
     }
     return q.run()
-    .map(this.defaultOutput);
+      .map(this.defaultOutput)
   }
 
-  getAllByToId(toId, {limit} = {}) {
-    let q;
+  getAllByToId (toId, { limit } = {}) {
+    let q
     return q = cknex().select('*')
-    .from('irs_contributions_by_toId')
-    .where('toId', '=', toId)
-    .run()
-    .then(function(irsContributions) {
-      irsContributions.reverse();
-      if (limit) {
-        return _.take(irsContributions, limit);
-      } else {
-        return irsContributions;
-      }}).map(this.defaultOutput);
+      .from('irs_contributions_by_toId')
+      .where('toId', '=', toId)
+      .run()
+      .then(function (irsContributions) {
+        irsContributions.reverse()
+        if (limit) {
+          return _.take(irsContributions, limit)
+        } else {
+          return irsContributions
+        }
+      }).map(this.defaultOutput)
   }
 
-  getAllFromEinsFromToEins(toIds) {
-    let q;
+  getAllFromEinsFromToEins (toIds) {
+    let q
     return q = cknex().select('fromEin', 'toId', 'amount')
-    .from('irs_contributions_by_toId')
-    .where('toId', 'IN', toIds)
-    .run();
+      .from('irs_contributions_by_toId')
+      .where('toId', 'IN', toIds)
+      .run()
   }
 }
 
-export default new IrsContributionModel();
+export default new IrsContributionModel()

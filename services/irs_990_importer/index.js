@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 import Promise from 'bluebird';
 import _ from 'lodash';
 import { JobCreate } from 'backend-shared';

@@ -1,21 +1,30 @@
-import _ from 'lodash';
-import { Base, cknex, elasticsearch } from 'backend-shared';
-import config from '../../config';
+/* eslint-disable
+    constructor-super,
+    no-constant-condition,
+    no-eval,
+    no-this-before-super,
+    no-unused-vars,
+*/
+// TODO: This file was created by bulk-decaffeinate.
+// Fix any style issues and re-enable lint.
+import _ from 'lodash'
+import { Base, cknex, elasticsearch } from 'backend-shared'
+import config from '../../config'
 
 class IrsOrg990Model extends Base {
-  constructor(...args) {
+  constructor (...args) {
     {
       // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
+      if (false) { super() }
+      const thisFn = (() => { return this }).toString()
+      const thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1]
+      eval(`${thisName} = this;`)
     }
-    this.getAllByEin = this.getAllByEin.bind(this);
-    super(...args);
+    this.getAllByEin = this.getAllByEin.bind(this)
+    super(...args)
   }
 
-  getScyllaTables() {
+  getScyllaTables () {
     return [
       {
         name: 'irs_org_990s_by_ein_and_year',
@@ -31,7 +40,7 @@ class IrsOrg990Model extends Base {
           type: 'text', // 990, 990ez, 990pf
           xmlUrl: 'text',
           // pdfUrl: 'text' # TODO: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads
-          importVersion: {type: 'int', defaultFn() { return 0; }},
+          importVersion: { type: 'int', defaultFn () { return 0 } },
 
           name: 'text',
           city: 'text',
@@ -47,81 +56,80 @@ class IrsOrg990Model extends Base {
           volunteerCount: 'int',
 
           // investments, grants, ubi, netUbi, contributionsAndGrants, programService, other, total
-          revenue: {type: 'map', subType: 'text', subType2: 'bigint'},
+          revenue: { type: 'map', subType: 'text', subType2: 'bigint' },
 
           // salaries, professionalFundraising, fundraising, other, total
-          expenses: {type: 'map', subType: 'text', subType2: 'bigint'},
+          expenses: { type: 'map', subType: 'text', subType2: 'bigint' },
 
           // boy, eoy
-          assets: {type: 'map', subType: 'text', subType2: 'bigint'},
+          assets: { type: 'map', subType: 'text', subType2: 'bigint' },
 
           // boy, eoy
-          liabilities: {type: 'map', subType: 'text', subType2: 'bigint'},
+          liabilities: { type: 'map', subType: 'text', subType2: 'bigint' },
 
           // boy, eoy
-          netAssets: {type: 'map', subType: 'text', subType2: 'bigint'}
+          netAssets: { type: 'map', subType: 'text', subType2: 'bigint' }
         },
         primaryKey: {
           partitionKey: ['ein'],
           clusteringColumns: ['year', 'objectId']
         }
-          // TODO
-          // withClusteringOrderBy: ['year', 'desc']
+        // TODO
+        // withClusteringOrderBy: ['year', 'desc']
       }
-    ];
+    ]
   }
 
-  getElasticSearchIndices() {
+  getElasticSearchIndices () {
     return [
       {
         name: 'irs_org_990s',
         mappings: {
-          ein: {type: 'keyword'},
-          year: {type: 'integer'},
-          taxPeriod: {type: 'keyword'},
-          objectId: {type: 'keyword'}, // irs-defined, unique per filing
-          returnVersion: {type: 'keyword'}, // irs-defined
-          submitDate: {type: 'date'},
-          lastIrsUpdate: {type: 'date'},
-          type: {type: 'keyword'}, // 990, 990ez, 990pf
-          xmlUrl: {type: 'keyword'},
-          pdfUrl: {type: 'keyword'},
-          importVersion: {type: 'integer'},
+          ein: { type: 'keyword' },
+          year: { type: 'integer' },
+          taxPeriod: { type: 'keyword' },
+          objectId: { type: 'keyword' }, // irs-defined, unique per filing
+          returnVersion: { type: 'keyword' }, // irs-defined
+          submitDate: { type: 'date' },
+          lastIrsUpdate: { type: 'date' },
+          type: { type: 'keyword' }, // 990, 990ez, 990pf
+          xmlUrl: { type: 'keyword' },
+          pdfUrl: { type: 'keyword' },
+          importVersion: { type: 'integer' },
 
-          name: {type: 'text'},
-          city: {type: 'text'},
-          state: {type: 'text'},
-          website: {type: 'text'},
-          mission: {type: 'text'},
-          exemptStatus: {type: 'text'},
+          name: { type: 'text' },
+          city: { type: 'text' },
+          state: { type: 'text' },
+          website: { type: 'text' },
+          mission: { type: 'text' },
+          exemptStatus: { type: 'text' },
 
-          paidBenefitsToMembers: {type: 'long'},
-          votingMemberCount: {type: 'integer'},
-          independentVotingMemberCount: {type: 'integer'},
-          employeeCount: {type: 'integer'},
-          volunteerCount: {type: 'integer'},
+          paidBenefitsToMembers: { type: 'long' },
+          votingMemberCount: { type: 'integer' },
+          independentVotingMemberCount: { type: 'integer' },
+          employeeCount: { type: 'integer' },
+          volunteerCount: { type: 'integer' },
 
           // TODO specify properties & reindex
-          revenue: {type: 'object'},
-          expenses: {type: 'object'},
-          assets: {type: 'object'},
-          liabilities: {type: 'object'},
-          netAssets: {type: 'object'}
+          revenue: { type: 'object' },
+          expenses: { type: 'object' },
+          assets: { type: 'object' },
+          liabilities: { type: 'object' },
+          netAssets: { type: 'object' }
         }
       }
-    ];
+    ]
   }
 
-  getAllByEin(ein) {
+  getAllByEin (ein) {
     return cknex().select('*')
-    .from('irs_org_990s_by_ein_and_year')
-    .where('ein', '=', ein)
+      .from('irs_org_990s_by_ein_and_year')
+      .where('ein', '=', ein)
     // TODO: order with withClusteringOrderBy instead of this
-    .orderBy('year', 'desc')
-    .run()
-    .map(this.defaultOutput);
+      .orderBy('year', 'desc')
+      .run()
+      .map(this.defaultOutput)
   }
 }
 
-
-export default new IrsOrg990Model();
+export default new IrsOrg990Model()

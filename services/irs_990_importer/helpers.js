@@ -1,41 +1,46 @@
-import normalizeUrl from 'normalize-url';
-import _ from 'lodash';
-import { cknex } from 'backend-shared';
+/* eslint-disable
+    no-unused-expressions,
+*/
+// TODO: This file was created by bulk-decaffeinate.
+// Fix any style issues and re-enable lint.
+import normalizeUrl from 'normalize-url'
+import _ from 'lodash'
+import { cknex } from 'backend-shared'
 
 export default {
-  formatInt(int) { if (int != null) { return parseInt(int); } else { return null; } },
+  formatInt (int) { if (int != null) { return parseInt(int) } else { return null } },
   // cassanknex doesn't use v4 of cassandra-driver which supports `BigInt`, so have to use Long
-  formatBigInt(bigint) { if (bigint != null) { return cknex.Long.fromValue(bigint); } else { return null; } },
-  formatFloat(float) { if (float != null) { return parseFloat(float); } else { return null; } },
-  formatWebsite(website) {
+  formatBigInt (bigint) { if (bigint != null) { return cknex.Long.fromValue(bigint) } else { return null } },
+  formatFloat (float) { if (float != null) { return parseFloat(float) } else { return null } },
+  formatWebsite (website) {
     if (website && (website !== 'N/A')) {
       try {
-        website = normalizeUrl(website);
+        website = normalizeUrl(website)
       } catch (err) {
-        null;
+        null
       }
     }
-    return website;
+    return website
   },
-  getOrgNameByFiling(filing) {
-    let entityName = filing.ReturnHeader.BsnssNm_BsnssNmLn1Txt;
+  getOrgNameByFiling (filing) {
+    let entityName = filing.ReturnHeader.BsnssNm_BsnssNmLn1Txt
     if (filing.ReturnHeader.BsnssNm_BsnssNmLn2Txt) {
-      entityName += ` ${filing.ReturnHeader.BsnssNm_BsnssNmLn2Txt}`;
+      entityName += ` ${filing.ReturnHeader.BsnssNm_BsnssNmLn2Txt}`
     }
-    return entityName;
+    return entityName
   },
 
-  roundTwoDigits(num) {
-    return Math.round(num * 100) / 100;
+  roundTwoDigits (num) {
+    return Math.round(num * 100) / 100
   },
 
-  sumByLong(arr, key) {
-    return _.reduce(arr, function(long, row) {
+  sumByLong (arr, key) {
+    return _.reduce(arr, function (long, row) {
       if (row[key]) {
-        long = long.add(row[key]);
+        long = long.add(row[key])
       }
-      return long;
+      return long
     }
-    , cknex.Long.fromValue(0));
+    , cknex.Long.fromValue(0))
   }
-};
+}

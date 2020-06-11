@@ -1,9 +1,14 @@
-import _ from 'lodash';
-import assertNoneMissing from 'assert-none-missing';
+/* eslint-disable
+    no-unused-vars,
+*/
+// TODO: This file was created by bulk-decaffeinate.
+// Fix any style issues and re-enable lint.
+import _ from 'lodash'
+import assertNoneMissing from 'assert-none-missing'
 
 const {
   env
-} = process;
+} = process
 
 const config = {
   CURRENT_IMPORT_VERSION: 20, // increment any time you want to repull all data
@@ -42,8 +47,8 @@ const config = {
     TEST: 'test'
   },
   SHARED_WITH_PHIL_HELPERS: ['REDIS', 'SCYLLA', 'ELASTICSEARCH', 'ENVS', 'ENV']
-};
+}
 
-assertNoneMissing(config);
+assertNoneMissing(config)
 
-export default config;
+export default config

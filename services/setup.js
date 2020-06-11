@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
@@ -6,7 +8,7 @@ import { cknex, ElasticsearchSetup, JobRunner, ScyllaSetup } from 'backend-share
 import config from '../config';
 import { RUNNERS } from './job';
 
-const setup = async function() {
+function setup() {
   cknex.setDefaultKeyspace('irs_990_api');
   const graphqlFolders = _.filter(fs.readdirSync('./graphql'), file => file.indexOf('.') === -1);
   const scyllaTables = _.flatten(_.map(graphqlFolders, function(folder) {
@@ -35,13 +37,13 @@ const setup = async function() {
   cknex.enableErrors();
   JobRunner.listen(RUNNERS);
   return null; // don't block
-};
+}
 
-const childSetup = function() {
+function childSetup() {
   cknex.setDefaultKeyspace('irs_990_api');
   JobRunner.listen(RUNNERS);
   cknex.enableErrors();
   return Promise.resolve(null); // don't block
-};
+}
 
 export { setup, childSetup };

@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 import _ from 'lodash';
 import request from 'request-promise';
 import { exec } from 'child_process';
@@ -23,7 +25,7 @@ const irsxEnv = _.defaults({
   IRSX_CACHE_DIRECTORY: config.IRSX_CACHE_DIRECTORY
 }, _.clone(process.env));
 
-const processOrgFiling = async function(filing, {ein, year}) {
+function processOrgFiling(filing, {ein, year}) {
   const existing990s = await IrsOrg990.getAllByEin(filing.ReturnHeader.ein);
   const org990 = getOrg990Json(filing, {ein, year});
   const orgPersons = getOrgPersonsJson(filing);
@@ -32,9 +34,9 @@ const processOrgFiling = async function(filing, {ein, year}) {
     model990: org990,
     persons: orgPersons
   };
-};
+}
 
-const processOrgEZFiling = async function(filing, {ein, year}) {
+function processOrgEZFiling(filing, {ein, year}) {
   const existing990s = await IrsOrg990.getAllByEin(filing.ReturnHeader.ein);
   const org990 = getOrg990EZJson(filing, {ein, year});
   const orgPersons = getOrgEZPersonsJson(filing);
@@ -43,9 +45,9 @@ const processOrgEZFiling = async function(filing, {ein, year}) {
     model990: org990,
     persons: orgPersons
   };
-};
+}
 
-const processFundFiling = async function(filing, {ein, year}) {
+function processFundFiling(filing, {ein, year}) {
   const existing990s = await IrsFund990.getAllByEin(ein);
   const fund990 = getFund990Json(filing, {ein, year});
   const fundPersons = getFundPersonsJson(filing);
@@ -56,43 +58,46 @@ const processFundFiling = async function(filing, {ein, year}) {
     persons: fundPersons,
     contributions
   };
-};
-
-const convertFiling = filing => _.reduce(filing, function(obj, part) {
-  if (part.schedule_name === 'ReturnHeader990x') {
-    obj.ReturnHeader = part.schedule_parts.returnheader990x_part_i;
-  } else if (part.schedule_name) {
-    obj[part.schedule_name] = {
-      parts: part.schedule_parts,
-      groups: part.groups
-    };
-  }
-  return obj;
 }
-, {});
 
-const add990Versions = chunk => Promise.map(chunk, async function(model990) {
-  let err, returnVersion;
-  const fileName = `${model990.objectId}_public.xml`;
-  try {
-    const xml = await request(`${config.IRSX_XML_HTTP_BASE}/${fileName}`);
-    try {
-      // since we've already downloaded, store in cache for irsx to use...
-      await fs.outputFile(`${config.IRSX_CACHE_DIRECTORY}/XML/${fileName}`, xml);
-    } catch (error) {
-      err = error;
-      console.log(err);
+function convertFiling(filing) {
+  return _.reduce(filing, function(obj, part) {
+    if (part.schedule_name === 'ReturnHeader990x') {
+      obj.ReturnHeader = part.schedule_parts.returnheader990x_part_i;
+    } else if (part.schedule_name) {
+      obj[part.schedule_name] = {
+        parts: part.schedule_parts,
+        groups: part.groups
+      };
     }
-    returnVersion = xml.match(/returnVersion="(.*?)"/i)?.[1];
-  } catch (error1) {
-    err = error1;
-    returnVersion = null;
-  }
+    return obj;
+  }, {});
+}
 
-  return _.defaults({returnVersion}, model990);
-});
+function add990Versions(chunk) {
+  return Promise.map(chunk, async function(model990) {
+    let err, returnVersion;
+    const fileName = `${model990.objectId}_public.xml`;
+    try {
+      const xml = await request(`${config.IRSX_XML_HTTP_BASE}/${fileName}`);
+      try {
+        // since we've already downloaded, store in cache for irsx to use...
+        await fs.outputFile(`${config.IRSX_CACHE_DIRECTORY}/XML/${fileName}`, xml);
+      } catch (error) {
+        err = error;
+        console.log(err);
+      }
+      returnVersion = xml.match(/returnVersion="(.*?)"/i)?.[1];
+    } catch (error1) {
+      err = error1;
+      returnVersion = null;
+    }
 
-const add990Filings = async function(modifiedModel990s) {
+    return _.defaults({returnVersion}, model990);
+  });
+}
+
+function add990Filings(modifiedModel990s) {
   const loader = new DataLoader(formattedFilingsFromObjectIdsLoaderFn);
   return modifiedModel990s = await Promise.map(modifiedModel990s, async function(modifiedModel990) {
     let filingJson;
@@ -104,9 +109,9 @@ const add990Filings = async function(modifiedModel990s) {
     }
     return _.defaults({filingJson}, modifiedModel990);
   });
-};
+}
 
-const getFilingJsonFromObjectIds = async function(objectIds) {
+function getFilingJsonFromObjectIds(objectIds) {
   const jsonStr = await new Promise(function(resolve, reject) {
     const child = spawn("irsx", objectIds, {
       env: irsxEnv
@@ -136,9 +141,9 @@ const getFilingJsonFromObjectIds = async function(objectIds) {
     const formattedFiling = convertFiling(filing);
     return _.defaults({objectId: objectIds[i]}, formattedFiling);
   });
-};
+}
 
-var formattedFilingsFromObjectIdsLoaderFn = function(objectIds) {
+function formattedFilingsFromObjectIdsLoaderFn(objectIds) {
   try {
     return getFilingJsonFromObjectIds(objectIds);
   } catch (err) {
@@ -154,9 +159,9 @@ var formattedFilingsFromObjectIdsLoaderFn = function(objectIds) {
       return null;
     }));
   }
-};
+}
 
-const processChunk = async function(options) {
+function processChunk(options) {
   const {chunk, Model990, processFilingFn, processResultsFn,
     chunkConcurrency} = options;
 
@@ -199,7 +204,7 @@ const processChunk = async function(options) {
   console.log('Processed', filingResults.length, 'in', Date.now() - start, 'ms');
 
   return processResultsFn(filingResults);
-};
+}
 
 
 export default {

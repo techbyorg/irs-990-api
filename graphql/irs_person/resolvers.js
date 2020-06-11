@@ -1,32 +1,34 @@
-import { GraphqlFormatter } from 'backend-shared';
-import IrsPerson from './model';
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
+import { GraphqlFormatter } from 'backend-shared'
+import IrsPerson from './model'
 
-export let Query = {
-  irsPersons(rootValue, {ein, query, limit}) {
+export const Query = {
+  irsPersons (rootValue, { ein, query, limit }) {
     if (ein) {
-      return IrsPerson.getAllByEin(ein, {limit})
-      .then(IrsPerson.groupByYear)
-      .then(GraphqlFormatter.fromScylla);
+      return IrsPerson.getAllByEin(ein, { limit })
+        .then(IrsPerson.groupByYear)
+        .then(GraphqlFormatter.fromScylla)
     } else {
-      return IrsPerson.search({query, limit})
-      .then(IrsPerson.groupByYear)
-      .then(GraphqlFormatter.fromElasticsearch);
+      return IrsPerson.search({ query, limit })
+        .then(IrsPerson.groupByYear)
+        .then(GraphqlFormatter.fromElasticsearch)
     }
   }
-};
+}
 
-export let IrsFund = {
-  irsPersons(irsFund, {limit}) {
+export const IrsFund = {
+  irsPersons (irsFund, { limit }) {
     return IrsPerson.getAllByEin(irsFund.ein)
-    .then(IrsPerson.groupByYear)
-    .then(GraphqlFormatter.fromScylla);
+      .then(IrsPerson.groupByYear)
+      .then(GraphqlFormatter.fromScylla)
   }
-};
+}
 
-export let IrsOrg = {
-  irsPersons(irsOrg, {limit}) {
-    return IrsPerson.getAllByEin(irsOrg.ein, {limit})
-    .then(IrsPerson.groupByYear)
-    .then(GraphqlFormatter.fromScylla);
+export const IrsOrg = {
+  irsPersons (irsOrg, { limit }) {
+    return IrsPerson.getAllByEin(irsOrg.ein, { limit })
+      .then(IrsPerson.groupByYear)
+      .then(GraphqlFormatter.fromScylla)
   }
-};
+}

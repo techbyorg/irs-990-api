@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 import gulp from 'gulp';
 import shell from 'gulp-shell';
 import coffeelint from 'gulp-coffeelint';

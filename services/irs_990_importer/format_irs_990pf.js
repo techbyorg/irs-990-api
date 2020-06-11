@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 import _ from 'lodash';
 import Promise from 'bluebird';
 import md5 from 'md5';
@@ -280,7 +282,7 @@ export default {
   }
 };
 
-var getStatsForContributionGroups = function(contributionGroups, {allContributions}) {
+function getStatsForContributionGroups(contributionGroups, {allContributions}) {
   const allContributionsCount = allContributions.length;
   const allContributionsSum = sumByLong(allContributions, 'amount');
 
@@ -295,4 +297,4 @@ var getStatsForContributionGroups = function(contributionGroups, {allContributio
       sumPercent: roundTwoDigits((100 * sum) / allContributionsSum)
     };
 });
-};
+}
