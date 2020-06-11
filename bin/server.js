@@ -1,32 +1,28 @@
-#!/usr/bin/env coffee
-_ = require 'lodash'
-log = require 'loga'
-cluster = require 'cluster'
-os = require 'os'
+#!/usr/bin/env nodeimport _ from 'lodash';
+import log from 'loga';
+import cluster from 'cluster';
+import os from 'os';
+import { setup, childSetup, server } from '../';
+import config from '../config';
 
-{setup, childSetup, server} = require '../'
-config = require '../config'
+if (config.ENV === config.ENVS.PROD) {
+  const cpus = config.MAX_CPU || os.cpus().length;
+  if (cluster.isMaster) {
+    setup().then(function() {
+      console.log('setup done', cpus);
+      _.map(_.range(cpus), function() {
+        console.log('forking...');
+        return cluster.fork();
+      });
 
-if config.ENV is config.ENVS.PROD
-  cpus = config.MAX_CPU or os.cpus().length
-  if cluster.isMaster
-    setup().then ->
-      console.log 'setup done', cpus
-      _.map _.range(cpus), ->
-        console.log 'forking...'
-        cluster.fork()
-
-      cluster.on 'exit', (worker) ->
-        log "Worker #{worker.id} died, respawning"
-        cluster.fork()
-    .catch log.error
-  else
-    childSetup().then ->
-      server.listen config.PORT, ->
-        log.info 'Worker %d, listening on %d', cluster.worker.id, config.PORT
-else
-  console.log 'Setting up'
-  setup().then ->
-    server.listen config.PORT, ->
-      log.info 'Server listening on port %d', config.PORT
-  .catch log.error
+      return cluster.on('exit', function(worker) {
+        log(`Worker ${worker.id} died, respawning`);
+        return cluster.fork();
+      });}).catch(log.error);
+  } else {
+    childSetup().then(() => server.listen(config.PORT, () => log.info('Worker %d, listening on %d', cluster.worker.id, config.PORT)));
+  }
+} else {
+  console.log('Setting up');
+  setup().then(() => server.listen(config.PORT, () => log.info('Server listening on port %d', config.PORT))).catch(log.error);
+}

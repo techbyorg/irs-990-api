@@ -1,19 +1,21 @@
-{GraphqlFormatter} = require 'backend-shared'
+import { GraphqlFormatter } from 'backend-shared';
+import IrsOrg990 from './model';
 
-IrsOrg990 = require './model'
+export let Query = {
+  irsOrg990s(rootValue, {ein, query, limit}) {
+    if (ein) {
+      return IrsOrg990.getAllByEin(ein, {limit})
+      .then(GraphqlFormatter.fromScylla);
+    } else {
+      return IrsOrg990.search({query, limit})
+      .then(GraphqlFormatter.fromElasticsearch);
+    }
+  }
+};
 
-module.exports = {
-  Query:
-    irsOrg990s: (rootValue, {ein, query, limit}) ->
-      if ein
-        IrsOrg990.getAllByEin ein, {limit}
-        .then GraphqlFormatter.fromScylla
-      else
-        IrsOrg990.search {query, limit}
-        .then GraphqlFormatter.fromElasticsearch
-
-  IrsOrg:
-    irsOrg990s: (irsOrg, {limit}) ->
-      IrsOrg990.getAllByEin irsOrg.ein, {limit}
-      .then GraphqlFormatter.fromScylla
-}
+export let IrsOrg = {
+  irsOrg990s(irsOrg, {limit}) {
+    return IrsOrg990.getAllByEin(irsOrg.ein, {limit})
+    .then(GraphqlFormatter.fromScylla);
+  }
+};

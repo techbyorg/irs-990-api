@@ -1,15 +1,16 @@
-{GraphqlFormatter} = require 'backend-shared'
+import { GraphqlFormatter } from 'backend-shared';
+import IrsFund990 from './model';
 
-IrsFund990 = require './model'
+export let Query = {
+  irsFund990s(_, {ein, limit}) {
+    return IrsFund990.getAllByEin(ein, {limit})
+    .then(GraphqlFormatter.fromScylla);
+  }
+};
 
-module.exports = {
-  Query:
-    irsFund990s: (_, {ein, limit}) ->
-      IrsFund990.getAllByEin ein, {limit}
-      .then GraphqlFormatter.fromScylla
-
-  IrsFund:
-    irsFund990s: (irsFund, {limit}) ->
-      IrsFund990.getAllByEin irsFund.ein, {limit}
-      .then GraphqlFormatter.fromScylla
-}
+export let IrsFund = {
+  irsFund990s(irsFund, {limit}) {
+    return IrsFund990.getAllByEin(irsFund.ein, {limit})
+    .then(GraphqlFormatter.fromScylla);
+  }
+};

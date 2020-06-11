@@ -1,23 +1,27 @@
-router = require 'exoid-router'
-{Format} = require 'backend-shared'
+let NameCase, SentenceCase;
+import router from 'exoid-router';
+import { Format } from 'backend-shared';
+import { defaultFieldResolver } from 'graphql';
+import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-{defaultFieldResolver} = require 'graphql'
-{SchemaDirectiveVisitor} = require 'graphql-tools'
+export let nameCase = NameCase = class NameCase extends SchemaDirectiveVisitor {
+  visitFieldDefinition(field) {
+    const {resolve = defaultFieldResolver} = field;
+    field.resolve = function(...args) {
+      const str = resolve.apply(this, args);
+      return Format.nameCase(str);
+    };
+    
+  }
+};
 
-module.exports = {
-  nameCase: class NameCase extends SchemaDirectiveVisitor
-    visitFieldDefinition: (field) ->
-      {resolve = defaultFieldResolver} = field
-      field.resolve = (args...) ->
-        str = resolve.apply this, args
-        Format.nameCase str
-      return # req'd bc of coffeescript
-
-  sentenceCase: class SentenceCase extends SchemaDirectiveVisitor
-    visitFieldDefinition: (field) ->
-      {resolve = defaultFieldResolver} = field
-      field.resolve = (...args) ->
-        str = resolve.apply this, args
-        Format.sentenceCase str
-      return # req'd bc of coffeescript
-}
+export let sentenceCase = SentenceCase = class SentenceCase extends SchemaDirectiveVisitor {
+  visitFieldDefinition(field) {
+    const {resolve = defaultFieldResolver} = field;
+    field.resolve = function(...args) {
+      const str = resolve.apply(this, args);
+      return Format.sentenceCase(str);
+    };
+    
+  }
+};
