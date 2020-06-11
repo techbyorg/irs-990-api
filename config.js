@@ -4,7 +4,7 @@
 // TODO: This file was created by bulk-decaffeinate.
 // Fix any style issues and re-enable lint.
 import _ from 'lodash'
-import assertNoneMissing from 'assert-none-missing'
+import { assertNoneMissing } from 'backend-shared'
 
 const {
   env

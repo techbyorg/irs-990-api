@@ -1,4 +1,4 @@
-FROM node:12.16.1-buster
+FROM node:14.4.0
 
 RUN apt-get update && apt-get install -y gdal-bin git python python-pip graphicsmagick imagemagick libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev build-essential
 

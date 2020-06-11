@@ -1,34 +1,36 @@
 import fs from 'fs'
-import _ from 'lodash'
 import cors from 'cors'
 import express from 'express'
 import Promise from 'bluebird'
 import bodyParser from 'body-parser'
 import http from 'http'
-import { ApolloServer } from 'apollo-server-express'
-import { buildFederatedSchema } from '@apollo/federation'
-import { SchemaDirectiveVisitor } from 'graphql-tools'
+import ApolloServerExpress from 'apollo-server-express'
+import ApolloFederation from '@apollo/federation'
+import GraphQLTools from 'graphql-tools'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { Schema, elasticsearch } from 'backend-shared'
-import helperConfig from 'backend-shared/lib/config.js'
 
 import { setup, childSetup } from './services/setup.js'
 import { setNtee } from './services/irs_990_importer/set_ntee.js'
 import { loadAllForYear } from './services/irs_990_importer/load_all_for_year.js'
 import {
   processUnprocessedOrgs, processEin, fixBadFundImports, processUnprocessedFunds
-} from './services/irs_990_importer.js'
+} from './services/irs_990_importer/index.js'
 import { parseGrantMakingWebsites } from './services/irs_990_importer/parse_websites.js'
 import IrsOrg990 from './graphql/irs_org_990/model.js'
-import directives from './graphql/directives.js.js'
+import * as directives from './graphql/directives.js'
 import config from './config.js'
 
-// FIXME: change to a setup fn that everything else waits on
-helperConfig.set(_.pick(config, config.SHARED_WITH_PHIL_HELPERS))
+const { ApolloServer } = ApolloServerExpress
+const { buildFederatedSchema } = ApolloFederation
+const { SchemaDirectiveVisitor } = GraphQLTools
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 let resolvers, schemaDirectives
 let typeDefs = fs.readFileSync('./graphql/type.graphql', 'utf8')
 
-let schema = Schema.getSchema({ directives, typeDefs, dirName: __dirname })
+const schemaPromise = Schema.getSchema({ directives, typeDefs, dirName: __dirname })
 
 Promise.config({ warnings: false })
 
@@ -50,7 +52,7 @@ app.get('/tableCount', function (req, res) {
   if (validTables.indexOf(req.query.tableName) === -1) {
     res.send({ error: 'invalid table name' })
   }
-  return elasticsearch.count({
+  return elasticsearch.client.count({
     index: req.query.tableName
   })
     .then(c => res.send(JSON.stringify(c)))
@@ -89,14 +91,14 @@ app.get('/setES', async function (req, res) {
   // refreshInterval = null
 
   return res.send(await Promise.map(validTables, async function (tableName) {
-    const settings = await elasticsearch.indices.getSettings({
+    const settings = await elasticsearch.client.indices.getSettings({
       index: tableName
     })
     const previous = settings[tableName].settings.index
     const diff =
       { number_of_replicas: replicas }
       // refresh_interval: refreshInterval
-    await elasticsearch.indices.putSettings({
+    await elasticsearch.client.indices.putSettings({
       index: tableName,
       body: diff
     })
@@ -115,7 +117,7 @@ app.get('/setMaxWindow', async function (req, res) {
     res.send({ error: 'must be number between 10,000 and 100,000' })
   }
 
-  return res.send(await elasticsearch.indices.putSettings({
+  return res.send(await elasticsearch.client.indices.putSettings({
     index: req.query.tableName,
     body: { max_result_window: maxResultWindow }
   }))
@@ -183,50 +185,52 @@ app.get('/processUnprocessedFunds', function (req, res) {
 app.get('/parseGrantMakingWebsites', function (req, res) {
   parseGrantMakingWebsites()
   return res.send('syncing')
-});
+})
 
-({ typeDefs, resolvers, schemaDirectives } = schema)
-schema = buildFederatedSchema({ typeDefs, resolvers })
-// https://github.com/apollographql/apollo-feature-requests/issues/145
-SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives)
+const serverPromise = schemaPromise.then((schema) => {
+  ({ typeDefs, resolvers, schemaDirectives } = schema)
+  schema = buildFederatedSchema({ typeDefs, resolvers })
+  // https://github.com/apollographql/apollo-feature-requests/issues/145
+  SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives)
 
-const defaultQuery = `
-query($query: ESQuery!) {
-  irsOrgs(query: $query) {
-    nodes {
-      name
-      employeeCount
-      volunteerCount
+  const defaultQuery = `
+  query($query: ESQuery!) {
+    irsOrgs(query: $query) {
+      nodes {
+        name
+        employeeCount
+        volunteerCount
+      }
     }
   }
-}
-`
+  `
 
-const defaultQueryVariables = `
-{
-  "query": {"range": {"volunteerCount": {"gte": 10000}}}
-}
-`
-
-const graphqlServer = new ApolloServer({
-  schema,
-  introspection: true,
-  playground: {
-    // settings:
-    tabs: [
-      {
-        endpoint: config.ENV === config.ENVS.DEV
-          ? `http://localhost:${config.PORT}/graphql`
-          : 'https://api.techby.org/990/v1/graphql',
-        query: defaultQuery,
-        variables: defaultQueryVariables
-      }
-    ]
+  const defaultQueryVariables = `
+  {
+    "query": {"range": {"volunteerCount": {"gte": 10000}}}
   }
+  `
 
+  const graphqlServer = new ApolloServer({
+    schema,
+    introspection: true,
+    playground: {
+      // settings:
+      tabs: [
+        {
+          endpoint: config.ENV === config.ENVS.DEV
+            ? `http://localhost:${config.PORT}/graphql`
+            : 'https://api.techby.org/990/v1/graphql',
+          query: defaultQuery,
+          variables: defaultQueryVariables
+        }
+      ]
+    }
+
+  })
+  graphqlServer.applyMiddleware({ app, path: '/graphql' })
+
+  return http.createServer(app)
 })
-graphqlServer.applyMiddleware({ app, path: '/graphql' })
 
-const server = http.createServer(app)
-
-export { server, setup, childSetup }
+export { serverPromise, setup, childSetup }

@@ -1,29 +1,7 @@
-/* eslint-disable
-    constructor-super,
-    no-constant-condition,
-    no-eval,
-    no-this-before-super,
-    no-unused-vars,
-*/
-// TODO: This file was created by bulk-decaffeinate.
-// Fix any style issues and re-enable lint.
 import _ from 'lodash'
-import { Base, cknex, elasticsearch } from 'backend-shared'
-import config from '../../config'
+import { Base, cknex } from 'backend-shared'
 
 class IrsPersonModel extends Base {
-  constructor (...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super() }
-      const thisFn = (() => { return this }).toString()
-      const thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1]
-      eval(`${thisName} = this;`)
-    }
-    this.getAllByEin = this.getAllByEin.bind(this)
-    super(...args)
-  }
-
   getScyllaTables () {
     return [
       {

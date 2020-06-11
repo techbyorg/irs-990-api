@@ -1,6 +1,9 @@
 import { Format } from 'backend-shared'
-import { defaultFieldResolver } from 'graphql'
-import { SchemaDirectiveVisitor } from 'graphql-tools'
+import GraphQL from 'graphql'
+import GraphQLTools from 'graphql-tools'
+
+const { defaultFieldResolver } = GraphQL
+const { SchemaDirectiveVisitor } = GraphQLTools
 
 export const nameCase = class NameCase extends SchemaDirectiveVisitor {
   visitFieldDefinition (field) {

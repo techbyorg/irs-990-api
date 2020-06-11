@@ -1,9 +1,8 @@
-import log from 'loga'
 import cluster from 'cluster'
 import os from 'os'
 import _ from 'lodash'
 
-import { setup, childSetup, server } from '../index.js'
+import { setup, childSetup, serverPromise } from '../index.js'
 import config from '../config.js'
 
 if (config.ENV === config.ENVS.PROD) {
@@ -17,22 +16,24 @@ if (config.ENV === config.ENVS.PROD) {
       })
 
       return cluster.on('exit', function (worker) {
-        log(`Worker ${worker.id} died, respawning`)
+        console.log(`Worker ${worker.id} died, respawning`)
         return cluster.fork()
       })
-    }).catch(log.error)
+    }).catch(console.log)
   } else {
-    childSetup().then(() =>
+    childSetup().then(async () => {
+      const server = await serverPromise
       server.listen(config.PORT, () =>
-        log.info('Worker %d, listening on %d', cluster.worker.id, config.PORT)
+        console.log('Worker %d, listening on %d', cluster.worker.id, config.PORT)
       )
-    )
+    })
   }
 } else {
   console.log('Setting up')
-  setup().then(() =>
+  setup().then(async () => {
+    const server = await serverPromise
     server.listen(config.PORT, () =>
-      log.info('Server listening on port %d', config.PORT)
+      console.log('Server listening on port %d', config.PORT)
     )
-  ).catch(log.error)
+  }).catch(console.log)
 }

@@ -3,6 +3,7 @@
   "private": true,
   "description": "",
   "main": "index.js",
+  "type": "module",
   "directories": {
     "test": "test"
   },
@@ -28,7 +29,7 @@
   "dependencies": {
     "@apollo/federation": "^0.16.0",
     "apollo-server-express": "^2.14.2",
-    "assert-none-missing": "^0.1.2",
+    "assert-none-missing": "github:claydotio/assert-none-missing#es",
     "backend-shared": "file:backend-shared",
     "bluebird": "^3.5.3",
     "body-parser": "^1.14.1",

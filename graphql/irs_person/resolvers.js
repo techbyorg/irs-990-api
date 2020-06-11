@@ -1,7 +1,6 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 import { GraphqlFormatter } from 'backend-shared'
-import IrsPerson from './model'
+
+import IrsPerson from './model.js'
 
 export const Query = {
   irsPersons (rootValue, { ein, query, limit }) {

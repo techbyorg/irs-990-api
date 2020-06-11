@@ -1,28 +1,44 @@
 import fs from 'fs'
 import _ from 'lodash'
 import Promise from 'bluebird'
-import { cknex, ElasticsearchSetup, JobRunner, ScyllaSetup } from 'backend-shared'
+import { 
+  cknex, elasticsearch, ElasticsearchSetup, JobRunner, ScyllaSetup, Cache, PubSub
+} from 'backend-shared'
 
 import config from '../config.js'
 import { RUNNERS } from './job.js'
 
-async function setup () {
-  cknex.setDefaultKeyspace('irs_990_api')
-  const graphqlFolders = _.filter(fs.readdirSync('./graphql'), file => file.indexOf('.') === -1)
-  const scyllaTables = await Promise.map(graphqlFolders, async (folder) => {
-    const model = await import(`../graphql/${folder}/model`)
-    return model?.getScyllaTables?.() || []
+function sharedSetup () {
+  Cache.setup({
+    prefix: config.REDIS.PREFIX,
+    cacheHost: config.REDIS.CACHE_HOST,
+    persistentHost: config.REDIS.PERSISTENT_HOST,
+    port: config.REDIS.port
   })
-  const elasticSearchIndices = await Promise.map(graphqlFolders, async (folder) => {
-    const model = await import(`../graphql/${folder}/model`)
-    return model?.getElasticSearchIndices?.() || []
-  })
+  cknex.setup('irs_990_api', config.SCYLLA.CONTACT_POINTS)
+  elasticsearch.setup(`${config.ELASTICSEARCH.HOST}:9200`)
+  PubSub.setup(config.REDIS.PUB_SUB_HOST, config.REDIS.PORT, config.REDIS.PUB_SUB_PREFIX)
+}
 
-  const shouldRunSetup = true || (config.get().ENV === config.get().ENVS.PRODUCTION) ||
-                    (config.get().SCYLLA.CONTACT_POINTS[0] === 'localhost')
+async function setup () {
+  sharedSetup()
+  const graphqlFolders = _.filter(fs.readdirSync('./graphql'), file => file.indexOf('.') === -1)
+  const scyllaTables = _.flatten(await Promise.map(graphqlFolders, async (folder) => {
+    const model = await import(`../graphql/${folder}/model.js`)
+    return model?.default?.getScyllaTables?.() || []
+  }))
+  const elasticSearchIndices = _.flatten(await Promise.map(graphqlFolders, async (folder) => {
+    const model = await import(`../graphql/${folder}/model.js`)
+    
+    return model?.default?.getElasticSearchIndices?.() || []
+  }))
+
+  const isDev = config.ENV === config.ENVS.DEV
+  const shouldRunSetup = true || (config.ENV === config.ENVS.PRODUCTION) ||
+                    (config.SCYLLA.CONTACT_POINTS[0] === 'localhost')
 
   await Promise.all(_.filter([
-    shouldRunSetup && ScyllaSetup.setup(scyllaTables)
+    shouldRunSetup && ScyllaSetup.setup(scyllaTables, {isDev})
       .then(() => console.log('scylla setup')),
     shouldRunSetup && ElasticsearchSetup.setup(elasticSearchIndices)
       .then(() => console.log('elasticsearch setup'))
@@ -35,7 +51,7 @@ async function setup () {
 }
 
 function childSetup () {
-  cknex.setDefaultKeyspace('irs_990_api')
+  sharedSetup()
   JobRunner.listen(RUNNERS)
   cknex.enableErrors()
   return Promise.resolve(null) // don't block

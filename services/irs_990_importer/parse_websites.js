@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { JobCreate } from 'backend-shared'
 
 import IrsOrg from '../../graphql/irs_org/model.js'
-import JobService from '../../services/job.js'
+import * as JobService from '../../services/job.js'
 
 export const parseGrantMakingWebsites = async () => {
   const { rows } = await IrsOrg.search({
