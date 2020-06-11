@@ -6,7 +6,7 @@ JobService = require '../../services/job'
 
 module.exports = {
   parseGrantMakingWebsites: =>
-    ({total, rows}) = await IrsOrg.search {
+    {total, rows} = await IrsOrg.search {
       trackTotalHits: true
       limit: 10000
       # limit: 10

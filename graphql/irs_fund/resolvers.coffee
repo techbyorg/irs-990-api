@@ -1,19 +1,19 @@
 _ = require 'lodash'
 {cknex, GraphqlFormatter} = require 'backend-shared'
 
-IrsFund = require './model'
+IrsFundModel = require './model'
 IrsFund990 = require '../irs_fund_990/model'
 IrsContribution = require '../irs_contribution/model'
 
 module.exports = {
-  Query:
+  Query: {
     irsFund: (rootValue, {ein}) ->
-      IrsFund.getByEin ein
+      IrsFundModel.getByEin ein
 
     irsFunds: (rootValue, {query, sort, limit}) ->
-      IrsFund.search {query, sort, limit}
+      IrsFundModel.search {query, sort, limit}
       .then GraphqlFormatter.fromElasticsearch
-
+  }
   IrsFund:
     yearlyStats: (irsFund) ->
       irs990s = await IrsFund990.getAllByEin irsFund.ein

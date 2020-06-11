@@ -8,7 +8,7 @@ module.exports = {
   nameCase: class NameCase extends SchemaDirectiveVisitor
     visitFieldDefinition: (field) ->
       {resolve = defaultFieldResolver} = field
-      field.resolve = (...args) ->
+      field.resolve = (args...) ->
         str = resolve.apply this, args
         Format.nameCase str
       return # req'd bc of coffeescript

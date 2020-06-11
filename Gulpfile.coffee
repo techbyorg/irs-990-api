@@ -10,12 +10,12 @@ paths =
     '!./node_modules/**/*'
   ]
 
-gulp.task 'default', ['dev']
+gulp.task 'default', 'dev'
 
-gulp.task 'dev', ['watch:dev']
+gulp.task 'dev', 'watch:dev'
 
-gulp.task 'watch:dev', ['dev:server'], ->
-  gulp.watch paths.coffee, ['dev:server']
+gulp.task 'watch:dev', gup.series('dev:server', ->
+  gulp.watch paths.coffee, ['dev:server'])
 
 gulp.task 'dev:server', do ->
   devServer = null
