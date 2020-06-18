@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import fs from 'fs'
 import request from 'request-promise'
 import Promise from 'bluebird'
 
@@ -19,7 +20,7 @@ export async function loadAllForYear (year) {
   if (year) {
     index = JSON.parse(await getIndexJson(year))
   } else {
-    index = await import('../../data/sample_index.json')
+    index = JSON.parse(fs.readFileSync('./data/sample_index.json', 'utf8'))
     year = 2016
   }
 

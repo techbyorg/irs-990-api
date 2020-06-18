@@ -30,6 +30,7 @@ const config = {
     PUB_SUB_PREFIX: 'irs_990_api_pub_sub',
     PORT: 6379,
     CACHE_HOST: env.REDIS_CACHE_HOST || 'localhost',
+    PERSISTENT_HOST: env.REDIS_PERSISTENT_HOST || 'localhost',
     PUB_SUB_HOST: env.REDIS_PUB_SUB_HOST || 'localhost'
   },
   SCYLLA: {

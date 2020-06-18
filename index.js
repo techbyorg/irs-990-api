@@ -17,7 +17,7 @@ import { loadAllForYear } from './services/irs_990_importer/load_all_for_year.js
 import {
   processUnprocessedOrgs, processEin, fixBadFundImports, processUnprocessedFunds
 } from './services/irs_990_importer/index.js'
-import { parseGrantMakingWebsites } from './services/irs_990_importer/parse_websites.js'
+import { parseWebsitesByNtee } from './services/irs_990_importer/parse_websites.js'
 import IrsOrg990 from './graphql/irs_org_990/model.js'
 import * as directives from './graphql/directives.js'
 import config from './config.js'
@@ -182,9 +182,13 @@ app.get('/processUnprocessedFunds', function (req, res) {
   return res.send('processing funds')
 })
 
-app.get('/parseGrantMakingWebsites', function (req, res) {
-  parseGrantMakingWebsites()
-  return res.send('syncing')
+app.get('/parseWebsitesByNtee', function (req, res) {
+  if (req.query.ntee) {
+    parseWebsitesByNtee(req.query.ntee)
+    return res.send('syncing')
+  } else {
+    return res.send('specify ntee')
+  }
 })
 
 const serverPromise = schemaPromise.then((schema) => {

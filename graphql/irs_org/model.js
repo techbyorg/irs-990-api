@@ -36,6 +36,9 @@ class IrsOrgModel extends Base {
     return [
       {
         name: 'irs_orgs',
+        _source: {
+          excludes: ['websiteText'] // https://ambar.cloud/blog/2017/01/02/es-large-text/
+        },
         mappings: {
           ein: { type: 'text' },
           name: { type: 'search_as_you_type' },
@@ -62,13 +65,14 @@ class IrsOrgModel extends Base {
                 properties: {
                   name: { type: 'text' },
                   title: { type: 'text' },
-                  compensation: { type: 'int' }
+                  compensation: { type: 'integer' }
                 }
               }
             }
           },
 
-          websiteText: { type: 'text' } // TODO: move to diff table?
+          // https://ambar.cloud/blog/2017/01/02/es-large-text/
+          websiteText: { type: 'text', store: true } // store separately
         }
       }
     ]

@@ -4,7 +4,7 @@ import { JobCreate } from 'backend-shared'
 import IrsOrg from '../../graphql/irs_org/model.js'
 import * as JobService from '../../services/job.js'
 
-export const parseGrantMakingWebsites = async () => {
+export const parseWebsitesByNtee = async (ntee) => {
   const { rows } = await IrsOrg.search({
     trackTotalHits: true,
     limit: 10000,
@@ -12,36 +12,15 @@ export const parseGrantMakingWebsites = async () => {
     query: {
       bool: {
         must: [
-          {
-            match_phrase_prefix: {
-              website: 'http'
-            }
-          },
-          {
-            match_phrase_prefix: {
-              nteecc: 'T'
-            }
-          },
-          {
-            range: {
-              lastRevenue: {
-                gte: 100000
-              }
-            }
-          },
-          {
-            range: {
-              lastExpenses: {
-                gte: 100000
-              }
-            }
-          }
+          { match_phrase_prefix: { website: 'http' } },
+          { match_phrase_prefix: { nteecc: ntee } },
+          { range: { employeeCount: { gte: 1 } } }
         ]
       }
     }
   })
 
-  console.log(rows.length)
+  console.log('running for', rows.length)
   // console.log JSON.stringify(_.map rows, 'name')
   const fixed = _.map(rows, function (row) {
     row.website = row.website.replace('https://https', 'https://')
@@ -50,6 +29,7 @@ export const parseGrantMakingWebsites = async () => {
     return row
   })
   const valid = _.filter(fixed, ({ website }) => website.match(/^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/))
+  console.log('valid count', rows.length)
   // valid = _.take valid, 10
   return _.map(valid, ({ ein }, i) => JobCreate.createJob({
     queue: JobService.QUEUES.DEFAULT,
