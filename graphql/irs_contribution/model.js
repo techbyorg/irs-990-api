@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import { Base, cknex } from 'backend-shared'
 
 // example 990pf: https://s3.amazonaws.com/irs-form-990/201533209349101373_public.xml
@@ -92,18 +91,15 @@ class IrsContributionModel extends Base {
   }
 
   getAllByToId (toId, { limit } = {}) {
-    cknex().select('*')
+    const q = cknex().select('*')
       .from('irs_contributions_by_toId')
       .where('toId', '=', toId)
-      .run()
-      .then(function (irsContributions) {
-        irsContributions.reverse()
-        if (limit) {
-          return _.take(irsContributions, limit)
-        } else {
-          return irsContributions
-        }
-      }).map(this.defaultOutput)
+
+    if (limit) {
+      q.limit(limit)
+    }
+    return q.run()
+      .map(this.defaultOutput)
   }
 
   getAllFromEinsFromToEins (toIds) {

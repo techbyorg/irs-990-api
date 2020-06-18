@@ -168,6 +168,14 @@ class IrsFundModel extends Base {
       .run({ isSingle: true })
       .then(this.defaultOutput)
   }
+
+  getAllByEins (eins) {
+    return cknex().select('*')
+      .from('irs_funds_by_ein')
+      .where('ein', 'in', eins)
+      .run()
+      .map(this.defaultOutput)
+  }
 }
 
 export default new IrsFundModel()

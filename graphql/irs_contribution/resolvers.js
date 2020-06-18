@@ -2,14 +2,6 @@ import { GraphqlFormatter } from 'backend-shared'
 
 import IrsContribution from './model.js'
 
-// const irsContributionLoader = Loader.withContext((ids, context) => {
-//   return IrsContribution.getAllByIds(ids)
-//     .then(function (irsContributions) {
-//       irsContributions = _.keyBy(irsContributions, 'id')
-//       return _.map(ids, id => irsContributions[id])
-//     })
-// })
-
 export default {
   Query: {
     irsContributions (_, { fromEin, toId, limit }) {
