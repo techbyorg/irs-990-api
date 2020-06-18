@@ -9,7 +9,7 @@ type IrsOrg {
   nteecc: String # https://nccs.urban.org/project/national-taxonomy-exempt-entities-ntee-codes
 
   website: String
-  mission: String
+  mission: String @sentenceCase
   exemptStatus: String
 
   assets: BigInt
@@ -18,13 +18,31 @@ type IrsOrg {
   employeeCount: Int
   volunteerCount: Int
 
+  # TODO: switch over to lastYearStats like funds
   lastRevenue: BigInt
   lastExpenses: BigInt
 
-  # TODO: switch over to lastYearStats like funds
-
   topSalary: JSONObject
   websiteText: String
+
+  yearlyStats: IrsOrgYearlyStats
+}
+
+"""
+Per-year stats
+"""
+type IrsOrgYearlyStats {
+  years: [IrsOrgYearStats]
+}
+
+"""
+Stats for a given year
+"""
+type IrsOrgYearStats {
+  year: Int
+  assets: BigInt
+  employeeCount: Int
+  volunteerCount: Int
 }
 
 """
@@ -37,5 +55,5 @@ type IrsOrgConnection {
 
 extend type Query {
   irsOrg(ein: String, limit: Int): IrsOrg
-  irsOrgs(query: ESQuery!, limit: Int): IrsOrgConnection
+  irsOrgs(query: ESQuery!, sort: JSON, limit: Int): IrsOrgConnection
 }

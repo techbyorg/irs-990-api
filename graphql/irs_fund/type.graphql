@@ -20,25 +20,25 @@ type IrsFund {
   netAssets: BigInt
   liabilities: BigInt
 
-  lastYearStats: LastYearStats
-  fundedNteeMajors: [FundedStats] # {<nteeMajor>: {count, percent, sum, sumPercent}}
-  fundedNtees: [FundedStats] # {<ntee>: {count, percent, sum, sumPercent}}
-  fundedStates: [FundedStats] # {<state>: {count, percent, sum, sumPercent}}
+  lastYearStats: IrsFundLastYearStats
+  fundedNteeMajors: [IrsFundFundedStats] # {<nteeMajor>: {count, percent, sum, sumPercent}}
+  fundedNtees: [IrsFundFundedStats] # {<ntee>: {count, percent, sum, sumPercent}}
+  fundedStates: [IrsFundFundedStats] # {<state>: {count, percent, sum, sumPercent}}
 
-  yearlyStats: YearlyStats
+  yearlyStats: IrsFundYearlyStats
 }
 
 """
 Per-year stats
 """
-type YearlyStats {
-  years: [YearStats]
+type IrsFundYearlyStats {
+  years: [IrsFundYearStats]
 }
 
 """
 Stats for a given year
 """
-type YearStats {
+type IrsFundYearStats {
   year: Int
   assets: BigInt
   grantSum: BigInt
@@ -49,7 +49,7 @@ type YearStats {
 Information about some key/category and how the fund has contributed to that category.
 Broken down by keys of NTEE majors, NTEEs, and US states
 """
-type FundedStats {
+type IrsFundFundedStats {
   key: String
   count: Int
   percent: Float
@@ -106,7 +106,7 @@ type ProgramRelatedInvestmentLineItem {
 """
 Statistics from the most recently available 990PF
 """
-type LastYearStats {
+type IrsFundLastYearStats {
   year: Int
   revenue: BigInt
   expenses: BigInt
