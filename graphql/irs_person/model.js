@@ -67,11 +67,13 @@ class IrsPersonModel extends Base {
   }
 
   groupByYear (persons) {
-    const groupedPersons = _.groupBy(persons, 'name')
+    const groupedPersons = _.groupBy(persons, ({ name, ein }) =>
+      `${name.toLowerCase()}:${ein}`
+    )
     const baseFields = ['ein', 'name', 'entityName', 'entityType']
-    persons = _.map(groupedPersons, function (persons) {
+    persons = _.map(groupedPersons, (persons) => {
       const base = _.pick(persons[0], baseFields)
-      const years = _.map(persons, person => _.omit(person, baseFields))
+      const years = _.map(persons, (person) => _.omit(person, baseFields))
       const maxYear = _.maxBy(years, 'year').year
       return _.defaults({ maxYear, years }, base)
     })

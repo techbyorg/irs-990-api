@@ -53,6 +53,10 @@ type IrsOrgConnection {
   totalCount: Int
 }
 
+extend type IrsPerson {
+  irsOrg: IrsOrg
+}
+
 extend type Query {
   irsOrg(ein: String, limit: Int): IrsOrg
   irsOrgs(query: ESQuery!, sort: JSON, limit: Int): IrsOrgConnection

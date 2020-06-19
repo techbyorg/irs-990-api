@@ -11,8 +11,9 @@ export default {
           .then(GraphqlFormatter.fromScylla)
       } else {
         return IrsPerson.search({ query, limit })
+          .then(({ rows }) => rows)
           .then(IrsPerson.groupByYear)
-          .then(GraphqlFormatter.fromElasticsearch)
+          .then(GraphqlFormatter.fromScylla)
       }
     }
   },

@@ -85,6 +85,14 @@ class IrsOrgModel extends Base {
       .run({ isSingle: true })
       .then(this.defaultOutput)
   }
+
+  getAllByEins (eins) {
+    return cknex().select('*')
+      .from('irs_orgs_by_ein')
+      .where('ein', 'in', eins)
+      .run()
+      .map(this.defaultOutput)
+  }
 }
 
 export default new IrsOrgModel()

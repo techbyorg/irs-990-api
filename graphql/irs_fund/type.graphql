@@ -129,6 +129,10 @@ extend type IrsContribution {
   irsFund: IrsFund
 }
 
+extend type IrsPerson {
+  irsFund: IrsFund
+}
+
 extend type Query {
   irsFund(ein: String, limit: Int): IrsFund
   irsFunds(query: ESQuery!, sort: JSON, limit: Int): IrsFundConnection

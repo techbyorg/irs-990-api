@@ -1,8 +1,16 @@
 import _ from 'lodash'
-import { GraphqlFormatter } from 'backend-shared'
+import { GraphqlFormatter, Loader } from 'backend-shared'
 
 import IrsOrg from './model.js'
 import IrsOrg990 from '../irs_org_990/model.js'
+
+const orgLoader = Loader.withContext((eins, context) => {
+  return IrsOrg.getAllByEins(eins)
+    .then((irsOrgs) => {
+      irsOrgs = _.keyBy(irsOrgs, 'ein')
+      return _.map(eins, ein => irsOrgs[ein])
+    })
+})
 
 export default {
   Query: {
@@ -27,6 +35,16 @@ export default {
           employeeCount: irs990.employeeCount,
           volunteerCount: irs990.volunteerCount
         }))
+      }
+    }
+  },
+
+  IrsPerson: {
+    async irsOrg (irsPerson, __, context) {
+      if (irsPerson.entityType === 'org') {
+        return await orgLoader(context).load(irsPerson.ein)
+      } else {
+        return null
       }
     }
   }

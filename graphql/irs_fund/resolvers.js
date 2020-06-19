@@ -39,6 +39,16 @@ export default {
     }
   },
 
+  IrsPerson: {
+    async irsFund (irsPerson, __, context) {
+      if (irsPerson.entityType === 'fund') {
+        return await fundLoader(context).load(irsPerson.ein)
+      } else {
+        return null
+      }
+    }
+  },
+
   IrsContribution: {
     async irsFund (irsContribution, __, context) {
       return await fundLoader(context).load(irsContribution.fromEin)
