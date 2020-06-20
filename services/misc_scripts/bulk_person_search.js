@@ -3,20 +3,20 @@ import request from 'request-promise'
 import csv from 'csvtojson'
 import Promise from 'bluebird'
 
-const NAME_CHUNK_SIZE = 250
+const NAME_CHUNK_SIZE = 100
 
 csv().fromFile('../../Downloads/Connections.csv')
   .then((linkedInConnections) => {
-    const names = _.take(_.map(linkedInConnections, (connection) =>
+    const names = _.map(linkedInConnections, (connection) =>
       `${connection['First Name']} ${connection['Last Name']}`
-    ), 300)
+    )
     // const names = [
     //   'reid hoffman'
     // ]
 
     const query = `
       query($query: ESQuery!) {
-        irsPersons(query: $query, limit:100) {
+        irsPersons(query: $query, limit:10000) {
           nodes {
             name, 
             irsOrg { name, city, state, assets }, 
@@ -26,7 +26,7 @@ csv().fromFile('../../Downloads/Connections.csv')
       }
     `
 
-    // ES `should` seems to break at 300+ items
+    // throttle long lists
     const nameChunks = _.chunk(names, NAME_CHUNK_SIZE)
 
     Promise.each(nameChunks, async (names) => {
@@ -55,5 +55,5 @@ csv().fromFile('../../Downloads/Connections.csv')
         })
         console.log('')
       })
-    })
+    }).then(() => { console.log('done') })
   })
