@@ -19,7 +19,7 @@ csv().fromFile('../../Downloads/Connections.csv')
         irsPersons(query: $query, limit:10000) {
           nodes {
             name, 
-            irsOrg { name, city, state, assets }, 
+            irsNonprofit { name, city, state, assets }, 
             irsFund { name, city, state, assets }
           }
         }
@@ -44,13 +44,14 @@ csv().fromFile('../../Downloads/Connections.csv')
         body: { query, variables },
         json: true
       })
-      const persons = response.data.irsPersons.nodes
+      let persons = response.data.irsPersons.nodes
+      persons = _.filter(persons, ({ irsNonprofit, irsFund }) => irsNonprofit?.state === 'CA' || irsFund?.state === 'CA')
       const groupedPersons = _.groupBy(persons, 'name')
       _.forEach(groupedPersons, (persons) => {
         console.log(persons[0].name)
         console.log('-------------')
         _.forEach(persons, (person) => {
-          const entity = person.irsOrg || person.irsFund
+          const entity = person.irsNonprofit || person.irsFund
           console.log(entity.name, '|', entity.city, entity.state, entity.assets)
         })
         console.log('')

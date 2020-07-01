@@ -3,7 +3,7 @@ import csv from 'csvtojson'
 import fs from 'fs'
 import { JobCreate } from 'backend-shared'
 
-import IrsOrg from '../../graphql/irs_org/model.js'
+import IrsNonprofit from '../../graphql/irs_nonprofit/model.js'
 import * as JobService from '../../services/job.js'
 import config from '../../config.js'
 
@@ -27,8 +27,8 @@ export function setNtee () {
             JobCreate.createJob({
               queue: JobService.QUEUES.DEFAULT,
               waitForCompletion: true,
-              job: { orgs: cache, i },
-              type: JobService.TYPES.DEFAULT.IRS_990_UPSERT_ORGS,
+              job: { nonprofits: cache, i },
+              type: JobService.TYPES.DEFAULT.IRS_990_UPSERT_NONPROFITS,
               ttlMs: 60000,
               priority: JobService.PRIORITIES.NORMAL
             }).catch(err => console.log('err', err))
@@ -43,7 +43,7 @@ export function setNtee () {
           })
         }, () => console.log('error'), function () {
           console.log('done')
-          return IrsOrg.batchUpsert(cache)
+          return IrsNonprofit.batchUpsert(cache)
         })
     })
 }

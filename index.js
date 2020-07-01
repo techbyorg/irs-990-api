@@ -15,10 +15,10 @@ import { setup, childSetup } from './services/setup.js'
 import { setNtee } from './services/irs_990_importer/set_ntee.js'
 import { loadAllForYear } from './services/irs_990_importer/load_all_for_year.js'
 import {
-  processUnprocessedOrgs, processEin, fixBadFundImports, processUnprocessedFunds
+  processUnprocessedNonprofits, processEin, fixBadFundImports, processUnprocessedFunds
 } from './services/irs_990_importer/index.js'
 import { parseWebsitesByNtee } from './services/irs_990_importer/parse_websites.js'
-import IrsOrg990 from './graphql/irs_org_990/model.js'
+import IrsNonprofit990 from './graphql/irs_nonprofit_990/model.js'
 import * as directives from './graphql/directives.js'
 import config from './config.js'
 
@@ -45,7 +45,7 @@ app.use(bodyParser.urlencoded({ extended: true })) // Kiip uses
 app.get('/', (req, res) => res.status(200).send('ok'))
 
 const validTables = [
-  'irs_orgs', 'irs_org_990s', 'irs_funds', 'irs_fund_990s',
+  'irs_nonprofits', 'irs_nonprofit_990s', 'irs_funds', 'irs_fund_990s',
   'irs_persons', 'irs_contributions'
 ]
 app.get('/tableCount', function (req, res) {
@@ -59,7 +59,7 @@ app.get('/tableCount', function (req, res) {
 })
 
 app.get('/unprocessedCount', function (req, res) {
-  return IrsOrg990.search({
+  return IrsNonprofit990.search({
     trackTotalHits: true,
     limit: 1, // 16 cpus, 16 chunks
     query: {
@@ -153,17 +153,17 @@ app.get('/loadAllForYear', function (req, res) {
 // faster ES node seems to help a little, but not much...
 // cheapest / best combo seems to be 4vcpu/8gb for ES, 8x 2vcpu/2gb for api.
 // ^^ w/ 2 job concurrencyPerCpu, that's 32. 32 * 300 (chunk) = 9600 (limit)
-//    seems to be sweet spot w/ ~150-250 orgs/s (2-3 hours total)
+//    seems to be sweet spot w/ ~150-250 nonprofits/s (2-3 hours total)
 //    could probably go faster with more cpus (bottleneck at this point is irsx)
 // might need to increase thread_pool.write.queue_size to 1000
-app.get('/processUnprocessedOrgs', function (req, res) {
-  processUnprocessedOrgs(req.query)
-  return res.send('processing orgs')
+app.get('/processUnprocessedNonprofits', function (req, res) {
+  processUnprocessedNonprofits(req.query)
+  return res.send('processing nonprofits')
 })
 
 app.get('/processEin', function (req, res) {
   processEin(req.query.ein, { type: req.query.type })
-  return res.send('processing org')
+  return res.send('processing nonprofit')
 })
 
 app.get('/fixBadFundImports', function (req, res) {
@@ -172,8 +172,8 @@ app.get('/fixBadFundImports', function (req, res) {
 })
 
 // chunkConcurrency=10
-// chunkConcurrency = how many orgs of a chunk to process simultaneously...
-// doesn't matter for orgs, but for funds it does (since there's an es fetch)
+// chunkConcurrency = how many nonprofits of a chunk to process simultaneously...
+// doesn't matter for nonprofits, but for funds it does (since there's an es fetch)
 // sweet spot is 1600&chunkSize=50&chunkConcurrency=3 (slow)
 // even with that, scylla might fail upserts for large funds
 // so maybe run at chunk 1 concurrency 1 for assets > 100m
@@ -199,7 +199,7 @@ const serverPromise = schemaPromise.then((schema) => {
 
   const defaultQuery = `
   query($query: ESQuery!) {
-    irsOrgs(query: $query) {
+    irsNonprofits(query: $query) {
       nodes {
         name
         employeeCount

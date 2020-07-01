@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import { JobCreate } from 'backend-shared'
 
-import IrsOrg from '../../graphql/irs_org/model.js'
+import IrsNonprofit from '../../graphql/irs_nonprofit/model.js'
 import * as JobService from '../../services/job.js'
 
 export const parseWebsitesByNtee = async (ntee) => {
-  const { rows } = await IrsOrg.search({
+  const { rows } = await IrsNonprofit.search({
     trackTotalHits: true,
     limit: 10000,
     // limit: 10

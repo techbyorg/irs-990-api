@@ -7,14 +7,14 @@ import cheerio from 'cheerio'
 import DataLoader from 'dataloader'
 import fs from 'fs-extra'
 
-import { getOrg990Json, getOrgJson, getOrgPersonsJson } from './format_irs_990.js'
-import { getOrg990EZJson, getOrgEZPersonsJson } from './format_irs_990ez.js'
+import { getNonprofit990Json, getNonprofitJson, getNonprofitPersonsJson } from './format_irs_990.js'
+import { getNonprofit990EZJson, getNonprofitEZPersonsJson } from './format_irs_990ez.js'
 import { getFund990Json, getFundJson, getFundPersonsJson, getContributionsJson } from './format_irs_990pf.js'
 import IrsContribution from '../../graphql/irs_contribution/model.js'
 import IrsFund from '../../graphql/irs_fund/model.js'
 import IrsFund990 from '../../graphql/irs_fund_990/model.js'
-import IrsOrg from '../../graphql/irs_org/model.js'
-import IrsOrg990 from '../../graphql/irs_org_990/model.js'
+import IrsNonprofit from '../../graphql/irs_nonprofit/model.js'
+import IrsNonprofit990 from '../../graphql/irs_nonprofit_990/model.js'
 import IrsPerson from '../../graphql/irs_person/model.js'
 import config from '../../config.js'
 
@@ -23,25 +23,25 @@ const irsxEnv = _.defaults({
   IRSX_CACHE_DIRECTORY: config.IRSX_CACHE_DIRECTORY
 }, _.clone(process.env))
 
-async function processOrgFiling (filing, { ein, year }) {
-  const existing990s = await IrsOrg990.getAllByEin(filing.ReturnHeader.ein)
-  const org990 = getOrg990Json(filing, { ein, year })
-  const orgPersons = getOrgPersonsJson(filing)
+async function processNonprofitFiling (filing, { ein, year }) {
+  const existing990s = await IrsNonprofit990.getAllByEin(filing.ReturnHeader.ein)
+  const nonprofit990 = getNonprofit990Json(filing, { ein, year })
+  const nonprofitPersons = getNonprofitPersonsJson(filing)
   return {
-    model: getOrgJson(org990, orgPersons, existing990s),
-    model990: org990,
-    persons: orgPersons
+    model: getNonprofitJson(nonprofit990, nonprofitPersons, existing990s),
+    model990: nonprofit990,
+    persons: nonprofitPersons
   }
 }
 
-async function processOrgEZFiling (filing, { ein, year }) {
-  const existing990s = await IrsOrg990.getAllByEin(filing.ReturnHeader.ein)
-  const org990 = getOrg990EZJson(filing, { ein, year })
-  const orgPersons = getOrgEZPersonsJson(filing)
+async function processNonprofitEZFiling (filing, { ein, year }) {
+  const existing990s = await IrsNonprofit990.getAllByEin(filing.ReturnHeader.ein)
+  const nonprofit990 = getNonprofit990EZJson(filing, { ein, year })
+  const nonprofitPersons = getNonprofitEZPersonsJson(filing)
   return {
-    model: getOrgJson(org990, orgPersons, existing990s),
-    model990: org990,
-    persons: orgPersons
+    model: getNonprofitJson(nonprofit990, nonprofitPersons, existing990s),
+    model990: nonprofit990,
+    persons: nonprofitPersons
   }
 }
 
@@ -208,40 +208,40 @@ async function processChunk (options) {
 }
 
 export default {
-  upsertOrgs ({ orgs, i }) {
-    return IrsOrg.batchUpsert(orgs)
+  upsertNonprofits ({ nonprofits, i }) {
+    return IrsNonprofit.batchUpsert(nonprofits)
       .then(() => console.log('upserted', i))
   },
 
-  processOrgChunk ({ chunk, chunkConcurrency }) {
+  processNonprofitChunk ({ chunk, chunkConcurrency }) {
     return processChunk({
       chunk,
       chunkConcurrency,
-      Model990: IrsOrg990,
+      Model990: IrsNonprofit990,
       processFilingFn (filing, { ein, year }) {
         if (filing.IRS990) {
-          return processOrgFiling(filing, { ein, year })
+          return processNonprofitFiling(filing, { ein, year })
         } else {
-          return processOrgEZFiling(filing, { ein, year })
+          return processNonprofitEZFiling(filing, { ein, year })
         }
       },
       processResultsFn (filingResults) {
         const start = Date.now()
-        const orgs = _.filter(_.map(filingResults, 'model'))
-        const org990s = _.filter(_.map(filingResults, 'model990'))
+        const nonprofits = _.filter(_.map(filingResults, 'model'))
+        const nonprofit990s = _.filter(_.map(filingResults, 'model990'))
         const persons = _.filter(_.flatten(_.map(filingResults, 'persons')))
 
         return Promise.all(_.filter([
-          orgs.length
-            ? IrsOrg.batchUpsert(orgs) : undefined,
-          org990s.length
+          nonprofits.length
+            ? IrsNonprofit.batchUpsert(nonprofits) : undefined,
+          nonprofit990s.length
             // since it's entire doc, "index" instead of update (upsert). much faster
-            ? IrsOrg990.batchUpsert(org990s, { ESIndex: true }) : undefined,
+            ? IrsNonprofit990.batchUpsert(nonprofit990s, { ESIndex: true }) : undefined,
           persons.length
             // since it's entire doc, "index" instead of update (upsert). much faster
             ? IrsPerson.batchUpsert(persons, { ESIndex: true }) : undefined
         ]))
-          .then(() => console.log(`Upserted ${orgs.length} orgs ${org990s.length} 990s ${persons.length} persons in ${Date.now() - start}`))
+          .then(() => console.log(`Upserted ${nonprofits.length} nonprofits ${nonprofit990s.length} 990s ${persons.length} persons in ${Date.now() - start}`))
       }
 
     })
@@ -281,10 +281,10 @@ export default {
   },
 
   async parseWebsite ({ ein, counter }) {
-    const irsOrg = await IrsOrg.getByEin(ein)
+    const irsNonprofit = await IrsNonprofit.getByEin(ein)
 
     return request({
-      uri: irsOrg.website,
+      uri: irsNonprofit.website,
       headers: {
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
       }
@@ -294,12 +294,12 @@ export default {
         let text = $.text().toLowerCase()
         text = text.replace(/\s+/g, ' ')
         console.log('upsert', text.length)
-        return IrsOrg.upsertByRow(irsOrg, {
+        return IrsNonprofit.upsertByRow(irsNonprofit, {
           websiteText: text.substr(0, 10000)
         })
       })
       .catch(() => {
-        console.log('website err', irsOrg.website)
+        console.log('website err', irsNonprofit.website)
       })
       .then(() => console.log(counter))
   }

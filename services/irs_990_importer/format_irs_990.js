@@ -1,9 +1,9 @@
 import _ from 'lodash'
 
-import { formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling } from './helpers.js'
+import { formatInt, formatBigInt, formatWebsite, formatFloat, getNonprofitNameByFiling } from './helpers.js'
 
-export function getOrg990Json (filing, { ein, year }) {
-  const entityName = getOrgNameByFiling(filing)
+export function getNonprofit990Json (filing, { ein, year }) {
+  const entityName = getNonprofitNameByFiling(filing)
 
   let exemptStatus
   if (filing.IRS990.parts.part_0?.Orgnztn527Ind) {
@@ -67,43 +67,43 @@ export function getOrg990Json (filing, { ein, year }) {
 }
 
 // 990ez / 990pf
-export function getOrgJson (org990, persons, existing990s) {
-  const org = {
-    // TODO: org type (501..)
-    ein: org990.ein,
-    name: org990.name,
-    city: org990.city,
-    state: org990.state,
-    website: org990.website,
-    mission: org990.mission,
-    exemptStatus: org990.exemptStatus
+export function getNonprofitJson (nonprofit990, persons, existing990s) {
+  const nonprofit = {
+    // TODO: nonprofit type (501..)
+    ein: nonprofit990.ein,
+    name: nonprofit990.name,
+    city: nonprofit990.city,
+    state: nonprofit990.state,
+    website: nonprofit990.website,
+    mission: nonprofit990.mission,
+    exemptStatus: nonprofit990.exemptStatus
   }
 
   const maxExistingYear = _.maxBy(existing990s, 'year')?.year
-  if ((org990.year >= maxExistingYear) || !maxExistingYear) {
-    org.maxYear = org990.year
-    org.assets = org990.assets.eoy
-    org.netAssets = org990.netAssets.eoy
-    org.liabilities = org990.liabilities.eoy
-    org.employeeCount = org990.employeeCount
-    org.volunteerCount = org990.volunteerCount
+  if ((nonprofit990.year >= maxExistingYear) || !maxExistingYear) {
+    nonprofit.maxYear = nonprofit990.year
+    nonprofit.assets = nonprofit990.assets.eoy
+    nonprofit.netAssets = nonprofit990.netAssets.eoy
+    nonprofit.liabilities = nonprofit990.liabilities.eoy
+    nonprofit.employeeCount = nonprofit990.employeeCount
+    nonprofit.volunteerCount = nonprofit990.volunteerCount
 
-    org.lastYearStats = {
-      year: org990.year,
-      revenue: org990.revenue.total,
-      expenses: org990.expenses.total,
+    nonprofit.lastYearStats = {
+      year: nonprofit990.year,
+      revenue: nonprofit990.revenue.total,
+      expenses: nonprofit990.expenses.total,
       topSalary: _.pick(_.maxBy(persons, 'compensation'), [
         'name', 'title', 'compensation'
       ])
     }
   }
 
-  return org
+  return nonprofit
 }
 
-// TODO: mark people from previous years as inactive people for org
-export function getOrgPersonsJson (filing) {
-  const entityName = getOrgNameByFiling(filing)
+// TODO: mark people from previous years as inactive people for nonprofit
+export function getNonprofitPersonsJson (filing) {
+  const entityName = getNonprofitNameByFiling(filing)
 
   return _.map(filing.IRS990.groups.Frm990PrtVIISctnA, function (person) {
     let businessName = person.BsnssNmLn1Txt
@@ -113,7 +113,7 @@ export function getOrgPersonsJson (filing) {
     return {
       name: person.PrsnNm || businessName,
       entityName,
-      entityType: 'org',
+      entityType: 'nonprofit',
       year: filing.ReturnHeader.RtrnHdr_TxPrdEndDt.substr(0, 4),
       isBusiness: Boolean(businessName),
       title: person.TtlTxt,

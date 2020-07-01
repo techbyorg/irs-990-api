@@ -20,9 +20,9 @@ const JOB_QUEUES = {
 const JOB_TYPES = {
   DEFAULT: {
     DAILY_UPDATE_PLACE: 'irs_990_api:default:daily_update_place',
-    IRS_990_PROCESS_ORG_CHUNK: 'irs_990_api:default:irs_990_process_org_chunk',
+    IRS_990_PROCESS_NONPROFIT_CHUNK: 'irs_990_api:default:irs_990_process_nonprofit_chunk',
     IRS_990_PROCESS_FUND_CHUNK: 'irs_990_api:default:irs_990_process_fund_chunk',
-    IRS_990_UPSERT_ORGS: 'irs_990_api:default:irs_990_upsert_orgs',
+    IRS_990_UPSERT_NONPROFITS: 'irs_990_api:default:irs_990_upsert_nonprofits',
     IRS_990_PARSE_WEBSITE: 'irs_990_api:default:irs_990_parse_website'
   }
 }
@@ -34,12 +34,12 @@ const JOB_PRIORITIES =
 const JOB_RUNNERS = {
   DEFAULT: {
     types: {
-      [JOB_TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK]:
-        { fn: Irs990ImporterJobs.processOrgChunk, concurrencyPerCpu: 2 },
+      [JOB_TYPES.DEFAULT.IRS_990_PROCESS_NONPROFIT_CHUNK]:
+        { fn: Irs990ImporterJobs.processNonprofitChunk, concurrencyPerCpu: 2 },
       [JOB_TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK]:
         { fn: Irs990ImporterJobs.processFundChunk, concurrencyPerCpu: 2 },
-      [JOB_TYPES.DEFAULT.IRS_990_UPSERT_ORGS]:
-        { fn: Irs990ImporterJobs.upsertOrgs, concurrencyPerCpu: 2 },
+      [JOB_TYPES.DEFAULT.IRS_990_UPSERT_NONPROFITS]:
+        { fn: Irs990ImporterJobs.upsertNonprofits, concurrencyPerCpu: 2 },
       [JOB_TYPES.DEFAULT.IRS_990_PARSE_WEBSITE]:
         { fn: Irs990ImporterJobs.parseWebsite, concurrencyPerCpu: 1 }
     },

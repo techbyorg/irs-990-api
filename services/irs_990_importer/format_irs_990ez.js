@@ -1,10 +1,10 @@
 /* eslint-disable camelcase */
 import _ from 'lodash'
 
-import { formatInt, formatBigInt, formatWebsite, formatFloat, getOrgNameByFiling } from './helpers.js'
+import { formatInt, formatBigInt, formatWebsite, formatFloat, getNonprofitNameByFiling } from './helpers.js'
 
-export function getOrg990EZJson (filing, { ein, year }) {
-  const entityName = getOrgNameByFiling(filing)
+export function getNonprofit990EZJson (filing, { ein, year }) {
+  const entityName = getNonprofitNameByFiling(filing)
 
   const exemptStatus = (() => {
     if (filing.IRS990EZ.parts.ez_part_0?.Orgnztn527Ind) {
@@ -82,8 +82,8 @@ export function getOrg990EZJson (filing, { ein, year }) {
   }
 }
 
-export function getOrgEZPersonsJson (filing) {
-  const entityName = getOrgNameByFiling(filing)
+export function getNonprofitEZPersonsJson (filing) {
+  const entityName = getNonprofitNameByFiling(filing)
 
   let persons = filing.IRS990EZ.groups.EZOffcrDrctrTrstEmpl
   if (filing.IRS990EZ.groups.EZCmpnstnHghstPdEmpl) {
@@ -98,7 +98,7 @@ export function getOrgEZPersonsJson (filing) {
     return {
       name: person.PrsnNm || businessName,
       entityName,
-      entityType: 'org',
+      entityType: 'nonprofit',
       year: filing.ReturnHeader.RtrnHdr_TxPrdEndDt.substr(0, 4),
       isBusiness: Boolean(businessName),
       title: person.TtlTxt,

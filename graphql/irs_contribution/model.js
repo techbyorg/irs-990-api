@@ -19,7 +19,7 @@ class IrsContributionModel extends Base {
           toCity: 'text',
           toState: 'text',
           amount: 'bigint',
-          type: 'text', // org | person
+          type: 'text', // nonprofit | person
           nteeMajor: { type: 'text', defaultFn () { return '?' } },
           nteeMinor: { type: 'text', defaultFn () { return '?' } },
           relationship: 'text',

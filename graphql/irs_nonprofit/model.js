@@ -1,6 +1,8 @@
 import { Base, cknex } from 'backend-shared'
 
-class IrsOrgModel extends Base {
+// TODO: rename tables from org -> nonprofit
+
+class IrsNonprofitModel extends Base {
   getScyllaTables () {
     return [
       {
@@ -95,4 +97,4 @@ class IrsOrgModel extends Base {
   }
 }
 
-export default new IrsOrgModel()
+export default new IrsNonprofitModel()

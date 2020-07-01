@@ -32,7 +32,7 @@ export function formatWebsite (website) {
   }
   return website
 }
-export function getOrgNameByFiling (filing) {
+export function getNonprofitNameByFiling (filing) {
   let entityName = filing.ReturnHeader.BsnssNm_BsnssNmLn1Txt
   if (filing.ReturnHeader.BsnssNm_BsnssNmLn2Txt) {
     entityName += ` ${filing.ReturnHeader.BsnssNm_BsnssNmLn2Txt}`

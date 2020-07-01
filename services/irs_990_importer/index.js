@@ -4,14 +4,14 @@ import { JobCreate } from 'backend-shared'
 
 import IrsFund from '../../graphql/irs_fund/model.js'
 import IrsFund990 from '../../graphql/irs_fund_990/model.js'
-import IrsOrg990 from '../../graphql/irs_org_990/model.js'
+import IrsNonprofit990 from '../../graphql/irs_nonprofit_990/model.js'
 import * as JobService from '../../services/job.js'
 import config from '../../config.js'
 
-// FIXME: classify community foundatoins (990 instead of 990pf) as fund and org?
+// FIXME: classify community foundatoins (990 instead of 990pf) as fund and nonprofit?
 
 export async function processEin (ein, { type }) {
-  const Model990 = type === 'fund' ? IrsFund990 : IrsOrg990
+  const Model990 = type === 'fund' ? IrsFund990 : IrsNonprofit990
   const chunk = await Model990.getAllByEin(ein)
   return JobCreate.createJob({
     queue: JobService.QUEUES.DEFAULT,
@@ -19,7 +19,7 @@ export async function processEin (ein, { type }) {
     job: { chunk },
     type: type === 'fund'
       ? JobService.TYPES.DEFAULT.IRS_990_PROCESS_FUND_CHUNK
-      : JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK,
+      : JobService.TYPES.DEFAULT.IRS_990_PROCESS_NONPROFIT_CHUNK,
     ttlMs: 120000,
     priority: JobService.PRIORITIES.NORMAL
   })
@@ -102,14 +102,14 @@ export async function processUnprocessed (options) {
   }
 }
 
-export function processUnprocessedOrgs ({ limit, chunkSize, chunkConcurrency, recursive }) {
+export function processUnprocessedNonprofits ({ limit, chunkSize, chunkConcurrency, recursive }) {
   return processUnprocessed({
     limit,
     chunkSize,
     chunkConcurrency,
     recursive,
-    Model990: IrsOrg990,
-    jobType: JobService.TYPES.DEFAULT.IRS_990_PROCESS_ORG_CHUNK
+    Model990: IrsNonprofit990,
+    jobType: JobService.TYPES.DEFAULT.IRS_990_PROCESS_NONPROFIT_CHUNK
   })
 }
 
@@ -124,10 +124,10 @@ export function processUnprocessedFunds ({ limit, chunkSize, chunkConcurrency, r
   })
 }
 /*
-truncate irs_990_api.irs_orgs_by_ein
-truncate irs_990_api.irs_orgs_990_by_ein_and_year
-curl -XDELETE http://localhost:9200/irs_org_990s*
-curl -XDELETE http://localhost:9200/irs_orgs*
+truncate irs_990_api.irs_nonprofits_by_ein
+truncate irs_990_api.irs_nonprofits_990_by_ein_and_year
+curl -XDELETE http://localhost:9200/irs_nonprofit_990s*
+curl -XDELETE http://localhost:9200/irs_nonprofits*
 curl -XDELETE http://localhost:9200/irs_fund_990s*
 curl -XDELETE http://localhost:9200/irs_funds*
 to del from prod, do same at: kubectl exec altelasticsearch-0 --namespace=production -it -- /bin/bash

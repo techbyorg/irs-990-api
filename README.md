@@ -22,7 +22,7 @@ Everything is just a route. This was an easy way for me to deploy to a bunch of 
 http://localhost:3000/loadAllForYear?year=YYYY (eg 2017)
   - if you leave year blank, it'll pull in a small sample of eins from /data/sample_index.json
 
-http://localhost:3000/processUnprocessedOrgs
+http://localhost:3000/processUnprocessedNonprofits
   - this will take a while
   - if I remember right, I spun had at least 4 pods w/ 4 CPU each processing jobs for this
 
@@ -31,30 +31,30 @@ http://localhost:3000/processUnprocessedFunds (990PF)
 
 http://localhost:3000/setNtee
   - this will also take a while
-  - sets the ntee for every org
+  - sets the ntee for every nonprofit
 
 http://localhost:3000/lastYearContributions
-  - this set a field in ES for how much the org/fund contributed to other orgs the prior year
+  - this set a field in ES for how much the nonprofit/fund contributed to other nonprofits the prior year
   - this was used for following route (parseGrantMakingWebsites)
 
 http://localhost:3000/parseGrantMakingWebsites
-  - this went through every grant-giving org that gave a decent amount of grants, and pulled in all keywords from their site, to allow searching by keywords (I was trying to find data-driven grant-giving websites)
+  - this went through every grant-giving nonprofit that gave a decent amount of grants, and pulled in all keywords from their site, to allow searching by keywords (I was trying to find data-driven grant-giving websites)
   - you can tweak the fns for your own purpose
 
 ### Examples
-Types: IrsOrg, IrsFund, IrsOrg990, IrsFund990, IrsPerson
+Types: IrsNonprofit, IrsFund, IrsNonprofit990, IrsFund990, IrsPerson
 
-Get schema for a type (IrsOrg for example) so you know all fields you can specify (or just look at the type.graphql files)
+Get schema for a type (IrsNonprofit for example) so you know all fields you can specify (or just look at the type.graphql files)
 ```
 {
-	"query": "{ __type(name: \"IrsOrg\") { name fields { name type { name kind ofType { name kind } } } } }"
+	"query": "{ __type(name: \"IrsNonprofit\") { name fields { name type { name kind ofType { name kind } } } } }"
 }
 ```
 
-Get an org
+Get an nonprofit
 ```
 POST http://localhost:3000/graphql {
-	"query": "query ($ein: String!) {irsOrg(ein: $ein) {ein, name, assets} }",
+	"query": "query ($ein: String!) {irsNonprofit(ein: $ein) {ein, name, assets} }",
 	"variables": { "ein": "586347523" }
 }
 ```
@@ -67,10 +67,10 @@ POST http://localhost:3000/graphql {
 }
 ```
 
-Get 990s for an org
+Get 990s for an nonprofit
 ```
 POST http://localhost:3000/graphql {
-	"query": "query ($ein: String!) {irsOrg990s(ein: $ein) {ein, year} }",
+	"query": "query ($ein: String!) {irsNonprofit990s(ein: $ein) {ein, year} }",
 	"variables": { "ein": "586347523" }
 }
 ```
@@ -84,7 +84,7 @@ POST http://localhost:3000/graphql {
 }
 ```
 
-Get all people at an org
+Get all people at an nonprofit
 ```
 POST http://localhost:3000/graphql {
 	"query": "query ($ein: String!) {irsPersons(ein: $ein) {ein, name, title, compensation} }",
@@ -96,7 +96,7 @@ If you're not familiar with elasticsearch's query DSL, [here's a good guide](htt
 
 ```
 POST http://localhost:3000/graphql {
-	"query": "irsOrg990s(query:$query) {name, revenue { contributionsAndGrants }}",
+	"query": "irsNonprofit990s(query:$query) {name, revenue { contributionsAndGrants }}",
 	"variables": { "query": {"range": {"revenue.contributionsAndGrants": {"gte": 5000000}}} }
 }
 ```

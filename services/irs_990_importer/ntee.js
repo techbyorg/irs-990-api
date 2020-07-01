@@ -2,7 +2,7 @@ import _ from 'lodash'
 import stringSimilarity from 'string-similarity'
 import { Cache } from 'backend-shared'
 
-import IrsOrg from '../../graphql/irs_org/model.js'
+import IrsNonprofit from '../../graphql/irs_nonprofit/model.js'
 import CacheService from '../../services/cache.js'
 
 export function getEinNteeFromNameCityState (name, city, state) {
@@ -11,7 +11,7 @@ export function getEinNteeFromNameCityState (name, city, state) {
   state = state?.toLowerCase() || ''
   const key = `${CacheService.PREFIXES.EIN_FROM_NAME}:${name}:${city}:${state}`
   return Cache.preferCache(key, async function () {
-    const orgs = await IrsOrg.search({
+    const nonprofits = await IrsNonprofit.search({
       limit: 10,
       query: {
         multi_match: {
@@ -22,28 +22,28 @@ export function getEinNteeFromNameCityState (name, city, state) {
       }
     })
 
-    const closeEnough = _.filter(_.map(orgs.rows, (org) => {
-      if (!org.name) {
+    const closeEnough = _.filter(_.map(nonprofits.rows, (nonprofit) => {
+      if (!nonprofit.name) {
         return 0
       }
-      const score = stringSimilarity.compareTwoStrings(org.name.toLowerCase(), name)
+      const score = stringSimilarity.compareTwoStrings(nonprofit.name.toLowerCase(), name)
       // console.log score
       if (score > 0.7) {
-        return _.defaults({ score }, org)
+        return _.defaults({ score }, nonprofit)
       }
     }))
-    const cityMatches = _.filter(_.map(closeEnough, (org) => {
+    const cityMatches = _.filter(_.map(closeEnough, (nonprofit) => {
       let cityScore
-      if (!org.city) {
+      if (!nonprofit.city) {
         return 0
       }
       if (city) {
-        cityScore = stringSimilarity.compareTwoStrings(org.city.toLowerCase(), city)
+        cityScore = stringSimilarity.compareTwoStrings(nonprofit.city.toLowerCase(), city)
       } else {
         cityScore = 1
       }
       if (cityScore > 0.8) {
-        return _.defaults({ cityScore: city }, org)
+        return _.defaults({ cityScore: city }, nonprofit)
       }
     }))
 

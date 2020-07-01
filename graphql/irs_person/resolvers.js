@@ -26,9 +26,9 @@ export default {
     }
   },
 
-  IrsOrg: {
-    irsPersons (irsOrg, { limit }) {
-      return IrsPerson.getAllByEin(irsOrg.ein, { limit })
+  IrsNonprofit: {
+    irsPersons (irsNonprofit, { limit }) {
+      return IrsPerson.getAllByEin(irsNonprofit.ein, { limit })
         .then(IrsPerson.groupByYear)
         .then(GraphqlFormatter.fromScylla)
     }

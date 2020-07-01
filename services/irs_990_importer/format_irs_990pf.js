@@ -10,14 +10,14 @@ import {
   formatWebsite,
   formatFloat,
   roundTwoDigits,
-  getOrgNameByFiling,
+  getNonprofitNameByFiling,
   sumByLong
 } from './helpers.js'
 
 import { getEinNteeFromNameCityState } from './ntee.js'
 
 export function getFund990Json (filing, { ein, year }) {
-  const entityName = getOrgNameByFiling(filing)
+  const entityName = getNonprofitNameByFiling(filing)
 
   const website = formatWebsite(filing.IRS990PF.parts.pf_part_viia?.SttmntsRgrdngActy_WbstAddrssTxt)
 
@@ -203,7 +203,7 @@ export function getFundJson (fund990, fundPersons, contributions, existing990s) 
 }
 
 export function getFundPersonsJson (filing) {
-  const entityName = getOrgNameByFiling(filing)
+  const entityName = getNonprofitNameByFiling(filing)
 
   return _.map(filing.IRS990PF.groups.PFOffcrDrTrstKyEmpl, function (person) {
     let businessName = person.OffcrDrTrstKyEmpl_BsnssNmLn1
@@ -235,7 +235,7 @@ export async function getContributionsJson (filing) {
     }
 
     const type = businessName
-      ? 'org'
+      ? 'nonprofit'
       : contribution.GrntOrCntrbtnPdDrYr_RcpntPrsnNm
         ? 'person'
         : 'unknown'
