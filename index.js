@@ -45,7 +45,7 @@ app.use(bodyParser.urlencoded({ extended: true })) // Kiip uses
 app.get('/', (req, res) => res.status(200).send('ok'))
 
 const validTables = [
-  'irs_nonprofits', 'irs_nonprofit_990s', 'irs_funds', 'irs_fund_990s',
+  'irs_orgs', 'irs_org_990s', 'irs_funds', 'irs_fund_990s',
   'irs_persons', 'irs_contributions'
 ]
 app.get('/tableCount', function (req, res) {

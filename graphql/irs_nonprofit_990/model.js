@@ -4,7 +4,7 @@ class IrsNonprofit990Model extends Base {
   getScyllaTables () {
     return [
       {
-        name: 'irs_nonprofit_990s_by_ein_and_year',
+        name: 'irs_org_990s_by_ein_and_year',
         keyspace: 'irs_990_api',
         fields: {
           ein: 'text',
@@ -60,7 +60,7 @@ class IrsNonprofit990Model extends Base {
   getElasticSearchIndices () {
     return [
       {
-        name: 'irs_nonprofit_990s',
+        name: 'irs_org_990s',
         mappings: {
           ein: { type: 'keyword' },
           year: { type: 'integer' },
@@ -100,7 +100,7 @@ class IrsNonprofit990Model extends Base {
 
   getAllByEin (ein) {
     return cknex().select('*')
-      .from('irs_nonprofit_990s_by_ein_and_year')
+      .from('irs_org_990s_by_ein_and_year')
       .where('ein', '=', ein)
       // TODO: order with withClusteringOrderBy instead of this
       .orderBy('year', 'desc')

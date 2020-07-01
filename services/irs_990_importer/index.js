@@ -124,10 +124,10 @@ export function processUnprocessedFunds ({ limit, chunkSize, chunkConcurrency, r
   })
 }
 /*
-truncate irs_990_api.irs_nonprofits_by_ein
-truncate irs_990_api.irs_nonprofits_990_by_ein_and_year
-curl -XDELETE http://localhost:9200/irs_nonprofit_990s*
-curl -XDELETE http://localhost:9200/irs_nonprofits*
+truncate irs_990_api.irs_orgs_by_ein
+truncate irs_990_api.irs_orgs_990_by_ein_and_year
+curl -XDELETE http://localhost:9200/irs_org_990s*
+curl -XDELETE http://localhost:9200/irs_orgs*
 curl -XDELETE http://localhost:9200/irs_fund_990s*
 curl -XDELETE http://localhost:9200/irs_funds*
 to del from prod, do same at: kubectl exec altelasticsearch-0 --namespace=production -it -- /bin/bash
