@@ -1,7 +1,7 @@
 import fs from 'fs'
 import _ from 'lodash'
 import Promise from 'bluebird'
-import { 
+import {
   cknex, elasticsearch, ElasticsearchSetup, JobRunner, ScyllaSetup, Cache, PubSub
 } from 'backend-shared'
 
@@ -29,7 +29,7 @@ async function setup () {
   }))
   const elasticSearchIndices = _.flatten(await Promise.map(graphqlFolders, async (folder) => {
     const model = await import(`../graphql/${folder}/model.js`)
-    
+
     return model?.default?.getElasticSearchIndices?.() || []
   }))
 
@@ -38,7 +38,7 @@ async function setup () {
                     (config.SCYLLA.CONTACT_POINTS[0] === 'localhost')
 
   await Promise.all(_.filter([
-    shouldRunSetup && ScyllaSetup.setup(scyllaTables, {isDev})
+    shouldRunSetup && ScyllaSetup.setup(scyllaTables, { isDev })
       .then(() => console.log('scylla setup')),
     shouldRunSetup && ElasticsearchSetup.setup(elasticSearchIndices)
       .then(() => console.log('elasticsearch setup'))
