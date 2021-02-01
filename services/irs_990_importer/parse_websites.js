@@ -20,7 +20,7 @@ export const parseWebsitesByNtee = async (ntee) => {
     }
   })
 
-  console.log('running for', rows.length)
+  console.log('running for:', rows.length)
   // console.log JSON.stringify(_.map rows, 'name')
   const fixed = _.map(rows, function (row) {
     row.website = row.website.replace('https://https', 'https://')
@@ -29,7 +29,7 @@ export const parseWebsitesByNtee = async (ntee) => {
     return row
   })
   const valid = _.filter(fixed, ({ website }) => website.match(/^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/))
-  console.log('valid count', rows.length)
+  console.log('valid count:', rows.length)
   // valid = _.take valid, 10
   return _.map(valid, ({ ein }, i) => JobCreate.createJob({
     queue: JobService.QUEUES.DEFAULT,

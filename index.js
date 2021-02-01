@@ -193,7 +193,6 @@ app.get('/parseWebsitesByNtee', function (req, res) {
 
 const serverPromise = schemaPromise.then((schema) => {
   ({ typeDefs, resolvers, schemaDirectives } = schema)
-  console.log('tdr', typeDefs)
   schema = buildFederatedSchema({ typeDefs, resolvers })
   // https://github.com/apollographql/apollo-feature-requests/issues/145
   SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives)
